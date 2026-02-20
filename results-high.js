@@ -3,8 +3,9 @@
 
   var data;
   try {
-    var raw = sessionStorage.getItem(FORM_STORAGE_KEY);
+    var raw = sessionStorage.getItem(FORM_STORAGE_KEY) || localStorage.getItem(FORM_STORAGE_KEY);
     data = raw ? JSON.parse(raw) : null;
+    if (data) try { localStorage.removeItem(FORM_STORAGE_KEY); } catch (e) {}
   } catch (e) {
     data = null;
   }

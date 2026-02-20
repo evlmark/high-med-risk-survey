@@ -538,6 +538,7 @@
       try {
         sessionStorage.setItem(FORM_STORAGE_KEY, payloadStr);
         sessionStorage.setItem(SUBMITTED_FLAG_KEY, '1');
+        try { localStorage.setItem(FORM_STORAGE_KEY, payloadStr); } catch (e) {}
       } catch (err) {
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
         if (err.name === 'QuotaExceededError') {
@@ -549,7 +550,8 @@
         }
         throw err;
       }
-      window.location.replace('results-high.html');
+      var resultsUrl = new URL('results-high.html', window.location.href).href;
+      window.location.replace(resultsUrl);
     }).catch(function (err) {
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
       var msg = document.createElement('p');
