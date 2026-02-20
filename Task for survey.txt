@@ -8,20 +8,20 @@ Provision of construction services or development of real estate, or intermediat
 Issuance or commercialization of traveler’s checks
 Auctioning or habitual/professional commercialization of works of art
 Armoring services
-Independent professional services
+Independent professional services where you act on a client’s behalf to do any of the following: (a) Buy/sell real estate, (b) Manage client money, assets, or bank/investment accounts, or (c) Set up, run, or restructure companies, trusts or other legal entities (including buying/selling companies)
 Receipt of donations
 Establishment of personal rights of use or enjoyment of real estate
 Issuance or commercialization of credit cards, service cards, prepaid cards, or any other instrument that constitutes a store of monetary value
-Granting of loans or credits, or offering of mutual/guarantee operations
+Granting of loans or credits, or guarantee operations
 Habitual or professional commercialization or intermediation of Precious Metals, Precious Stones, jewelry, or watches
 Commercialization or distribution of vehicles, new or used
 Services for the transport or custody of money or valuables
 Public faith services (notaries or public brokers)
 Provision of foreign trade services as a customs agent or representative
-Exchange of virtual assets
-None of this 
+Exchange of virtual assets or cryptocurrency
+None of the above 
 
-Если пользователь отвечает на какой-то вопрос кроме последнего None of this, то мы должны показать еще один вопрос 1.1. Если отвечает на None of this переходим к вопросу 2. Если он выбрал какой-то вариант и None of this, то тоже переход к вопросу 1.1. Мы должны сохранить все ответы и потом в результатах показать именно их. 
+Если пользователь отвечает на какой-то вопрос кроме последнего None of the above, то мы должны показать еще один вопрос 1.1. Если отвечает на None of this переходим к вопросу 2. Если он выбрал какой-то вариант и None of the above, то тоже переход к вопросу 1.1. Мы должны сохранить все ответы и потом в результатах показать именно их. 
 
 Вопрос 1.1: How long has the company been engaged in this activity?(Можно выбрать только один вариант)
 Список ответов:

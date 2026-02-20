@@ -6,10 +6,10 @@
   const blockQ4_1 = document.getElementById('block-q4_1');
   const form = document.getElementById('survey-form');
 
-  // --- Q1: show Q1.1 only when at least one option is selected and it's not only "None of this"
+  // --- Q1: show Q1.1 only when at least one option is selected and it's not only "None of the above"
   function updateQ1_1Visibility() {
     const checked = Array.from(form.querySelectorAll('input[name="q1"]:checked')).map((el) => el.value);
-    const showQ1_1 = checked.length > 0 && !(checked.length === 1 && checked[0] === 'None of this');
+    const showQ1_1 = checked.length > 0 && !(checked.length === 1 && checked[0] === 'None of the above');
     if (blockQ1_1) blockQ1_1.hidden = !showQ1_1;
   }
 

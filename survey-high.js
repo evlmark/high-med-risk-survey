@@ -9,7 +9,7 @@
   // --- Q1 / Q4 visibility (same as medium)
   function updateQ1_1Visibility() {
     const checked = Array.from(form.querySelectorAll('input[name="q1"]:checked')).map(function (el) { return el.value; });
-    const showQ1_1 = checked.length > 0 && !(checked.length === 1 && checked[0] === 'None of this');
+    const showQ1_1 = checked.length > 0 && !(checked.length === 1 && checked[0] === 'None of the above');
     if (blockQ1_1) blockQ1_1.hidden = !showQ1_1;
   }
   form.querySelectorAll('input[name="q1"]').forEach(function (input) {
