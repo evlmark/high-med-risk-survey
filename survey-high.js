@@ -76,6 +76,7 @@
       '<label>Full name <input type="text" name="q5_1_' + id + '_fullName" required></label>' +
       '<label>Date of birth <input type="text" name="q5_1_' + id + '_dob" placeholder="DD - MM - YYYY" required></label>' +
       '<label>Country of residence <input type="text" name="q5_1_' + id + '_country" required></label>' +
+      '<p class="entity-card-upload-title">Upload Official ID</p>' +
       '<div class="file-upload-wrap"><label>Official ID (document, max 10 MB) <input type="file" name="q5_1_' + id + '_file" accept="*" required></label>' +
       '<div class="file-name" data-file-name></div><div class="file-error" data-file-error></div></div></div>';
     container.appendChild(card);
@@ -386,10 +387,10 @@
     var q5_1Container = document.getElementById('q5_1-entities');
     if (q5_1Container) {
       var dirCount = 0, boardCount = 0;
-      var cards = q5_1Container.children;
+      var cards = q5_1Container.querySelectorAll('.entity-card');
       for (var i = 0; i < cards.length; i++) {
         var c = cards[i];
-        if (!c.classList.contains('entity-card') || !c.dataset.directorType) continue;
+        if (!c.dataset.directorType) continue;
         var hasName = c.querySelector('input[name$="_fullName"]') && c.querySelector('input[name$="_fullName"]').value.trim();
         var fileInput = c.querySelector('input[type="file"]');
         var hasFile = fileInput && fileInput.files && fileInput.files[0];

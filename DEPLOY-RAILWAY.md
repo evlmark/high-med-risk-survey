@@ -4,35 +4,18 @@
 
 ---
 
-## 1. Подготовка репозитория (GitHub)
+## 1. Отправка кода на GitHub (один раз)
 
-1. Создай новый репозиторий на GitHub (например `high-med-risk-survey`).
-2. В папке проекта выполни в Терминале:
+В папке проекта уже настроен Git: репозиторий инициализирован, все файлы добавлены в коммит, remote указывает на **https://github.com/evlmark/high-med-risk-survey.git**.
+
+Осталось **один раз** отправить код с твоего компьютера (чтобы сработала твоя авторизация в GitHub). Открой **Терминал** и выполни:
 
 ```bash
 cd "/Users/markevlampiev/Downloads/Cursor Files/High-med-risk"
-
-# Инициализация Git (если ещё не сделано)
-git init
-
-# Игнорировать лишнее
-echo "node_modules/" >> .gitignore
-echo ".env" >> .gitignore
-echo ".DS_Store" >> .gitignore
-
-# Добавить все файлы и первый коммит
-git add .
-git commit -m "Survey app for Railway"
-
-# Подключить свой репозиторий (замени URL на свой)
-git remote add origin https://github.com/ТВОЙ_ЛОГИН/high-med-risk-survey.git
-
-# Отправить код
-git branch -M main
 git push -u origin main
 ```
 
-Деплоить нужно только файлы приложения (HTML, CSS, JS, `server.js`, `package.json`). Папки `Design` и текстовые таски можно не включать в репозиторий или оставить — на работу опросов это не влияет.
+Если Git спросит логин/пароль — используй свой GitHub-аккаунт. Для пароля лучше использовать [Personal Access Token](https://github.com/settings/tokens) (вместо пароля от аккаунта). После успешного `git push` код появится в репозитории на GitHub.
 
 ---
 
