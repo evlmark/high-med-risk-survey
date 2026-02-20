@@ -86,8 +86,8 @@
 
   rows.push(row('6. Please provide all of the UBO\'s proof of address.', formatQ6(data.q6)));
 
-  rows.push(row('7. I declare under oath that the information in this form is true and accurate...', escapeHtml(data.q7)));
-  rows.push(row('8. I declare that I am not a politically exposed person (PEP)...', escapeHtml(data.q8)));
+  rows.push(row('7. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.', escapeHtml(data.q7)));
+  rows.push(row('8. I declare that I am not a politically exposed person (PEP), nor the company's UBOs, shareholders or other legal representatives, nor do we have ties with public officials or authorities that could interfere with the transparency required for this relationship.', escapeHtml(data.q8)));
 
   if (data.signature) {
     var tr = document.createElement('tr');
