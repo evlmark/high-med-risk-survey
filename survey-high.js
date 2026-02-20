@@ -434,6 +434,12 @@
       return;
     }
 
+    var submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving…';
+    }
+
     var promises = [];
     var q5_1Data = { generalDirectors: [], boardMembers: [] };
     var container5_1 = document.getElementById('q5_1-entities');
@@ -521,6 +527,7 @@
       try {
         sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(payload));
       } catch (err) {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
         if (err.name === 'QuotaExceededError') {
           var msg = document.createElement('p');
           msg.className = 'error-message';
@@ -530,7 +537,13 @@
         }
         throw err;
       }
-      window.location.href = 'results-high.html';
+      window.location.replace('results-high.html');
+    }).catch(function (err) {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
+      var msg = document.createElement('p');
+      msg.className = 'error-message';
+      msg.textContent = 'Something went wrong while saving (e.g. file read failed). Please try again.';
+      form.querySelector('.form-actions').prepend(msg);
     });
   });
 })();
