@@ -1,0 +1,121 @@
+Нам нужно создать страницу на вебе, которая будет нормально выглядеть как на десктопе, так на мобильной версии. Нам нужно собрать ответы, их сохранить и потом показать в другом интерфейсе. Опросник будет динамическим там будут вопросы исходя из ответов на которых у нас будет появляться другие вопросы. Все вопросы показываются сразу списком. 
+Вот сами вопросы и какие логики нужны для них. В папке Design лежат дизайны как выглядит у нас сейчас регистрация. Используй это как референс, чтобы сверстать страницу с вопросами. 
+
+Вопрос 1: Is the company currently engaged in any of the following activities? (Можно выбрать нескольков вариантов)
+Список ответов: 
+Gambling, contests, or raffles
+Provision of construction services or development of real estate, or intermediation in the transfer of ownership or establishment of rights over such property
+Issuance or commercialization of traveler’s checks
+Auctioning or habitual/professional commercialization of works of art
+Armoring services
+Independent professional services
+Receipt of donations
+Establishment of personal rights of use or enjoyment of real estate
+Issuance or commercialization of credit cards, service cards, prepaid cards, or any other instrument that constitutes a store of monetary value
+Granting of loans or credits, or offering of mutual/guarantee operations
+Habitual or professional commercialization or intermediation of Precious Metals, Precious Stones, jewelry, or watches
+Commercialization or distribution of vehicles, new or used
+Services for the transport or custody of money or valuables
+Public faith services (notaries or public brokers)
+Provision of foreign trade services as a customs agent or representative
+Exchange of virtual assets
+None of this 
+
+Если пользователь отвечает на какой-то вопрос кроме последнего None of this, то мы должны показать еще один вопрос 1.1. Если отвечает на None of this переходим к вопросу 2. Если он выбрал какой-то вариант и None of this, то тоже переход к вопросу 1.1. Мы должны сохранить все ответы и потом в результатах показать именно их. 
+
+Вопрос 1.1: How long has the company been engaged in this activity?(Можно выбрать только один вариант)
+Список ответов:
+0 – 5 years
+5 – 10 years
+More than 10 years
+
+Мы должны сохранить только 1 ответ и показать его в результатах. 
+
+Вопрос 2: Does the company operate in or have direct relationships with any of the following jurisdictions? North Korea, Myanmar, Iran, Afghanistan, Balkans, Belarus, Burma, Cuba, Democratic Republic of the Congo, Ethiopia, Hong Kong, Lebanon, Libya, Iraq, Mali, Nicaragua, Somalia, South Sudan, Sudan and Darfur, Ukraine, Russia, Venezuela, Central African Republic and Yemen (Можно выбрать только один вариант)
+Список ответов:
+Yes
+No
+
+Мы должны сохранить только 1 ответ и показать его в результатах. 
+
+Вопрос 3: Who are your 3 main providers by volume? 
+In case of an individual, please provide their full name, RFC and CURP.
+In case of companies, please provide their full legal name and RFC.
+
+Здесь мы должны показать 2 кнопки, которые будут работать, как добавить сущность со своими полями
+Кнопки: 
+Add individual
+Add company 
+
+Если пользователь выбирает Add individual, то мы должны показать следующие поля:
+full name
+RFC
+CURP
+
+Если пользователь выбирает Add Company, то мы должны показать следующие поля:
+full legal name
+RFC
+
+Пользователь может выбрать несколько Add individual и несколько Add Company. Каждый раз когда он нажимает кнопка показываются новые поля для того или другого типа. Смысл что человек мог добавить всех своих поставщиков. Мы должны сохранить все что написал пользователь в этих полях и показать его в результатах. 
+
+Вопрос 4:
+Which segment represents the clients you have? (Можно выбрать только один вариант)
+Ответы:
+My clientele consists of the general consumer and not specific or identifiable individuals or corporations (i.e. the business is a restaurant that serves a multitude of people or a hardware store with multiple individual clients).
+
+My main clients are specific and identifiable individuals or companies (a business that works mainly under contracts or recurring orders with a small number of known customers, such that it can identify its main clients by name/corporate name and RFC, and those clients represent a significant share of its sales. For example, a logistics or transport company that operates routes mainly for specific shippers under recurring service orders).
+
+All of the above, with both identifiable clients and the general public as consumers.
+
+Если пользователь выбирает ответ 2й или 3й мы должны показать дополнительный вопрос 4.1. Если выбирает 1й ответ перейти к вопросу 5. Мы должны сохранить выбор пользователя и показать его в результатах. 
+
+Вопрос 4.1:
+Who are your 3 main clients by volume? (Можно выбрать только один вариант)
+In case of an individual, please provide their full name, RFC and CURP.
+In case of companies, please provide their corporate name and RFC.
+
+Здесь мы должны показать 2 кнопки, которые будут работать, как добавить сущность со своими полями
+Кнопки: 
+Add individual
+Add company 
+
+Если пользователь выбирает Add individual, то мы должны показать следующие поля:
+full name
+RFC
+CURP
+
+Если пользователь выбирает Add Company, то мы должны показать следующие поля:
+full legal name
+RFC
+
+Пользователь может выбрать несколько Add individual и несколько Add Company. Каждый раз когда он нажимает кнопка показываются новые поля для того или другого типа. Смысл что человек мог добавить всех своих клиентов. Мы должны сохранить все что написал пользователь в этих полях и показать его в результатах. 
+
+Вопрос 5:
+Please explain your business model.
+
+Это открытый вопрос здесь нам нужно здесь показать поле для ввода текста. Сохранить все что ввел клиент
+
+Вопрос 6:
+Please provide all of the UBO’s proof of address.
+
+Здесь мы должны показать 1 кнопку, которая будет работать, как добавить сущность со своими полями. Кнопка называется - Add Information about UBO 
+после нажатия этой кнопки мы должны показать поля для сущности UBO 
+- поле - UBO Full Name
+- поле - UBO proof of address - это поле должно выглядеть как возможность загрузить документ. Сюда можно загрузить любой документ до 10 мб. 
+
+Пользователь может выбрать несколько Add Information about UBO. Каждый раз когда он нажимает кнопку показываются новые поля. Смысл что человек мог добавить всех своих UBO. Мы должны сохранить все что написал пользователь в этих полях и показать его в результатах.
+
+
+Вопрос 7:I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.(Можно выбрать только один вариант)
+Ответы:
+Yes
+No 
+
+Нам нужно сохранить эту информацию и показать в результатах.  
+
+Вопрос 8:I declare that I am not a politically exposed person (PEP), nor the company’s UBOs, shareholders or other legal representatives, nor do we have ties with public officials or authorities that could interfere with the transparency required for this relationship.(Можно выбрать только один вариант)
+Ответы:
+Yes
+No 
+
+Нам нужно сохранить эту информацию и показать в результатах.  

@@ -1,0 +1,14 @@
+{
+  "name": "high-med-risk-survey",
+  "version": "1.0.0",
+  "description": "Medium / High Risk Survey — static frontend, session-only storage",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

@@ -1,0 +1,3 @@
+Давай сделаем главную страницу, где будет 2 ссылки 
+- Medium Risk Survey 
+- High Risk Survey 
