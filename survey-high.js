@@ -398,8 +398,10 @@
         if (c.dataset.directorType === 'general_director') dirCount++;
         else if (c.dataset.directorType === 'member_of_board') boardCount++;
       }
-      if (dirCount < 1) errors.push('Question 5.1: add at least 1 general director.');
-      if (boardCount < 2) errors.push('Question 5.1: add at least 2 members of the board.');
+      // Either 1 general director OR 2 members of board
+      if (dirCount < 1 && boardCount < 2) {
+        errors.push('Question 5.1: add at least 1 general director OR at least 2 members of the board.');
+      }
     }
     var q5_2 = collectQ5_2();
     if (q5_2.length < 1) errors.push('Question 5.2: add at least one shareholder.');
