@@ -1,6 +1,8 @@
 (function () {
   const FORM_STORAGE_KEY = 'highRiskSurveyResults';
+  const SUBMITTED_FLAG_KEY = 'highRiskSurveySubmitted';
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+  const SESSION_STORAGE_SAFE_LIMIT = 4 * 1024 * 1024; // ~4 MB (sessionStorage often 5MB)
 
   const blockQ1_1 = document.getElementById('block-q1_1');
   const blockQ4_1 = document.getElementById('block-q4_1');
@@ -524,14 +526,24 @@
         q8: getSelectedValue('q8'),
         signature: signatureDataUrl
       };
+      var payloadStr = JSON.stringify(payload);
+      if (payloadStr.length > SESSION_STORAGE_SAFE_LIMIT) {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
+        var msg = document.createElement('p');
+        msg.className = 'error-message';
+        msg.textContent = 'Data is too large (files are too big). Please use smaller files (e.g. under 1 MB each) and try again.';
+        form.querySelector('.form-actions').prepend(msg);
+        return;
+      }
       try {
-        sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(payload));
+        sessionStorage.setItem(FORM_STORAGE_KEY, payloadStr);
+        sessionStorage.setItem(SUBMITTED_FLAG_KEY, '1');
       } catch (err) {
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
         if (err.name === 'QuotaExceededError') {
           var msg = document.createElement('p');
           msg.className = 'error-message';
-          msg.textContent = 'Data is too large to save (e.g. files). Try smaller files.';
+          msg.textContent = 'Data is too large to save (e.g. files). Try smaller files (under 1 MB each).';
           form.querySelector('.form-actions').prepend(msg);
           return;
         }

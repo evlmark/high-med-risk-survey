@@ -101,8 +101,15 @@
   if (!data) {
     noDataEl.hidden = false;
     tableWrap.hidden = true;
+    var justSubmitted = sessionStorage.getItem('highRiskSurveySubmitted');
+    if (justSubmitted) {
+      try { sessionStorage.removeItem('highRiskSurveySubmitted'); } catch (e) {}
+      var p = noDataEl.querySelector('p');
+      if (p) p.textContent = 'Data could not be saved or loaded (browser storage may be full). Please use smaller files (under 1 MB each), fill the survey again and submit in the same tab.';
+    }
     return;
   }
+  try { sessionStorage.removeItem('highRiskSurveySubmitted'); } catch (e) {}
 
   noDataEl.hidden = true;
   tableWrap.hidden = false;
