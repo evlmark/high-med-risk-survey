@@ -125,7 +125,7 @@
       '<label>CURP (optional) <input type="text" name="q5_2_' + id + '_curp"></label>' +
       '<label>RFC (optional) <input type="text" name="q5_2_' + id + '_rfc"></label>' +
       '<label>Tax number (if no CURP/RFC) (optional) <input type="text" name="q5_2_' + id + '_taxNumber"></label>' +
-      '<label>Number of shares <input type="text" name="q5_2_' + id + '_shares" required></label></div>';
+      '<label>Ownership percentage <input type="text" name="q5_2_' + id + '_shares" required></label></div>';
     container.appendChild(card);
     card.querySelector('.btn-remove-card').addEventListener('click', function () { card.remove(); });
   }
@@ -154,7 +154,7 @@
       '<label><input type="radio" name="q6_' + id + '_amount" value="Less than $50,000.00 MXN (specify)"><span class="option-label">Less than $50,000.00 MXN (specify).</span></label>' +
       '<label><input type="radio" name="q6_' + id + '_amount" value="Between $50,001.00 - $100,000.00 MXN"><span class="option-label">Between $50,001.00 - $100,000.00 MXN.</span></label>' +
       '<label><input type="radio" name="q6_' + id + '_amount" value="Between $100,001.00 - $150,000.00 MXN"><span class="option-label">Between $100,001.00 - $150,000.00 MXN.</span></label>' +
-      '<label><input type="radio" name="q6_' + id + '_amount" value="More than $150,000.00"><span class="option-label">More than $150,000.00</span></label>' +
+      '<label><input type="radio" name="q6_' + id + '_amount" value="More than $150,000.00 (specify)"><span class="option-label">More than $150,000.00 (specify)</span></label>' +
       '</div><div class="q6-cond-amount-specify conditional-field" hidden><label>Specify <input type="text" name="q6_' + id + '_amount_specify" placeholder="Text or amount"></label></div>';
 
     var howLongRadios = '<div class="options options-radio" data-howlong-radios>' +
@@ -195,12 +195,12 @@
     container.appendChild(card);
     card.querySelector('.btn-remove-card').addEventListener('click', function () { card.remove(); });
 
-    // Amount conditional: show specify field ONLY when "More than $150,000.00" is selected
+    // Amount conditional: show specify field ONLY when "More than $150,000.00 (specify)" is selected
     var amountSpecify = card.querySelector('.q6-cond-amount-specify');
     if (amountSpecify) {
       card.querySelectorAll('input[name="q6_' + id + '_amount"]').forEach(function (radio) {
         radio.addEventListener('change', function () {
-          amountSpecify.hidden = radio.value !== 'More than $150,000.00';
+          amountSpecify.hidden = radio.value !== 'More than $150,000.00 (specify)';
         });
       });
     }

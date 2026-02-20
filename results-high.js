@@ -68,7 +68,7 @@
   function formatQ5_2(q5_2) {
     if (!q5_2 || q5_2.length === 0) return '';
     return q5_2.map(function (s) {
-      var line = 'Full name: ' + escapeHtml(s.fullName) + ', Number of shares: ' + escapeHtml(s.numberOfShares);
+      var line = 'Full name: ' + escapeHtml(s.fullName) + ', Ownership percentage: ' + escapeHtml(s.numberOfShares);
       if (s.curp) line += ', CURP: ' + escapeHtml(s.curp);
       if (s.rfc) line += ', RFC: ' + escapeHtml(s.rfc);
       if (s.taxNumber) line += ', Tax number: ' + escapeHtml(s.taxNumber);
