@@ -103,6 +103,46 @@ body {
   color: #666;
 }
 
+.jurisdictions-list-details {
+  margin: 8px 0 12px;
+  font-size: 0.9rem;
+}
+
+.jurisdictions-list-summary {
+  display: inline-block;
+  padding: 6px 14px;
+  font-weight: 500;
+  color: #e85d04;
+  background: transparent;
+  border: 1px solid #e85d04;
+  border-radius: 6px;
+  cursor: pointer;
+  list-style: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.jurisdictions-list-summary::-webkit-details-marker {
+  display: none;
+}
+
+.jurisdictions-list-summary:hover {
+  background: #e85d04;
+  color: #fff;
+}
+
+.jurisdictions-list {
+  margin-top: 10px;
+  padding: 12px 14px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+  color: #555;
+  background: #f9f9f9;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  line-height: 1.6;
+}
+
 .options {
   display: flex;
   flex-direction: column;

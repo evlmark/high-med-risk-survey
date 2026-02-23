@@ -73,7 +73,7 @@
     rows.push(row('1.1. How long has the company been engaged in this activity?', escapeHtml(data.q1_1)));
   }
 
-  rows.push(row('2. Does the company operate in or have direct relationships with any of the following jurisdictions? (North Korea, Myanmar, Iran, etc.)', escapeHtml(data.q2)));
+  rows.push(row('2. Does the company operate in or have direct relationships with any of the following jurisdictions?', escapeHtml(data.q2)));
 
   rows.push(row('3. Who are your 3 main providers by volume?', formatQ3(data.q3)));
 
