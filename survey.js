@@ -345,6 +345,12 @@
       return;
     }
 
+    var submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving…';
+    }
+
     var q6Promises = [];
     document.getElementById('q6-entities').querySelectorAll('.entity-card').forEach(function (card) {
       var nameInput = card.querySelector('input[type="text"]');
@@ -379,8 +385,11 @@
         signature: signatureDataUrl
       };
       try {
-        sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(payload));
+        var payloadStr = JSON.stringify(payload);
+        sessionStorage.setItem(FORM_STORAGE_KEY, payloadStr);
+        try { localStorage.setItem(FORM_STORAGE_KEY, payloadStr); } catch (e) {}
       } catch (err) {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
         if (err.name === 'QuotaExceededError') {
           var msg = document.createElement('p');
           msg.className = 'error-message';
@@ -390,7 +399,14 @@
         }
         throw err;
       }
-      window.location.href = 'results-medium.html';
+      var resultsUrl = new URL('results-medium.html', window.location.href).href;
+      window.location.replace(resultsUrl);
+    }).catch(function (err) {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
+      var msg = document.createElement('p');
+      msg.className = 'error-message';
+      msg.textContent = 'Something went wrong while saving (e.g. file read failed). Please try again.';
+      form.querySelector('.form-actions').prepend(msg);
     });
   });
 })();
