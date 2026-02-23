@@ -122,8 +122,8 @@
       '<div class="entity-card-header"><h4>Shareholder</h4><button type="button" class="btn-remove-card" title="Remove">Remove</button></div>' +
       '<div class="fields">' +
       '<label>Full name <input type="text" name="q5_2_' + id + '_fullName" required></label>' +
-      '<label>CURP (optional) <input type="text" name="q5_2_' + id + '_curp"></label>' +
-      '<label>RFC (optional) <input type="text" name="q5_2_' + id + '_rfc"></label>' +
+      '<label>CURP (if available) <input type="text" name="q5_2_' + id + '_curp"></label>' +
+      '<label>RFC (if available) <input type="text" name="q5_2_' + id + '_rfc"></label>' +
       '<label>Tax number (if no CURP/RFC) (optional) <input type="text" name="q5_2_' + id + '_taxNumber"></label>' +
       '<label>Ownership percentage <input type="text" name="q5_2_' + id + '_shares" required></label></div>';
     container.appendChild(card);
@@ -188,6 +188,7 @@
       '<p class="ubo-subheading">Approximate amount contributed by the UBO to start the business</p>' + amountRadios +
       '<p class="ubo-subheading">How long has the UBO contributed to the company?</p>' + howLongRadios +
       '<p class="ubo-subheading">What is the source of the UBO’s wealth to provide the company with growth funds or investment?</p>' + sourceCheckboxes +
+      '<p class="ubo-subheading">Proof of Source of Wealth</p><div class="file-upload-wrap" data-source-wrap><label>Document, max 10 MB <input type="file" name="q6_' + id + '_source_file" accept="*"></label><div class="file-name" data-source-file-name></div><div class="file-error" data-source-file-error></div></div>' +
       '<p class="ubo-subheading">Add UBO Proof of address</p><div class="file-upload-wrap"><label>Document, max 10 MB <input type="file" name="q6_' + id + '_file" accept="*" required></label><div class="file-name" data-file-name></div><div class="file-error" data-file-error></div></div>' +
       '<p class="ubo-subheading">I declare that the information provided is true, accurate, and complete to the best of my knowledge, and that the funds/resources described are of lawful origin.</p>' +
       '<div class="options options-radio"><label><input type="radio" name="q6_' + id + '_declaration" value="Yes" required><span class="option-label">Yes</span></label><label><input type="radio" name="q6_' + id + '_declaration" value="No"><span class="option-label">No</span></label></div>' +
@@ -195,13 +196,16 @@
     container.appendChild(card);
     card.querySelector('.btn-remove-card').addEventListener('click', function () { card.remove(); });
 
-    // Amount conditional: show specify field ONLY when "More than $150,000.00 (specify)" is selected
+    // Amount conditional: show specify field when "Less than $50,000 MXN (specify)" OR "More than $150,000 (specify)" is selected
     var amountSpecify = card.querySelector('.q6-cond-amount-specify');
     if (amountSpecify) {
+      function updateAmountSpecifyVisibility() {
+        var selected = card.querySelector('input[name="q6_' + id + '_amount"]:checked');
+        var show = selected && (selected.value === 'Less than $50,000.00 MXN (specify)' || selected.value === 'More than $150,000.00 (specify)');
+        amountSpecify.hidden = !show;
+      }
       card.querySelectorAll('input[name="q6_' + id + '_amount"]').forEach(function (radio) {
-        radio.addEventListener('change', function () {
-          amountSpecify.hidden = radio.value !== 'More than $150,000.00 (specify)';
-        });
+        radio.addEventListener('change', updateAmountSpecifyVisibility);
       });
     }
     // How long conditional: More than 5 years (specify)
@@ -220,21 +224,40 @@
       });
     });
 
-    var fileInput = card.querySelector('input[type="file"]');
+    var fileInput = card.querySelector('input[name="q6_' + id + '_file"]');
     var nameEl = card.querySelector('[data-file-name]');
     var errEl = card.querySelector('[data-file-error]');
-    var wrapEl = card.querySelector('.file-upload-wrap');
-    fileInput.addEventListener('change', function () {
-      errEl.textContent = '';
-      nameEl.textContent = '';
-      wrapEl.classList.remove('has-file');
-      if (fileInput.files && fileInput.files[0]) {
-        var f = fileInput.files[0];
-        if (f.size > MAX_FILE_SIZE) { errEl.textContent = 'File must be 10 MB or smaller.'; fileInput.value = ''; return; }
-        nameEl.textContent = f.name;
-        wrapEl.classList.add('has-file');
-      }
-    });
+    var wrapEl = card.querySelector('.file-upload-wrap:not([data-source-wrap])');
+    if (fileInput && wrapEl) {
+      fileInput.addEventListener('change', function () {
+        errEl.textContent = '';
+        nameEl.textContent = '';
+        wrapEl.classList.remove('has-file');
+        if (fileInput.files && fileInput.files[0]) {
+          var f = fileInput.files[0];
+          if (f.size > MAX_FILE_SIZE) { errEl.textContent = 'File must be 10 MB or smaller.'; fileInput.value = ''; return; }
+          nameEl.textContent = f.name;
+          wrapEl.classList.add('has-file');
+        }
+      });
+    }
+    var sourceFileInput = card.querySelector('input[name="q6_' + id + '_source_file"]');
+    var sourceNameEl = card.querySelector('[data-source-file-name]');
+    var sourceErrEl = card.querySelector('[data-source-file-error]');
+    var sourceWrapEl = card.querySelector('[data-source-wrap]');
+    if (sourceFileInput && sourceWrapEl) {
+      sourceFileInput.addEventListener('change', function () {
+        if (sourceErrEl) sourceErrEl.textContent = '';
+        if (sourceNameEl) sourceNameEl.textContent = '';
+        sourceWrapEl.classList.remove('has-file');
+        if (sourceFileInput.files && sourceFileInput.files[0]) {
+          var f = sourceFileInput.files[0];
+          if (f.size > MAX_FILE_SIZE) { if (sourceErrEl) sourceErrEl.textContent = 'File must be 10 MB or smaller.'; sourceFileInput.value = ''; return; }
+          if (sourceNameEl) sourceNameEl.textContent = f.name;
+          sourceWrapEl.classList.add('has-file');
+        }
+      });
+    }
   }
   document.getElementById('q6-add-ubo').addEventListener('click', addUBOHighBlock);
 
@@ -472,6 +495,7 @@
         if (!id) return;
         var nameInput = card.querySelector('input[name="q6_' + id + '_name"]');
         var fileInput = card.querySelector('input[name="q6_' + id + '_file"]');
+        var sourceFileInput = card.querySelector('input[name="q6_' + id + '_source_file"]');
         if (!nameInput || !fileInput || !fileInput.files || !fileInput.files[0]) return;
         var nameVal = nameInput.value.trim();
         var ownership = (card.querySelector('input[name="q6_' + id + '_ownership"]') || {}).value || '';
@@ -486,7 +510,11 @@
         var sourceArr = getSelectedValues('q6_' + id + '_source');
         var sourceOther = (card.querySelector('input[name="q6_' + id + '_source_other_specify"]') || {}).value || '';
         var declaration = getSelectedValue('q6_' + id + '_declaration') || '';
-        promises.push(readFileAsBase64(fileInput.files[0]).then(function (obj) {
+        var mainFilePromise = readFileAsBase64(fileInput.files[0]);
+        var sourceFilePromise = (sourceFileInput && sourceFileInput.files && sourceFileInput.files[0]) ? readFileAsBase64(sourceFileInput.files[0]) : Promise.resolve(null);
+        promises.push(Promise.all([mainFilePromise, sourceFilePromise]).then(function (arr) {
+          var obj = arr[0];
+          var sourceObj = arr[1];
           q6List.push({
             uboFullName: nameVal,
             ownershipPercentage: ownership,
@@ -503,7 +531,10 @@
             declaration: declaration,
             fileName: obj.fileName,
             fileBase64: obj.base64,
-            mimeType: obj.mimeType
+            mimeType: obj.mimeType,
+            sourceFileName: sourceObj ? sourceObj.fileName : null,
+            sourceFileBase64: sourceObj ? sourceObj.base64 : null,
+            sourceMimeType: sourceObj ? sourceObj.mimeType : null
           });
         }));
       });

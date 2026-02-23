@@ -80,6 +80,7 @@
     if (!q6 || q6.length === 0) return '';
     return q6.map(function (u) {
       var fileIdx = u.fileBase64 ? allFiles.push({ base64: u.fileBase64, fileName: u.fileName || 'proof-of-address', mimeType: u.mimeType || 'application/octet-stream' }) - 1 : -1;
+      var sourceFileIdx = u.sourceFileBase64 ? allFiles.push({ base64: u.sourceFileBase64, fileName: u.sourceFileName || 'proof-of-source-of-wealth', mimeType: u.sourceMimeType || 'application/octet-stream' }) - 1 : -1;
       var html = '<div class="list-item ubo-result-block">';
       html += '<strong>' + escapeHtml(u.uboFullName) + '</strong>';
       html += '<br>Ownership: ' + escapeHtml(u.ownershipPercentage) + ' | Position: ' + escapeHtml(u.positionOrTitle);
@@ -92,6 +93,7 @@
       if (u.howLongSpecify) html += ' — ' + escapeHtml(u.howLongSpecify);
       if (u.sourceOfWealth && u.sourceOfWealth.length) html += '<br>Source of wealth: ' + escapeHtml(u.sourceOfWealth.join('; '));
       if (u.sourceOtherSpecify) html += ' — ' + escapeHtml(u.sourceOtherSpecify);
+      if (sourceFileIdx >= 0) html += '<br>Proof of Source of Wealth: ' + downloadLink(u.sourceFileName, sourceFileIdx);
       html += '<br>Declaration: ' + escapeHtml(u.declaration);
       html += '<br>' + downloadLink(u.fileName, fileIdx);
       html += '</div>';
