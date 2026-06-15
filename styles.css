@@ -72,8 +72,8 @@ body {
 
 .main-link:hover {
   background: #eee;
-  border-color: #e85d04;
-  color: #e85d04;
+  border-color: #3A4E99;
+  color: #3A4E99;
 }
 
 .survey-form {
@@ -112,9 +112,9 @@ body {
   display: inline-block;
   padding: 6px 14px;
   font-weight: 500;
-  color: #e85d04;
+  color: #3A4E99;
   background: transparent;
-  border: 1px solid #e85d04;
+  border: 1px solid #3A4E99;
   border-radius: 6px;
   cursor: pointer;
   list-style: none;
@@ -126,7 +126,7 @@ body {
 }
 
 .jurisdictions-list-summary:hover {
-  background: #e85d04;
+  background: #3A4E99;
   color: #fff;
 }
 
@@ -166,7 +166,7 @@ body {
   height: 20px;
   margin-top: 3px;
   padding: 0;
-  accent-color: #e85d04;
+  accent-color: #3A4E99;
 }
 
 /* Text part of option: flex so it doesn't push the input */
@@ -196,8 +196,8 @@ textarea {
 
 textarea:focus {
   outline: none;
-  border-color: #e85d04;
-  box-shadow: 0 0 0 3px rgba(232, 93, 4, 0.15);
+  border-color: #3A4E99;
+  box-shadow: 0 0 0 3px rgba(58, 78, 153, 0.15);
 }
 
 .add-entity-actions {
@@ -219,12 +219,12 @@ textarea:focus {
 }
 
 .btn-primary {
-  background: #e85d04;
+  background: #3A4E99;
   color: #fff;
 }
 
 .btn-primary:hover {
-  background: #d35400;
+  background: #2E3E7A;
 }
 
 .btn-secondary {
@@ -304,7 +304,7 @@ textarea:focus {
 
 .entity-card input:focus {
   outline: none;
-  border-color: #e85d04;
+  border-color: #3A4E99;
 }
 
 .entity-card-upload-title {
@@ -402,7 +402,7 @@ textarea:focus {
   margin-right: 12px;
   margin-bottom: 6px;
   padding: 6px 12px;
-  background: #e85d04;
+  background: #3A4E99;
   color: #fff;
   text-decoration: none;
   border-radius: 6px;
@@ -411,7 +411,7 @@ textarea:focus {
 }
 
 .download-link:hover {
-  background: #d35400;
+  background: #2E3E7A;
   color: #fff;
 }
 
@@ -422,7 +422,7 @@ textarea:focus {
 }
 
 .no-data a {
-  color: #e85d04;
+  color: #3A4E99;
   font-weight: 500;
 }
 
@@ -538,10 +538,188 @@ textarea:focus {
   margin: 0;
   padding: 0;
   vertical-align: middle;
-  accent-color: #e85d04;
+  accent-color: #3A4E99;
 }
 
 .entity-card-ubo-high .option-label {
   flex: 1;
   min-width: 0;
+}
+
+/* ---- Logo ---- */
+.logo {
+  display: block;
+  height: 34px;
+  width: auto;
+  margin-bottom: 20px;
+}
+
+/* ---- Header row + language toggle ---- */
+.header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lang-toggle button {
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #666;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.lang-toggle button + button {
+  border-left: 1px solid #e5e5e5;
+}
+
+.lang-toggle button.active {
+  background: #3A4E99;
+  color: #fff;
+}
+
+/* ---- Top-level text/email inputs (Q1 legal rep, Q2 email) ---- */
+.q-input {
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.q-input:focus {
+  outline: none;
+  border-color: #3A4E99;
+  box-shadow: 0 0 0 3px rgba(58, 78, 153, 0.15);
+}
+
+/* ---- Success screen ---- */
+.success-screen {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.success-check {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.success-message {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+/* ---- Admin ---- */
+.admin-page .page,
+.admin-page {
+  max-width: 1000px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 360px;
+}
+
+.login-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.login-label input {
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.login-label input:focus {
+  outline: none;
+  border-color: #3A4E99;
+}
+
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-filters {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-btn {
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.filter-btn.active {
+  background: #3A4E99;
+  color: #fff;
+  border-color: #3A4E99;
+}
+
+.admin-table .list-row {
+  cursor: pointer;
+}
+
+.admin-table .list-row:hover td {
+  background: #eef0fa;
+}
+
+.detail-meta {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #f9f9f9;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+}
+
+.muted {
+  color: #999;
+}
+
+.answer-pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: inherit;
+}
+
+.admin-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: #666;
 }

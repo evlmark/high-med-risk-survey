@@ -1,10 +1,14 @@
 (function () {
-  const FORM_STORAGE_KEY = 'mediumRiskSurveyResults';
+  const SURVEY_TYPE = 'medium';
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const blockQ1_1 = document.getElementById('block-q1_1');
   const blockQ4_1 = document.getElementById('block-q4_1');
   const form = document.getElementById('survey-form');
+
+  function t(key) { return (window.I18N && window.I18N.t) ? window.I18N.t(key) : key; }
+  function retranslate(el) { if (window.I18N && window.I18N.applyTranslations) window.I18N.applyTranslations(el); }
 
   // --- Q1: show Q1.1 only when at least one option is selected and it's not only "None of the above"
   function updateQ1_1Visibility() {
@@ -12,7 +16,6 @@
     const showQ1_1 = checked.length > 0 && !(checked.length === 1 && checked[0] === 'None of the above');
     if (blockQ1_1) blockQ1_1.hidden = !showQ1_1;
   }
-
   form.querySelectorAll('input[name="q1"]').forEach(function (input) {
     input.addEventListener('change', updateQ1_1Visibility);
   });
@@ -25,61 +28,53 @@
     const idx = selected ? options.indexOf(selected) : -1;
     if (blockQ4_1) blockQ4_1.hidden = idx !== 1 && idx !== 2;
   }
-
   form.querySelectorAll('input[name="q4"]').forEach(function (input) {
     input.addEventListener('change', updateQ4_1Visibility);
   });
   updateQ4_1Visibility();
 
-  // --- Q3 / Q4.1: Add individual / Add company (with remove)
+  // --- Q3 / Q4.1: Add individual / Add company (with remove). Labels are i18n keys; input
+  // name/value attributes stay canonical so stored data is language-independent.
   function createEntityCard(type, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
     const id = Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     const isIndividual = type === 'individual';
-    const title = isIndividual ? 'Individual' : 'Company';
-    const html = document.createElement('div');
-    html.className = 'entity-card';
-    html.dataset.entityId = id;
+    const titleKey = isIndividual ? 'entity.individual' : 'entity.company';
+    const card = document.createElement('div');
+    card.className = 'entity-card';
+    card.dataset.entityId = id;
     if (isIndividual) {
-      html.innerHTML =
+      card.innerHTML =
         '<div class="entity-card-header">' +
-        '<h4>' + title + '</h4>' +
-        '<button type="button" class="btn-remove-card" title="Remove">Remove</button>' +
+        '<h4 data-i18n="' + titleKey + '"></h4>' +
+        '<button type="button" class="btn-remove-card" data-i18n="btn.remove"></button>' +
         '</div>' +
         '<div class="fields">' +
-        '<label>Full name <input type="text" name="' + containerId + '_' + id + '_fullName" required></label>' +
-        '<label>RFC <input type="text" name="' + containerId + '_' + id + '_rfc" required></label>' +
-        '<label>CURP <input type="text" name="' + containerId + '_' + id + '_curp" required></label>' +
+        '<label><span data-i18n="field.fullName"></span> <input type="text" name="' + containerId + '_' + id + '_fullName" required></label>' +
+        '<label><span data-i18n="field.rfc"></span> <input type="text" name="' + containerId + '_' + id + '_rfc" required></label>' +
+        '<label><span data-i18n="field.curp"></span> <input type="text" name="' + containerId + '_' + id + '_curp" required></label>' +
         '</div>';
     } else {
-      html.innerHTML =
+      card.innerHTML =
         '<div class="entity-card-header">' +
-        '<h4>' + title + '</h4>' +
-        '<button type="button" class="btn-remove-card" title="Remove">Remove</button>' +
+        '<h4 data-i18n="' + titleKey + '"></h4>' +
+        '<button type="button" class="btn-remove-card" data-i18n="btn.remove"></button>' +
         '</div>' +
         '<div class="fields">' +
-        '<label>Full legal name <input type="text" name="' + containerId + '_' + id + '_fullLegalName" required></label>' +
-        '<label>RFC <input type="text" name="' + containerId + '_' + id + '_rfc" required></label>' +
+        '<label><span data-i18n="field.fullLegalName"></span> <input type="text" name="' + containerId + '_' + id + '_fullLegalName" required></label>' +
+        '<label><span data-i18n="field.rfc"></span> <input type="text" name="' + containerId + '_' + id + '_rfc" required></label>' +
         '</div>';
     }
-    container.appendChild(html);
-    html.querySelector('.btn-remove-card').addEventListener('click', function () { html.remove(); });
+    container.appendChild(card);
+    retranslate(card);
+    card.querySelector('.btn-remove-card').addEventListener('click', function () { card.remove(); });
   }
 
-  document.getElementById('q3-add-individual').addEventListener('click', function () {
-    createEntityCard('individual', 'q3-entities');
-  });
-  document.getElementById('q3-add-company').addEventListener('click', function () {
-    createEntityCard('company', 'q3-entities');
-  });
-
-  document.getElementById('q4_1-add-individual').addEventListener('click', function () {
-    createEntityCard('individual', 'q4_1-entities');
-  });
-  document.getElementById('q4_1-add-company').addEventListener('click', function () {
-    createEntityCard('company', 'q4_1-entities');
-  });
+  document.getElementById('q3-add-individual').addEventListener('click', function () { createEntityCard('individual', 'q3-entities'); });
+  document.getElementById('q3-add-company').addEventListener('click', function () { createEntityCard('company', 'q3-entities'); });
+  document.getElementById('q4_1-add-individual').addEventListener('click', function () { createEntityCard('individual', 'q4_1-entities'); });
+  document.getElementById('q4_1-add-company').addEventListener('click', function () { createEntityCard('company', 'q4_1-entities'); });
 
   // --- Q6: Add UBO (name + file upload, with remove)
   function addUBOBlock() {
@@ -91,18 +86,19 @@
     wrap.dataset.uboId = id;
     wrap.innerHTML =
       '<div class="entity-card-header">' +
-      '<h4>UBO</h4>' +
-      '<button type="button" class="btn-remove-card" title="Remove">Remove</button>' +
+      '<h4 data-i18n="entity.ubo"></h4>' +
+      '<button type="button" class="btn-remove-card" data-i18n="btn.remove"></button>' +
       '</div>' +
       '<div class="fields">' +
-      '<label>UBO Full Name <input type="text" name="q6_' + id + '_name" required></label>' +
+      '<label><span data-i18n="field.uboName"></span> <input type="text" name="q6_' + id + '_name" required></label>' +
       '<div class="file-upload-wrap" data-wrap="' + id + '">' +
-      '<label>UBO proof of address (document, max 10 MB) <input type="file" name="q6_' + id + '_file" accept="*" data-ubo-file required></label>' +
+      '<label><span data-i18n="field.uboProof"></span> <input type="file" name="q6_' + id + '_file" accept="*" data-ubo-file required></label>' +
       '<div class="file-name" data-file-name></div>' +
       '<div class="file-error" data-file-error></div>' +
       '</div>' +
       '</div>';
     container.appendChild(wrap);
+    retranslate(wrap);
     wrap.querySelector('.btn-remove-card').addEventListener('click', function () { wrap.remove(); });
 
     const fileInput = wrap.querySelector('input[type="file"]');
@@ -117,7 +113,7 @@
       if (fileInput.files && fileInput.files[0]) {
         const f = fileInput.files[0];
         if (f.size > MAX_FILE_SIZE) {
-          errEl.textContent = 'File must be 10 MB or smaller.';
+          errEl.textContent = t('file.tooBig');
           fileInput.value = '';
           return;
         }
@@ -155,7 +151,6 @@
       hasStroke = false;
       if (placeholder) placeholder.style.visibility = '';
     }
-
     function getCoord(e) {
       const rect = canvas.getBoundingClientRect();
       if (e.touches && e.touches[0]) {
@@ -163,7 +158,6 @@
       }
       return { x: e.clientX - rect.left, y: e.clientY - rect.top };
     }
-
     function start(e) {
       e.preventDefault();
       drawing = true;
@@ -194,21 +188,18 @@
     canvas.addEventListener('touchend', end, { passive: false });
 
     removeBtn.addEventListener('click', clearSignature);
-
     window.addEventListener('resize', setCanvasSize);
     setCanvasSize();
 
-    window.getSignatureBase64 = function () {
-      return hasStroke ? canvas.toDataURL('image/png') : null;
-    };
+    window.getSignatureBase64 = function () { return hasStroke ? canvas.toDataURL('image/png') : null; };
     window.hasSignature = function () { return hasStroke; };
   })();
 
-  // --- Collect Q3 entities
-  function collectQ3() {
+  // --- Collect Q3 / Q4.1 entities
+  function collectEntities(containerId) {
     const individuals = [];
     const companies = [];
-    const container = document.getElementById('q3-entities');
+    const container = document.getElementById(containerId);
     if (!container) return { individuals, companies };
     container.querySelectorAll('.entity-card').forEach(function (card) {
       const fullName = card.querySelector('input[name$="_fullName"]');
@@ -216,66 +207,15 @@
       const rfc = card.querySelector('input[name$="_rfc"]');
       const curp = card.querySelector('input[name$="_curp"]');
       if (fullName && rfc && curp) {
-        individuals.push({
-          fullName: fullName.value.trim(),
-          rfc: rfc.value.trim(),
-          curp: curp.value.trim()
-        });
+        individuals.push({ fullName: fullName.value.trim(), rfc: rfc.value.trim(), curp: curp.value.trim() });
       } else if (fullLegalName && rfc) {
-        companies.push({
-          fullLegalName: fullLegalName.value.trim(),
-          rfc: rfc.value.trim()
-        });
+        companies.push({ fullLegalName: fullLegalName.value.trim(), rfc: rfc.value.trim() });
       }
     });
     return { individuals, companies };
   }
-
-  function collectQ4_1() {
-    const individuals = [];
-    const companies = [];
-    const container = document.getElementById('q4_1-entities');
-    if (!container) return { individuals, companies };
-    container.querySelectorAll('.entity-card').forEach(function (card) {
-      const fullName = card.querySelector('input[name$="_fullName"]');
-      const fullLegalName = card.querySelector('input[name$="_fullLegalName"]');
-      const rfc = card.querySelector('input[name$="_rfc"]');
-      const curp = card.querySelector('input[name$="_curp"]');
-      if (fullName && rfc && curp) {
-        individuals.push({
-          fullName: fullName.value.trim(),
-          rfc: rfc.value.trim(),
-          curp: curp.value.trim()
-        });
-      } else if (fullLegalName && rfc) {
-        companies.push({
-          fullLegalName: fullLegalName.value.trim(),
-          rfc: rfc.value.trim()
-        });
-      }
-    });
-    return { individuals, companies };
-  }
-
-  function collectQ6() {
-    const list = [];
-    const container = document.getElementById('q6-entities');
-    if (!container) return list;
-    container.querySelectorAll('.entity-card').forEach(function (card) {
-      const nameInput = card.querySelector('input[type="text"]');
-      const fileInput = card.querySelector('input[type="file"]');
-      if (!nameInput || !fileInput || !fileInput.files || !fileInput.files[0]) return;
-      const file = fileInput.files[0];
-      if (file.size > MAX_FILE_SIZE) return;
-      const reader = new FileReader();
-      reader.onload = function () { /* will collect after async */ };
-      list.push({
-        uboFullName: nameInput.value.trim(),
-        fileInput: fileInput
-      });
-    });
-    return list;
-  }
+  function collectQ3() { return collectEntities('q3-entities'); }
+  function collectQ4_1() { return collectEntities('q4_1-entities'); }
 
   function readFileAsBase64(file) {
     return new Promise(function (resolve, reject) {
@@ -293,7 +233,6 @@
   function getSelectedValues(name) {
     return Array.from(form.querySelectorAll('input[name="' + name + '"]:checked')).map(function (el) { return el.value; });
   }
-
   function getSelectedValue(name) {
     const el = form.querySelector('input[name="' + name + '"]:checked');
     return el ? el.value : '';
@@ -302,54 +241,64 @@
   function validate() {
     const errors = [];
 
-    if (getSelectedValues('q1').length === 0) errors.push('Question 1: select at least one option.');
-    if (blockQ1_1 && !blockQ1_1.hidden && !getSelectedValue('q1_1')) errors.push('Question 1.1: select one option.');
-    if (!getSelectedValue('q2')) errors.push('Question 2: select Yes or No.');
+    var legalRep = document.getElementById('legalRepName');
+    if (!legalRep || !legalRep.value.trim()) errors.push(t('err.legalRep'));
+    var company = document.getElementById('companyName');
+    if (!company || !company.value.trim()) errors.push(t('err.companyName'));
+    var emailEl = document.getElementById('email');
+    if (!emailEl || !EMAIL_RE.test(emailEl.value.trim())) errors.push(t('err.email'));
+
+    if (getSelectedValues('q1').length === 0) errors.push(t('err.q1'));
+    if (blockQ1_1 && !blockQ1_1.hidden && !getSelectedValue('q1_1')) errors.push(t('err.q1_1'));
+    if (!getSelectedValue('q2')) errors.push(t('err.q2'));
     var q3 = collectQ3();
-    if (q3.individuals.length === 0 && q3.companies.length === 0) errors.push('Question 3: add at least one provider (individual or company).');
-    if (!getSelectedValue('q4')) errors.push('Question 4: select one option.');
+    if (q3.individuals.length === 0 && q3.companies.length === 0) errors.push(t('err.q3'));
+    if (!getSelectedValue('q4')) errors.push(t('err.q4'));
     if (blockQ4_1 && !blockQ4_1.hidden) {
       var q4_1 = collectQ4_1();
-      if (q4_1.individuals.length === 0 && q4_1.companies.length === 0) errors.push('Question 4.1: add at least one client (individual or company).');
+      if (q4_1.individuals.length === 0 && q4_1.companies.length === 0) errors.push(t('err.q4_1'));
     }
     var q5El = document.getElementById('q5');
-    if (!q5El || !q5El.value.trim()) errors.push('Question 5: please explain your business model.');
+    if (!q5El || !q5El.value.trim()) errors.push(t('err.q5'));
     var q6Cards = document.getElementById('q6-entities');
-    if (!q6Cards || q6Cards.querySelectorAll('.entity-card').length === 0) errors.push('Question 6: add at least one UBO with proof of address.');
+    if (!q6Cards || q6Cards.querySelectorAll('.entity-card').length === 0) errors.push(t('err.q6'));
     else {
       q6Cards.querySelectorAll('.entity-card').forEach(function (card) {
         var nameInput = card.querySelector('input[type="text"]');
         var fileInput = card.querySelector('input[type="file"]');
-        if (!nameInput || !nameInput.value.trim()) errors.push('Question 6: UBO Full Name is required for each UBO.');
-        if (!fileInput || !fileInput.files || !fileInput.files[0]) errors.push('Question 6: proof of address file is required for each UBO.');
-        else if (fileInput.files[0].size > MAX_FILE_SIZE) errors.push('Question 6: one of the files exceeds 10 MB.');
+        if (!nameInput || !nameInput.value.trim()) errors.push(t('err.q6.uboName'));
+        if (!fileInput || !fileInput.files || !fileInput.files[0]) errors.push(t('err.q6.file'));
+        else if (fileInput.files[0].size > MAX_FILE_SIZE) errors.push(t('err.q6.fileBig'));
       });
     }
-    if (!getSelectedValue('q7')) errors.push('Question 7: select Yes or No.');
-    if (!getSelectedValue('q8')) errors.push('Question 8: select Yes or No.');
-    if (typeof window.hasSignature !== 'function' || !window.hasSignature()) errors.push('Please add your signature.');
+    if (!getSelectedValue('q7')) errors.push(t('err.q7'));
+    if (!getSelectedValue('q8')) errors.push(t('err.q8'));
+    if (typeof window.hasSignature !== 'function' || !window.hasSignature()) errors.push(t('err.signature'));
 
     return errors;
+  }
+
+  function showError(text) {
+    var errEl = form.querySelector('.form-actions .error-message');
+    if (errEl) errEl.remove();
+    var msg = document.createElement('p');
+    msg.className = 'error-message';
+    msg.textContent = text;
+    form.querySelector('.form-actions').prepend(msg);
   }
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var errs = validate();
-    var errEl = form.querySelector('.form-actions .error-message');
-    if (errEl) errEl.remove();
+    var existing = form.querySelector('.form-actions .error-message');
+    if (existing) existing.remove();
     if (errs.length > 0) {
-      var msg = document.createElement('p');
-      msg.className = 'error-message';
-      msg.textContent = errs.join(' ');
-      form.querySelector('.form-actions').prepend(msg);
+      showError(errs.join(' '));
       return;
     }
 
     var submitBtn = form.querySelector('button[type="submit"]');
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Saving…';
-    }
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = t('btn.saving'); }
 
     var q6Promises = [];
     document.getElementById('q6-entities').querySelectorAll('.entity-card').forEach(function (card) {
@@ -359,19 +308,17 @@
       var name = nameInput.value.trim();
       q6Promises.push(
         readFileAsBase64(fileInput.files[0]).then(function (obj) {
-          return {
-            uboFullName: name,
-            fileName: obj.fileName,
-            fileBase64: obj.base64,
-            mimeType: obj.mimeType
-          };
+          return { uboFullName: name, fileName: obj.fileName, fileBase64: obj.base64, mimeType: obj.mimeType };
         })
       );
     });
 
     Promise.all(q6Promises).then(function (q6List) {
       var signatureDataUrl = typeof window.getSignatureBase64 === 'function' ? window.getSignatureBase64() : null;
-      var payload = {
+      var answers = {
+        legalRepName: document.getElementById('legalRepName').value.trim(),
+        companyName: document.getElementById('companyName').value.trim(),
+        email: document.getElementById('email').value.trim(),
         q1: getSelectedValues('q1'),
         q1_1: blockQ1_1 && !blockQ1_1.hidden ? getSelectedValue('q1_1') : null,
         q2: getSelectedValue('q2'),
@@ -384,29 +331,20 @@
         q8: getSelectedValue('q8'),
         signature: signatureDataUrl
       };
-      try {
-        var payloadStr = JSON.stringify(payload);
-        sessionStorage.setItem(FORM_STORAGE_KEY, payloadStr);
-        try { localStorage.setItem(FORM_STORAGE_KEY, payloadStr); } catch (e) {}
-      } catch (err) {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
-        if (err.name === 'QuotaExceededError') {
-          var msg = document.createElement('p');
-          msg.className = 'error-message';
-          msg.textContent = 'Data is too large to save (e.g. files). Try smaller files.';
-          form.querySelector('.form-actions').prepend(msg);
-          return;
-        }
-        throw err;
-      }
-      var resultsUrl = new URL('results-medium.html', window.location.href).href;
-      window.location.replace(resultsUrl);
-    }).catch(function (err) {
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
-      var msg = document.createElement('p');
-      msg.className = 'error-message';
-      msg.textContent = 'Something went wrong while saving (e.g. file read failed). Please try again.';
-      form.querySelector('.form-actions').prepend(msg);
+      var lang = (window.I18N && window.I18N.getLang) ? window.I18N.getLang() : 'es';
+      return fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ surveyType: SURVEY_TYPE, language: lang, answers: answers })
+      });
+    }).then(function (res) {
+      if (!res || !res.ok) throw new Error('submit failed');
+      return res.json();
+    }).then(function () {
+      window.location.replace('success.html');
+    }).catch(function () {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = t('btn.submit'); }
+      showError(t('err.network'));
     });
   });
 })();

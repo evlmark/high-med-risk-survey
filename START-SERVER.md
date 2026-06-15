@@ -1,33 +1,43 @@
-# Как открыть опрос в браузере
+# Как запустить проект локально
 
-## Вариант 1: Запустить сервер в Терминале (рекомендуется)
+Теперь приложению нужна база данных PostgreSQL (ответы хранятся на сервере) и пароль администратора.
 
-1. Открой **Терминал** (Terminal.app) на Mac.
-2. Выполни команды:
+## 1. Поднять PostgreSQL (через Docker — проще всего)
+
+```bash
+docker run --name survey-pg -e POSTGRES_PASSWORD=pg -p 5432:5432 -d postgres
+```
+
+Если Docker нет — можно установить PostgreSQL локально или использовать публичный `DATABASE_URL`
+из базы на Railway.
+
+## 2. Установить зависимости и задать переменные
 
 ```bash
 cd "/Users/markevlampiev/Downloads/Cursor Files/High-med-risk"
-python3 -m http.server 3333
+npm install
+
+export DATABASE_URL="postgres://postgres:pg@localhost:5432/postgres"
+export ADMIN_PASSWORD="test123"
+export DATABASE_SSL=false   # для локального Postgres
 ```
 
-3. В браузере открой: **http://localhost:3333**
+## 3. Запустить сервер
 
-Главная страница (выбор опроса): http://localhost:3333/index.html  
-Medium Risk: http://localhost:3333/medium.html  
-High Risk: http://localhost:3333/high.html
-
-Чтобы остановить сервер — нажми в Терминале `Ctrl+C`.
-
----
-
-## Вариант 2: Открыть файл напрямую (без сервера)
-
-Открой в Safari или другом браузере файл:
-
-```
-/Users/markevlampiev/Downloads/Cursor Files/High-med-risk/index.html
+```bash
+npm start
 ```
 
-(Файл → Открыть файл… или перетащи `index.html` в окно браузера.)
+В консоли появится `Survey app listening on port 3333` и `[db] Schema ready.`
 
-**Важно:** при открытии через `file://` сохранение ответов в sessionStorage и переход на страницу результатов обычно работают в том же браузере. Если что-то не сработает — используй Вариант 1 с сервером.
+## 4. Открыть в браузере
+
+- Главная (внутренняя): **http://localhost:3333/**
+- Medium Risk: **http://localhost:3333/medium.html**
+- High Risk: **http://localhost:3333/high.html**
+- Админка: **http://localhost:3333/admin.html** (пароль — значение `ADMIN_PASSWORD`)
+
+Опросник по умолчанию на испанском; переключатель ES/EN — в шапке.
+
+Чтобы остановить сервер — `Ctrl+C` в терминале. Чтобы остановить базу: `docker stop survey-pg`
+(и `docker start survey-pg`, чтобы снова запустить — данные сохранятся).

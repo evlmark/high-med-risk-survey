@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Survey Admin</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page admin-page">
+    <header class="header">
+      <img class="logo" src="logo.png" alt="Plata Empresa">
+      <div class="header-top">
+        <h1>Survey Admin</h1>
+        <button type="button" class="btn btn-secondary" id="logout-btn" hidden>Log out</button>
+      </div>
+    </header>
+
+    <!-- Login view -->
+    <div id="login-view" hidden>
+      <form id="login-form" class="login-form">
+        <label class="login-label">Admin password
+          <input type="password" id="admin-password" autocomplete="current-password" required>
+        </label>
+        <button type="submit" class="btn btn-primary">Log in</button>
+        <p class="error-message" id="login-error" hidden></p>
+      </form>
+    </div>
+
+    <!-- Main view -->
+    <div id="main-view" hidden>
+      <!-- List -->
+      <div id="list-view">
+        <div class="admin-toolbar">
+          <div class="admin-filters">
+            <button type="button" class="filter-btn active" data-filter="">All</button>
+            <button type="button" class="filter-btn" data-filter="medium">Medium Risk</button>
+            <button type="button" class="filter-btn" data-filter="high">High Risk</button>
+          </div>
+          <button type="button" class="btn btn-secondary" id="refresh-btn">Refresh</button>
+        </div>
+        <p class="admin-empty" id="list-empty" hidden>No submissions yet.</p>
+        <div class="results-table-wrap">
+          <table class="results-table admin-table" id="list-table" hidden>
+            <thead>
+              <tr><th>ID</th><th>Date</th><th>Type</th><th>Company</th><th>Legal representative</th><th>Email</th></tr>
+            </thead>
+            <tbody id="list-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Detail -->
+      <div id="detail-view" hidden>
+        <div class="admin-toolbar">
+          <button type="button" class="btn btn-secondary" id="back-btn">← Back to list</button>
+          <a class="btn btn-primary" id="pdf-link" href="#" target="_blank" rel="noopener">Download PDF</a>
+        </div>
+        <div id="detail-meta" class="detail-meta"></div>
+        <div class="results-table-wrap">
+          <table class="results-table">
+            <tbody id="detail-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,12 +1,14 @@
 (function () {
-  const FORM_STORAGE_KEY = 'highRiskSurveyResults';
-  const SUBMITTED_FLAG_KEY = 'highRiskSurveySubmitted';
+  const SURVEY_TYPE = 'high';
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
-  const SESSION_STORAGE_SAFE_LIMIT = 4 * 1024 * 1024; // ~4 MB (sessionStorage often 5MB)
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const blockQ1_1 = document.getElementById('block-q1_1');
   const blockQ4_1 = document.getElementById('block-q4_1');
   const form = document.getElementById('survey-form');
+
+  function t(key) { return (window.I18N && window.I18N.t) ? window.I18N.t(key) : key; }
+  function retranslate(el) { if (window.I18N && window.I18N.applyTranslations) window.I18N.applyTranslations(el); }
 
   // --- Q1 / Q4 visibility (same as medium)
   function updateQ1_1Visibility() {
@@ -30,31 +32,32 @@
   });
   updateQ4_1Visibility();
 
-  // --- Q3 / Q4.1 entity cards (same as medium)
+  // --- Q3 / Q4.1 entity cards
   function createEntityCard(type, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
     const id = Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     const isIndividual = type === 'individual';
-    const title = isIndividual ? 'Individual' : 'Company';
+    const titleKey = isIndividual ? 'entity.individual' : 'entity.company';
     const card = document.createElement('div');
     card.className = 'entity-card';
     card.dataset.entityId = id;
     if (isIndividual) {
       card.innerHTML =
-        '<div class="entity-card-header"><h4>' + title + '</h4><button type="button" class="btn-remove-card" title="Remove">Remove</button></div>' +
+        '<div class="entity-card-header"><h4 data-i18n="' + titleKey + '"></h4><button type="button" class="btn-remove-card" data-i18n="btn.remove"></button></div>' +
         '<div class="fields">' +
-        '<label>Full name <input type="text" name="' + containerId + '_' + id + '_fullName" required></label>' +
-        '<label>RFC <input type="text" name="' + containerId + '_' + id + '_rfc" required></label>' +
-        '<label>CURP <input type="text" name="' + containerId + '_' + id + '_curp" required></label></div>';
+        '<label><span data-i18n="field.fullName"></span> <input type="text" name="' + containerId + '_' + id + '_fullName" required></label>' +
+        '<label><span data-i18n="field.rfc"></span> <input type="text" name="' + containerId + '_' + id + '_rfc" required></label>' +
+        '<label><span data-i18n="field.curp"></span> <input type="text" name="' + containerId + '_' + id + '_curp" required></label></div>';
     } else {
       card.innerHTML =
-        '<div class="entity-card-header"><h4>' + title + '</h4><button type="button" class="btn-remove-card" title="Remove">Remove</button></div>' +
+        '<div class="entity-card-header"><h4 data-i18n="' + titleKey + '"></h4><button type="button" class="btn-remove-card" data-i18n="btn.remove"></button></div>' +
         '<div class="fields">' +
-        '<label>Full legal name <input type="text" name="' + containerId + '_' + id + '_fullLegalName" required></label>' +
-        '<label>RFC <input type="text" name="' + containerId + '_' + id + '_rfc" required></label></div>';
+        '<label><span data-i18n="field.fullLegalName"></span> <input type="text" name="' + containerId + '_' + id + '_fullLegalName" required></label>' +
+        '<label><span data-i18n="field.rfc"></span> <input type="text" name="' + containerId + '_' + id + '_rfc" required></label></div>';
     }
     container.appendChild(card);
+    retranslate(card);
     card.querySelector('.btn-remove-card').addEventListener('click', function () { card.remove(); });
   }
   document.getElementById('q3-add-individual').addEventListener('click', function () { createEntityCard('individual', 'q3-entities'); });
@@ -62,26 +65,27 @@
   document.getElementById('q4_1-add-individual').addEventListener('click', function () { createEntityCard('individual', 'q4_1-entities'); });
   document.getElementById('q4_1-add-company').addEventListener('click', function () { createEntityCard('company', 'q4_1-entities'); });
 
-  // --- Q5.1 Directors (min 1 general director, min 2 members of board)
+  // --- Q5.1 Directors (min 1 general director OR min 2 members of board)
   function addDirector(type) {
     const container = document.getElementById('q5_1-entities');
     if (!container) return;
     const id = 'dir_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-    const title = type === 'general_director' ? 'General director' : 'Member of board';
+    const titleKey = type === 'general_director' ? 'entity.generalDirector' : 'entity.boardMember';
     const card = document.createElement('div');
     card.className = 'entity-card';
     card.dataset.directorType = type;
     card.dataset.entityId = id;
     card.innerHTML =
-      '<div class="entity-card-header"><h4>' + title + '</h4><button type="button" class="btn-remove-card" title="Remove">Remove</button></div>' +
+      '<div class="entity-card-header"><h4 data-i18n="' + titleKey + '"></h4><button type="button" class="btn-remove-card" data-i18n="btn.remove"></button></div>' +
       '<div class="fields">' +
-      '<label>Full name <input type="text" name="q5_1_' + id + '_fullName" required></label>' +
-      '<label>Date of birth <input type="text" name="q5_1_' + id + '_dob" placeholder="DD - MM - YYYY" required></label>' +
-      '<label>Country of residence <input type="text" name="q5_1_' + id + '_country" required></label>' +
-      '<p class="entity-card-upload-title">Upload Official ID</p>' +
-      '<div class="file-upload-wrap"><label>Official ID (document, max 10 MB) <input type="file" name="q5_1_' + id + '_file" accept="*" required></label>' +
+      '<label><span data-i18n="field.fullName"></span> <input type="text" name="q5_1_' + id + '_fullName" required></label>' +
+      '<label><span data-i18n="field.dob"></span> <input type="text" name="q5_1_' + id + '_dob" placeholder="DD - MM - YYYY" required></label>' +
+      '<label><span data-i18n="field.country"></span> <input type="text" name="q5_1_' + id + '_country" required></label>' +
+      '<p class="entity-card-upload-title" data-i18n="field.officialIdTitle"></p>' +
+      '<div class="file-upload-wrap"><label><span data-i18n="field.officialId"></span> <input type="file" name="q5_1_' + id + '_file" accept="*" required></label>' +
       '<div class="file-name" data-file-name></div><div class="file-error" data-file-error></div></div></div>';
     container.appendChild(card);
+    retranslate(card);
     const fileInput = card.querySelector('input[type="file"]');
     const nameEl = card.querySelector('[data-file-name]');
     const errEl = card.querySelector('[data-file-error]');
@@ -92,7 +96,7 @@
       wrapEl.classList.remove('has-file');
       if (fileInput.files && fileInput.files[0]) {
         var f = fileInput.files[0];
-        if (f.size > MAX_FILE_SIZE) { errEl.textContent = 'File must be 10 MB or smaller.'; fileInput.value = ''; return; }
+        if (f.size > MAX_FILE_SIZE) { errEl.textContent = t('file.tooBig'); fileInput.value = ''; return; }
         nameEl.textContent = f.name;
         wrapEl.classList.add('has-file');
       }
@@ -119,28 +123,30 @@
     card.className = 'entity-card';
     card.dataset.entityId = id;
     card.innerHTML =
-      '<div class="entity-card-header"><h4>Shareholder</h4><button type="button" class="btn-remove-card" title="Remove">Remove</button></div>' +
+      '<div class="entity-card-header"><h4 data-i18n="entity.shareholder"></h4><button type="button" class="btn-remove-card" data-i18n="btn.remove"></button></div>' +
       '<div class="fields">' +
-      '<label>Full name <input type="text" name="q5_2_' + id + '_fullName" required></label>' +
-      '<label>CURP (if available) <input type="text" name="q5_2_' + id + '_curp"></label>' +
-      '<label>RFC (if available) <input type="text" name="q5_2_' + id + '_rfc"></label>' +
-      '<label>Tax number (if no CURP/RFC) (optional) <input type="text" name="q5_2_' + id + '_taxNumber"></label>' +
-      '<label>Ownership percentage <input type="text" name="q5_2_' + id + '_shares" required></label></div>';
+      '<label><span data-i18n="field.fullName"></span> <input type="text" name="q5_2_' + id + '_fullName" required></label>' +
+      '<label><span data-i18n="field.curpIf"></span> <input type="text" name="q5_2_' + id + '_curp"></label>' +
+      '<label><span data-i18n="field.rfcIf"></span> <input type="text" name="q5_2_' + id + '_rfc"></label>' +
+      '<label><span data-i18n="field.taxNumber"></span> <input type="text" name="q5_2_' + id + '_taxNumber"></label>' +
+      '<label><span data-i18n="field.ownershipPct"></span> <input type="text" name="q5_2_' + id + '_shares" required></label></div>';
     container.appendChild(card);
+    retranslate(card);
     card.querySelector('.btn-remove-card').addEventListener('click', function () { card.remove(); });
   }
   document.getElementById('q5_2-add-shareholder').addEventListener('click', addShareholder);
 
-  // --- Q6 High Risk: one UBO block with all fields and conditionals
+  // --- Q6 High Risk: one UBO block with all fields and conditionals.
+  // Canonical English values are kept on inputs; only labels carry data-i18n keys.
   var SOURCE_OPTIONS = [
-    'Salary/bonuses (employment)',
-    'Business profits/dividends from another company',
-    'Sale of a business / shares',
-    'Sale of real estate or other asset',
-    'Inheritance',
-    'Investment returns (securities/funds/crypto/other)',
-    'Loan (bank or third party)',
-    'Other (specify)'
+    { value: 'Salary/bonuses (employment)', key: 'q6.source.opt.1' },
+    { value: 'Business profits/dividends from another company', key: 'q6.source.opt.2' },
+    { value: 'Sale of a business / shares', key: 'q6.source.opt.3' },
+    { value: 'Sale of real estate or other asset', key: 'q6.source.opt.4' },
+    { value: 'Inheritance', key: 'q6.source.opt.5' },
+    { value: 'Investment returns (securities/funds/crypto/other)', key: 'q6.source.opt.6' },
+    { value: 'Loan (bank or third party)', key: 'q6.source.opt.7' },
+    { value: 'Other (specify)', key: 'q6.source.opt.8' }
   ];
   function addUBOHighBlock() {
     const container = document.getElementById('q6-entities');
@@ -151,59 +157,56 @@
     card.dataset.uboId = id;
 
     var amountRadios = '<div class="options options-radio" data-amount-radios>' +
-      '<label><input type="radio" name="q6_' + id + '_amount" value="Less than $50,000.00 MXN (specify)"><span class="option-label">Less than $50,000.00 MXN (specify).</span></label>' +
-      '<label><input type="radio" name="q6_' + id + '_amount" value="Between $50,001.00 - $100,000.00 MXN"><span class="option-label">Between $50,001.00 - $100,000.00 MXN.</span></label>' +
-      '<label><input type="radio" name="q6_' + id + '_amount" value="Between $100,001.00 - $150,000.00 MXN"><span class="option-label">Between $100,001.00 - $150,000.00 MXN.</span></label>' +
-      '<label><input type="radio" name="q6_' + id + '_amount" value="More than $150,000.00 (specify)"><span class="option-label">More than $150,000.00 (specify)</span></label>' +
-      '</div><div class="q6-cond-amount-specify conditional-field" hidden><label>Specify <input type="text" name="q6_' + id + '_amount_specify" placeholder="Text or amount"></label></div>';
+      '<label><input type="radio" name="q6_' + id + '_amount" value="Less than $50,000.00 MXN (specify)"><span class="option-label" data-i18n="q6.amount.opt.1"></span></label>' +
+      '<label><input type="radio" name="q6_' + id + '_amount" value="Between $50,001.00 - $100,000.00 MXN"><span class="option-label" data-i18n="q6.amount.opt.2"></span></label>' +
+      '<label><input type="radio" name="q6_' + id + '_amount" value="Between $100,001.00 - $150,000.00 MXN"><span class="option-label" data-i18n="q6.amount.opt.3"></span></label>' +
+      '<label><input type="radio" name="q6_' + id + '_amount" value="More than $150,000.00 (specify)"><span class="option-label" data-i18n="q6.amount.opt.4"></span></label>' +
+      '</div><div class="q6-cond-amount-specify conditional-field" hidden><label><span data-i18n="q6.specify"></span> <input type="text" name="q6_' + id + '_amount_specify" data-i18n-ph="q6.amount.specify.ph"></label></div>';
 
     var howLongRadios = '<div class="options options-radio" data-howlong-radios>' +
-      '<label><input type="radio" name="q6_' + id + '_howlong" value="Between 1 month and less than a year"><span class="option-label">Between 1 month and less than a year.</span></label>' +
-      '<label><input type="radio" name="q6_' + id + '_howlong" value="Between 1 and 2 years"><span class="option-label">Between 1 and 2 years.</span></label>' +
-      '<label><input type="radio" name="q6_' + id + '_howlong" value="Between 2 and 5 years"><span class="option-label">Between 2 and 5 years.</span></label>' +
-      '<label><input type="radio" name="q6_' + id + '_howlong" value="More than 5 years (specify)"><span class="option-label">More than 5 years (specify)</span></label>' +
-      '</div><div class="q6-cond-howlong-specify conditional-field" hidden><label>Specify (e.g. number of years) <input type="text" name="q6_' + id + '_howlong_specify"></label></div>';
+      '<label><input type="radio" name="q6_' + id + '_howlong" value="Between 1 month and less than a year"><span class="option-label" data-i18n="q6.howlong.opt.1"></span></label>' +
+      '<label><input type="radio" name="q6_' + id + '_howlong" value="Between 1 and 2 years"><span class="option-label" data-i18n="q6.howlong.opt.2"></span></label>' +
+      '<label><input type="radio" name="q6_' + id + '_howlong" value="Between 2 and 5 years"><span class="option-label" data-i18n="q6.howlong.opt.3"></span></label>' +
+      '<label><input type="radio" name="q6_' + id + '_howlong" value="More than 5 years (specify)"><span class="option-label" data-i18n="q6.howlong.opt.4"></span></label>' +
+      '</div><div class="q6-cond-howlong-specify conditional-field" hidden><label><span data-i18n="q6.howlong.specify"></span> <input type="text" name="q6_' + id + '_howlong_specify"></label></div>';
 
     var sourceCheckboxes = '<div class="options options-checkbox" data-source-options>';
     SOURCE_OPTIONS.forEach(function (opt) {
-      var val = opt;
       var nameAttr = 'q6_' + id + '_source';
-      if (opt === 'Other (specify)') {
-        sourceCheckboxes += '<label><input type="checkbox" name="' + nameAttr + '" value="' + val + '" data-other-specify><span class="option-label">' + opt + '</span></label>';
-      } else {
-        sourceCheckboxes += '<label><input type="checkbox" name="' + nameAttr + '" value="' + val + '"><span class="option-label">' + opt + '</span></label>';
-      }
+      var otherAttr = opt.value === 'Other (specify)' ? ' data-other-specify' : '';
+      sourceCheckboxes += '<label><input type="checkbox" name="' + nameAttr + '" value="' + opt.value + '"' + otherAttr + '><span class="option-label" data-i18n="' + opt.key + '"></span></label>';
     });
-    sourceCheckboxes += '</div><div class="q6-cond-source-other conditional-field" hidden><label>Specify <input type="text" name="q6_' + id + '_source_other_specify"></label></div>';
+    sourceCheckboxes += '</div><div class="q6-cond-source-other conditional-field" hidden><label><span data-i18n="q6.specify"></span> <input type="text" name="q6_' + id + '_source_other_specify"></label></div>';
 
     card.innerHTML =
-      '<div class="entity-card-header"><h4>UBO</h4><button type="button" class="btn-remove-card" title="Remove">Remove</button></div>' +
+      '<div class="entity-card-header"><h4 data-i18n="entity.ubo"></h4><button type="button" class="btn-remove-card" data-i18n="btn.remove"></button></div>' +
       '<div class="fields">' +
-      '<label>UBO Full Name <input type="text" name="q6_' + id + '_name" required></label>' +
-      '<label>Ownership percentage <input type="text" name="q6_' + id + '_ownership"></label>' +
-      '<label>Position or title within the company (if any) <input type="text" name="q6_' + id + '_position"></label>' +
-      '<label>Please describe the UBO’s relevant expertise (up to 250 words): Include information such as years of experience, sectors/markets, roles held, key skills, education/certifications, notable achievements, and other relevant information. <textarea name="q6_' + id + '_expertise" rows="4"></textarea></label>' +
-      '<label>Describe the UBO’s role and main responsibilities within the company (up to 250 words) <textarea name="q6_' + id + '_role" rows="4"></textarea></label>' +
-      '<label>What decisions related to funds/resources does the UBO approve or influence (use, distribution, disposal, etc.) <input type="text" name="q6_' + id + '_decisions"></label>' +
-      '<p class="ubo-subheading">Approximate amount contributed by the UBO to start the business</p>' + amountRadios +
-      '<p class="ubo-subheading">How long has the UBO contributed to the company?</p>' + howLongRadios +
-      '<p class="ubo-subheading">What is the source of the UBO’s wealth to provide the company with growth funds or investment?</p>' + sourceCheckboxes +
-      '<p class="ubo-subheading">Proof of Source of Wealth</p><div class="file-upload-wrap" data-source-wrap><label>Document, max 10 MB <input type="file" name="q6_' + id + '_source_file" accept="*"></label><div class="file-name" data-source-file-name></div><div class="file-error" data-source-file-error></div></div>' +
-      '<p class="ubo-subheading">Add UBO Proof of address</p><div class="file-upload-wrap"><label>Document, max 10 MB <input type="file" name="q6_' + id + '_file" accept="*" required></label><div class="file-name" data-file-name></div><div class="file-error" data-file-error></div></div>' +
-      '<p class="ubo-subheading">I declare that the information provided is true, accurate, and complete to the best of my knowledge, and that the funds/resources described are of lawful origin.</p>' +
-      '<div class="options options-radio"><label><input type="radio" name="q6_' + id + '_declaration" value="Yes" required><span class="option-label">Yes</span></label><label><input type="radio" name="q6_' + id + '_declaration" value="No"><span class="option-label">No</span></label></div>' +
+      '<label><span data-i18n="field.uboName"></span> <input type="text" name="q6_' + id + '_name" required></label>' +
+      '<label><span data-i18n="field.ownershipPct"></span> <input type="text" name="q6_' + id + '_ownership"></label>' +
+      '<label><span data-i18n="field.uboPosition"></span> <input type="text" name="q6_' + id + '_position"></label>' +
+      '<label><span data-i18n="field.uboExpertise"></span> <textarea name="q6_' + id + '_expertise" rows="4"></textarea></label>' +
+      '<label><span data-i18n="field.uboRole"></span> <textarea name="q6_' + id + '_role" rows="4"></textarea></label>' +
+      '<label><span data-i18n="field.uboDecisions"></span> <input type="text" name="q6_' + id + '_decisions"></label>' +
+      '<p class="ubo-subheading" data-i18n="q6.amount.title"></p>' + amountRadios +
+      '<p class="ubo-subheading" data-i18n="q6.howlong.title"></p>' + howLongRadios +
+      '<p class="ubo-subheading" data-i18n="q6.source.title"></p>' + sourceCheckboxes +
+      '<p class="ubo-subheading" data-i18n="q6.sourceProof.title"></p><div class="file-upload-wrap" data-source-wrap><label><span data-i18n="field.docMax"></span> <input type="file" name="q6_' + id + '_source_file" accept="*"></label><div class="file-name" data-source-file-name></div><div class="file-error" data-source-file-error></div></div>' +
+      '<p class="ubo-subheading" data-i18n="q6.proofAddress.title"></p><div class="file-upload-wrap"><label><span data-i18n="field.docMax"></span> <input type="file" name="q6_' + id + '_file" accept="*" required></label><div class="file-name" data-file-name></div><div class="file-error" data-file-error></div></div>' +
+      '<p class="ubo-subheading" data-i18n="q6.declaration.text"></p>' +
+      '<div class="options options-radio"><label><input type="radio" name="q6_' + id + '_declaration" value="Yes" required><span class="option-label" data-i18n="opt.yes"></span></label><label><input type="radio" name="q6_' + id + '_declaration" value="No"><span class="option-label" data-i18n="opt.no"></span></label></div>' +
       '</div>';
     container.appendChild(card);
+    retranslate(card);
     card.querySelector('.btn-remove-card').addEventListener('click', function () { card.remove(); });
 
-    // Amount conditional: show specify field when "Less than $50,000 MXN (specify)" OR "More than $150,000 (specify)" is selected
+    // Amount conditional: "Less than $50,000 (specify)" OR "More than $150,000 (specify)"
     var amountSpecify = card.querySelector('.q6-cond-amount-specify');
     if (amountSpecify) {
-      function updateAmountSpecifyVisibility() {
+      var updateAmountSpecifyVisibility = function () {
         var selected = card.querySelector('input[name="q6_' + id + '_amount"]:checked');
         var show = selected && (selected.value === 'Less than $50,000.00 MXN (specify)' || selected.value === 'More than $150,000.00 (specify)');
         amountSpecify.hidden = !show;
-      }
+      };
       card.querySelectorAll('input[name="q6_' + id + '_amount"]').forEach(function (radio) {
         radio.addEventListener('change', updateAmountSpecifyVisibility);
       });
@@ -224,44 +227,36 @@
       });
     });
 
-    var fileInput = card.querySelector('input[name="q6_' + id + '_file"]');
-    var nameEl = card.querySelector('[data-file-name]');
-    var errEl = card.querySelector('[data-file-error]');
-    var wrapEl = card.querySelector('.file-upload-wrap:not([data-source-wrap])');
-    if (fileInput && wrapEl) {
+    function wireFile(fileInput, nameEl, errEl, wrapEl) {
+      if (!fileInput || !wrapEl) return;
       fileInput.addEventListener('change', function () {
-        errEl.textContent = '';
-        nameEl.textContent = '';
+        if (errEl) errEl.textContent = '';
+        if (nameEl) nameEl.textContent = '';
         wrapEl.classList.remove('has-file');
         if (fileInput.files && fileInput.files[0]) {
           var f = fileInput.files[0];
-          if (f.size > MAX_FILE_SIZE) { errEl.textContent = 'File must be 10 MB or smaller.'; fileInput.value = ''; return; }
-          nameEl.textContent = f.name;
+          if (f.size > MAX_FILE_SIZE) { if (errEl) errEl.textContent = t('file.tooBig'); fileInput.value = ''; return; }
+          if (nameEl) nameEl.textContent = f.name;
           wrapEl.classList.add('has-file');
         }
       });
     }
-    var sourceFileInput = card.querySelector('input[name="q6_' + id + '_source_file"]');
-    var sourceNameEl = card.querySelector('[data-source-file-name]');
-    var sourceErrEl = card.querySelector('[data-source-file-error]');
-    var sourceWrapEl = card.querySelector('[data-source-wrap]');
-    if (sourceFileInput && sourceWrapEl) {
-      sourceFileInput.addEventListener('change', function () {
-        if (sourceErrEl) sourceErrEl.textContent = '';
-        if (sourceNameEl) sourceNameEl.textContent = '';
-        sourceWrapEl.classList.remove('has-file');
-        if (sourceFileInput.files && sourceFileInput.files[0]) {
-          var f = sourceFileInput.files[0];
-          if (f.size > MAX_FILE_SIZE) { if (sourceErrEl) sourceErrEl.textContent = 'File must be 10 MB or smaller.'; sourceFileInput.value = ''; return; }
-          if (sourceNameEl) sourceNameEl.textContent = f.name;
-          sourceWrapEl.classList.add('has-file');
-        }
-      });
-    }
+    wireFile(
+      card.querySelector('input[name="q6_' + id + '_file"]'),
+      card.querySelector('[data-file-name]'),
+      card.querySelector('[data-file-error]'),
+      card.querySelector('.file-upload-wrap:not([data-source-wrap])')
+    );
+    wireFile(
+      card.querySelector('input[name="q6_' + id + '_source_file"]'),
+      card.querySelector('[data-source-file-name]'),
+      card.querySelector('[data-source-file-error]'),
+      card.querySelector('[data-source-wrap]')
+    );
   }
   document.getElementById('q6-add-ubo').addEventListener('click', addUBOHighBlock);
 
-  // --- Signature (same as medium)
+  // --- Signature
   (function () {
     var canvas = document.getElementById('signature-canvas');
     var placeholder = document.getElementById('signature-placeholder');
@@ -315,9 +310,9 @@
     var el = form.querySelector('input[name="' + name + '"]:checked');
     return el ? el.value : '';
   }
-  function collectQ3() {
+  function collectEntities(containerId) {
     var individuals = [], companies = [];
-    var container = document.getElementById('q3-entities');
+    var container = document.getElementById(containerId);
     if (!container) return { individuals: individuals, companies: companies };
     container.querySelectorAll('.entity-card').forEach(function (card) {
       var fullName = card.querySelector('input[name$="_fullName"]');
@@ -329,37 +324,8 @@
     });
     return { individuals: individuals, companies: companies };
   }
-  function collectQ4_1() {
-    var individuals = [], companies = [];
-    var container = document.getElementById('q4_1-entities');
-    if (!container) return { individuals: individuals, companies: companies };
-    container.querySelectorAll('.entity-card').forEach(function (card) {
-      var fullName = card.querySelector('input[name$="_fullName"]');
-      var fullLegalName = card.querySelector('input[name$="_fullLegalName"]');
-      var rfc = card.querySelector('input[name$="_rfc"]');
-      var curp = card.querySelector('input[name$="_curp"]');
-      if (fullName && rfc && curp) individuals.push({ fullName: fullName.value.trim(), rfc: rfc.value.trim(), curp: curp.value.trim() });
-      else if (fullLegalName && rfc) companies.push({ fullLegalName: fullLegalName.value.trim(), rfc: rfc.value.trim() });
-    });
-    return { individuals: individuals, companies: companies };
-  }
-  function collectQ5_1() {
-    var directors = [], board = [];
-    var container = document.getElementById('q5_1-entities');
-    if (!container) return { generalDirectors: directors, boardMembers: board };
-    container.querySelectorAll('.entity-card').forEach(function (card) {
-      var type = card.dataset.directorType;
-      var fullName = card.querySelector('input[name$="_fullName"]');
-      var dob = card.querySelector('input[name$="_dob"]');
-      var country = card.querySelector('input[name$="_country"]');
-      var fileInput = card.querySelector('input[type="file"]');
-      if (!fullName || !dob || !country || !fileInput || !fileInput.files || !fileInput.files[0]) return;
-      var obj = { fullName: fullName.value.trim(), dateOfBirth: dob.value.trim(), countryOfResidence: country.value.trim(), officialIdFile: fileInput.files[0] };
-      if (type === 'general_director') directors.push(obj);
-      else if (type === 'member_of_board') board.push(obj);
-    });
-    return { generalDirectors: directors, boardMembers: board };
-  }
+  function collectQ3() { return collectEntities('q3-entities'); }
+  function collectQ4_1() { return collectEntities('q4_1-entities'); }
   function collectQ5_2() {
     var list = [];
     var container = document.getElementById('q5_2-entities');
@@ -397,18 +363,27 @@
 
   function validate() {
     var errors = [];
-    if (getSelectedValues('q1').length === 0) errors.push('Question 1: select at least one option.');
-    if (blockQ1_1 && !blockQ1_1.hidden && !getSelectedValue('q1_1')) errors.push('Question 1.1: select one option.');
-    if (!getSelectedValue('q2')) errors.push('Question 2: select Yes or No.');
+
+    var legalRep = document.getElementById('legalRepName');
+    if (!legalRep || !legalRep.value.trim()) errors.push(t('err.legalRep'));
+    var company = document.getElementById('companyName');
+    if (!company || !company.value.trim()) errors.push(t('err.companyName'));
+    var emailEl = document.getElementById('email');
+    if (!emailEl || !EMAIL_RE.test(emailEl.value.trim())) errors.push(t('err.email'));
+
+    if (getSelectedValues('q1').length === 0) errors.push(t('err.q1'));
+    if (blockQ1_1 && !blockQ1_1.hidden && !getSelectedValue('q1_1')) errors.push(t('err.q1_1'));
+    if (!getSelectedValue('q2')) errors.push(t('err.q2'));
     var q3 = collectQ3();
-    if (q3.individuals.length === 0 && q3.companies.length === 0) errors.push('Question 3: add at least one provider.');
-    if (!getSelectedValue('q4')) errors.push('Question 4: select one option.');
+    if (q3.individuals.length === 0 && q3.companies.length === 0) errors.push(t('err.q3'));
+    if (!getSelectedValue('q4')) errors.push(t('err.q4'));
     if (blockQ4_1 && !blockQ4_1.hidden) {
       var q4_1 = collectQ4_1();
-      if (q4_1.individuals.length === 0 && q4_1.companies.length === 0) errors.push('Question 4.1: add at least one client.');
+      if (q4_1.individuals.length === 0 && q4_1.companies.length === 0) errors.push(t('err.q4_1'));
     }
     var q5El = document.getElementById('q5');
-    if (!q5El || !q5El.value.trim()) errors.push('Question 5: please explain your business model.');
+    if (!q5El || !q5El.value.trim()) errors.push(t('err.q5'));
+
     var q5_1Container = document.getElementById('q5_1-entities');
     if (q5_1Container) {
       var dirCount = 0, boardCount = 0;
@@ -416,54 +391,56 @@
       for (var i = 0; i < cards.length; i++) {
         var c = cards[i];
         if (!c.dataset.directorType) continue;
-        var hasName = c.querySelector('input[name$="_fullName"]') && c.querySelector('input[name$="_fullName"]').value.trim();
+        var nameInput = c.querySelector('input[name$="_fullName"]');
+        var hasName = nameInput && nameInput.value.trim();
         var fileInput = c.querySelector('input[type="file"]');
         var hasFile = fileInput && fileInput.files && fileInput.files[0];
         if (!hasName || !hasFile) continue;
         if (c.dataset.directorType === 'general_director') dirCount++;
         else if (c.dataset.directorType === 'member_of_board') boardCount++;
       }
-      // Either 1 general director OR 2 members of board
-      if (dirCount < 1 && boardCount < 2) {
-        errors.push('Question 5.1: add at least 1 general director OR at least 2 members of the board.');
-      }
+      if (dirCount < 1 && boardCount < 2) errors.push(t('err.q5_1'));
     }
+
     var q5_2 = collectQ5_2();
-    if (q5_2.length < 1) errors.push('Question 5.2: add at least one shareholder.');
+    if (q5_2.length < 1) errors.push(t('err.q5_2'));
+
     var q6Cards = document.getElementById('q6-entities');
-    if (!q6Cards || q6Cards.querySelectorAll('.entity-card').length === 0) errors.push('Question 6: add at least one UBO.');
+    if (!q6Cards || q6Cards.querySelectorAll('.entity-card').length === 0) errors.push(t('err.q6'));
     else {
       q6Cards.querySelectorAll('.entity-card').forEach(function (card) {
-        if (!card.querySelector('input[name$="_name"]') || !card.querySelector('input[name$="_name"]').value.trim()) errors.push('Question 6: UBO Full Name is required.');
-        if (!card.querySelector('input[type="file"]') || !card.querySelector('input[type="file"]').files || !card.querySelector('input[type="file"]').files[0]) errors.push('Question 6: proof of address file is required for each UBO.');
-        else if (card.querySelector('input[type="file"]').files[0].size > MAX_FILE_SIZE) errors.push('Question 6: one of the files exceeds 10 MB.');
-        if (!card.querySelector('input[name$="_declaration"]:checked')) errors.push('Question 6: declaration Yes/No is required for each UBO.');
+        var nameInput = card.querySelector('input[name$="_name"]');
+        var fileInput = card.querySelector('input[type="file"][name$="_file"]');
+        if (!nameInput || !nameInput.value.trim()) errors.push(t('err.q6.uboName'));
+        if (!fileInput || !fileInput.files || !fileInput.files[0]) errors.push(t('err.q6.file'));
+        else if (fileInput.files[0].size > MAX_FILE_SIZE) errors.push(t('err.q6.fileBig'));
+        if (!card.querySelector('input[name$="_declaration"]:checked')) errors.push(t('err.q6.declaration'));
       });
     }
-    if (!getSelectedValue('q7')) errors.push('Question 7: select Yes or No.');
-    if (!getSelectedValue('q8')) errors.push('Question 8: select Yes or No.');
-    if (typeof window.hasSignature !== 'function' || !window.hasSignature()) errors.push('Please add your signature.');
+    if (!getSelectedValue('q7')) errors.push(t('err.q7'));
+    if (!getSelectedValue('q8')) errors.push(t('err.q8'));
+    if (typeof window.hasSignature !== 'function' || !window.hasSignature()) errors.push(t('err.signature'));
     return errors;
+  }
+
+  function showError(text) {
+    var errEl = form.querySelector('.form-actions .error-message');
+    if (errEl) errEl.remove();
+    var msg = document.createElement('p');
+    msg.className = 'error-message';
+    msg.textContent = text;
+    form.querySelector('.form-actions').prepend(msg);
   }
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var errs = validate();
-    var errEl = form.querySelector('.form-actions .error-message');
-    if (errEl) errEl.remove();
-    if (errs.length > 0) {
-      var msg = document.createElement('p');
-      msg.className = 'error-message';
-      msg.textContent = errs.join(' ');
-      form.querySelector('.form-actions').prepend(msg);
-      return;
-    }
+    var existing = form.querySelector('.form-actions .error-message');
+    if (existing) existing.remove();
+    if (errs.length > 0) { showError(errs.join(' ')); return; }
 
     var submitBtn = form.querySelector('button[type="submit"]');
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Saving…';
-    }
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = t('btn.saving'); }
 
     var promises = [];
     var q5_1Data = { generalDirectors: [], boardMembers: [] };
@@ -542,7 +519,10 @@
 
     Promise.all(promises).then(function () {
       var signatureDataUrl = typeof window.getSignatureBase64 === 'function' ? window.getSignatureBase64() : null;
-      var payload = {
+      var answers = {
+        legalRepName: document.getElementById('legalRepName').value.trim(),
+        companyName: document.getElementById('companyName').value.trim(),
+        email: document.getElementById('email').value.trim(),
         q1: getSelectedValues('q1'),
         q1_1: blockQ1_1 && !blockQ1_1.hidden ? getSelectedValue('q1_1') : null,
         q2: getSelectedValue('q2'),
@@ -557,38 +537,20 @@
         q8: getSelectedValue('q8'),
         signature: signatureDataUrl
       };
-      var payloadStr = JSON.stringify(payload);
-      if (payloadStr.length > SESSION_STORAGE_SAFE_LIMIT) {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
-        var msg = document.createElement('p');
-        msg.className = 'error-message';
-        msg.textContent = 'Data is too large (files are too big). Please use smaller files (e.g. under 1 MB each) and try again.';
-        form.querySelector('.form-actions').prepend(msg);
-        return;
-      }
-      try {
-        sessionStorage.setItem(FORM_STORAGE_KEY, payloadStr);
-        sessionStorage.setItem(SUBMITTED_FLAG_KEY, '1');
-        try { localStorage.setItem(FORM_STORAGE_KEY, payloadStr); } catch (e) {}
-      } catch (err) {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
-        if (err.name === 'QuotaExceededError') {
-          var msg = document.createElement('p');
-          msg.className = 'error-message';
-          msg.textContent = 'Data is too large to save (e.g. files). Try smaller files (under 1 MB each).';
-          form.querySelector('.form-actions').prepend(msg);
-          return;
-        }
-        throw err;
-      }
-      var resultsUrl = new URL('results-high.html', window.location.href).href;
-      window.location.replace(resultsUrl);
-    }).catch(function (err) {
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
-      var msg = document.createElement('p');
-      msg.className = 'error-message';
-      msg.textContent = 'Something went wrong while saving (e.g. file read failed). Please try again.';
-      form.querySelector('.form-actions').prepend(msg);
+      var lang = (window.I18N && window.I18N.getLang) ? window.I18N.getLang() : 'es';
+      return fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ surveyType: SURVEY_TYPE, language: lang, answers: answers })
+      });
+    }).then(function (res) {
+      if (!res || !res.ok) throw new Error('submit failed');
+      return res.json();
+    }).then(function () {
+      window.location.replace('success.html');
+    }).catch(function () {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = t('btn.submit'); }
+      showError(t('err.network'));
     });
   });
 })();

@@ -1,153 +1,178 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Medium Risk Survey</title>
+  <title>Additional questions</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="page">
     <header class="header">
-      <h1>Medium Risk Survey</h1>
-      <p style="margin: 8px 0 0; font-size: 0.9rem;"><a href="index.html">Back to main</a></p>
+      <img class="logo" src="logo.png" alt="Plata Empresa">
+      <div class="header-top">
+        <h1 data-i18n="app.title.medium">Additional questions</h1>
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button type="button" data-lang="es">ES</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </div>
     </header>
 
     <form id="survey-form" class="survey-form">
-      <!-- Q1 -->
+      <!-- Q1: Legal representative -->
+      <section class="question-block" data-question="legalRep">
+        <h2 class="question-title" data-i18n="legalRep.title">1. Full Name of Legal Representative</h2>
+        <input type="text" class="q-input" name="legalRepName" id="legalRepName" data-i18n-ph="legalRep.ph" placeholder="Enter full name" required>
+      </section>
+
+      <!-- Q2: Company name -->
+      <section class="question-block" data-question="companyName">
+        <h2 class="question-title" data-i18n="companyName.title">2. Company name</h2>
+        <input type="text" class="q-input" name="companyName" id="companyName" data-i18n-ph="companyName.ph" placeholder="Enter the company name" required>
+      </section>
+
+      <!-- Q3: Email -->
+      <section class="question-block" data-question="email">
+        <h2 class="question-title" data-i18n="email.title">3. Email</h2>
+        <input type="email" class="q-input" name="email" id="email" data-i18n-ph="email.ph" placeholder="name@example.com" required>
+      </section>
+
+      <!-- Q3 (activities) -->
       <section class="question-block" data-question="1">
-        <h2 class="question-title">1. Is the company currently engaged in any of the following activities?</h2>
-        <p class="question-hint">You may select multiple options.</p>
+        <h2 class="question-title" data-i18n="q1.title">3. Is the company currently engaged in any of the following activities?</h2>
+        <p class="question-hint" data-i18n="hint.selectMany">You may select multiple options.</p>
         <div class="options options-checkbox">
-          <label><input type="checkbox" name="q1" value="Gambling, contests, or raffles"><span class="option-label">Gambling, contests, or raffles</span></label>
-          <label><input type="checkbox" name="q1" value="Provision of construction services or development of real estate, or intermediation in the transfer of ownership or establishment of rights over such property"><span class="option-label">Provision of construction services or development of real estate, or intermediation in the transfer of ownership or establishment of rights over such property</span></label>
-          <label><input type="checkbox" name="q1" value="Issuance or commercialization of traveler's checks"><span class="option-label">Issuance or commercialization of traveler's checks</span></label>
-          <label><input type="checkbox" name="q1" value="Auctioning or habitual/professional commercialization of works of art"><span class="option-label">Auctioning or habitual/professional commercialization of works of art</span></label>
-          <label><input type="checkbox" name="q1" value="Armoring services"><span class="option-label">Armoring services</span></label>
-          <label><input type="checkbox" name="q1" value="Independent professional services where you act on a client's behalf to do any of the following: (a) Buy/sell real estate, (b) Manage client money, assets, or bank/investment accounts, or (c) Set up, run, or restructure companies, trusts or other legal entities (including buying/selling companies)"><span class="option-label">Independent professional services where you act on a client's behalf to do any of the following: (a) Buy/sell real estate, (b) Manage client money, assets, or bank/investment accounts, or (c) Set up, run, or restructure companies, trusts or other legal entities (including buying/selling companies)</span></label>
-          <label><input type="checkbox" name="q1" value="Receipt of donations"><span class="option-label">Receipt of donations</span></label>
-          <label><input type="checkbox" name="q1" value="Establishment of personal rights of use or enjoyment of real estate"><span class="option-label">Establishment of personal rights of use or enjoyment of real estate</span></label>
-          <label><input type="checkbox" name="q1" value="Issuance or commercialization of credit cards, service cards, prepaid cards, or any other instrument that constitutes a store of monetary value"><span class="option-label">Issuance or commercialization of credit cards, service cards, prepaid cards, or any other instrument that constitutes a store of monetary value</span></label>
-          <label><input type="checkbox" name="q1" value="Granting of loans or credits, or guarantee operations"><span class="option-label">Granting of loans or credits, or guarantee operations</span></label>
-          <label><input type="checkbox" name="q1" value="Habitual or professional commercialization or intermediation of Precious Metals, Precious Stones, jewelry, or watches"><span class="option-label">Habitual or professional commercialization or intermediation of Precious Metals, Precious Stones, jewelry, or watches</span></label>
-          <label><input type="checkbox" name="q1" value="Commercialization or distribution of vehicles, new or used"><span class="option-label">Commercialization or distribution of vehicles, new or used</span></label>
-          <label><input type="checkbox" name="q1" value="Services for the transport or custody of money or valuables"><span class="option-label">Services for the transport or custody of money or valuables</span></label>
-          <label><input type="checkbox" name="q1" value="Public faith services (notaries or public brokers)"><span class="option-label">Public faith services (notaries or public brokers)</span></label>
-          <label><input type="checkbox" name="q1" value="Provision of foreign trade services as a customs agent or representative"><span class="option-label">Provision of foreign trade services as a customs agent or representative</span></label>
-          <label><input type="checkbox" name="q1" value="Exchange of virtual assets or cryptocurrency"><span class="option-label">Exchange of virtual assets or cryptocurrency</span></label>
-          <label><input type="checkbox" name="q1" value="None of the above"><span class="option-label">None of the above</span></label>
+          <label><input type="checkbox" name="q1" value="Gambling, contests, or raffles"><span class="option-label" data-i18n="q1.opt.1">Gambling, contests, or raffles</span></label>
+          <label><input type="checkbox" name="q1" value="Provision of construction services or development of real estate, or intermediation in the transfer of ownership or establishment of rights over such property"><span class="option-label" data-i18n="q1.opt.2">Provision of construction services or development of real estate, or intermediation in the transfer of ownership or establishment of rights over such property</span></label>
+          <label><input type="checkbox" name="q1" value="Issuance or commercialization of traveler's checks"><span class="option-label" data-i18n="q1.opt.3">Issuance or commercialization of traveler's checks</span></label>
+          <label><input type="checkbox" name="q1" value="Auctioning or habitual/professional commercialization of works of art"><span class="option-label" data-i18n="q1.opt.4">Auctioning or habitual/professional commercialization of works of art</span></label>
+          <label><input type="checkbox" name="q1" value="Armoring services"><span class="option-label" data-i18n="q1.opt.5">Armoring services</span></label>
+          <label><input type="checkbox" name="q1" value="Independent professional services where you act on a client's behalf to do any of the following: (a) Buy/sell real estate, (b) Manage client money, assets, or bank/investment accounts, or (c) Set up, run, or restructure companies, trusts or other legal entities (including buying/selling companies)"><span class="option-label" data-i18n="q1.opt.6">Independent professional services where you act on a client's behalf to do any of the following: (a) Buy/sell real estate, (b) Manage client money, assets, or bank/investment accounts, or (c) Set up, run, or restructure companies, trusts or other legal entities (including buying/selling companies)</span></label>
+          <label><input type="checkbox" name="q1" value="Receipt of donations"><span class="option-label" data-i18n="q1.opt.7">Receipt of donations</span></label>
+          <label><input type="checkbox" name="q1" value="Establishment of personal rights of use or enjoyment of real estate"><span class="option-label" data-i18n="q1.opt.8">Establishment of personal rights of use or enjoyment of real estate</span></label>
+          <label><input type="checkbox" name="q1" value="Issuance or commercialization of credit cards, service cards, prepaid cards, or any other instrument that constitutes a store of monetary value"><span class="option-label" data-i18n="q1.opt.9">Issuance or commercialization of credit cards, service cards, prepaid cards, or any other instrument that constitutes a store of monetary value</span></label>
+          <label><input type="checkbox" name="q1" value="Granting of loans or credits, or guarantee operations"><span class="option-label" data-i18n="q1.opt.10">Granting of loans or credits, or guarantee operations</span></label>
+          <label><input type="checkbox" name="q1" value="Habitual or professional commercialization or intermediation of Precious Metals, Precious Stones, jewelry, or watches"><span class="option-label" data-i18n="q1.opt.11">Habitual or professional commercialization or intermediation of Precious Metals, Precious Stones, jewelry, or watches</span></label>
+          <label><input type="checkbox" name="q1" value="Commercialization or distribution of vehicles, new or used"><span class="option-label" data-i18n="q1.opt.12">Commercialization or distribution of vehicles, new or used</span></label>
+          <label><input type="checkbox" name="q1" value="Services for the transport or custody of money or valuables"><span class="option-label" data-i18n="q1.opt.13">Services for the transport or custody of money or valuables</span></label>
+          <label><input type="checkbox" name="q1" value="Public faith services (notaries or public brokers)"><span class="option-label" data-i18n="q1.opt.14">Public faith services (notaries or public brokers)</span></label>
+          <label><input type="checkbox" name="q1" value="Provision of foreign trade services as a customs agent or representative"><span class="option-label" data-i18n="q1.opt.15">Provision of foreign trade services as a customs agent or representative</span></label>
+          <label><input type="checkbox" name="q1" value="Exchange of virtual assets or cryptocurrency"><span class="option-label" data-i18n="q1.opt.16">Exchange of virtual assets or cryptocurrency</span></label>
+          <label><input type="checkbox" name="q1" value="None of the above"><span class="option-label" data-i18n="q1.opt.17">None of the above</span></label>
         </div>
       </section>
 
-      <!-- Q1.1 (conditional) -->
+      <!-- Q3.1 (conditional) -->
       <section class="question-block question-conditional" id="block-q1_1" data-question="1.1" hidden>
-        <h2 class="question-title">1.1. How long has the company been engaged in this activity?</h2>
-        <p class="question-hint">Select one option.</p>
+        <h2 class="question-title" data-i18n="q1_1.title">3.1. How long has the company been engaged in this activity?</h2>
+        <p class="question-hint" data-i18n="hint.selectOne">Select one option.</p>
         <div class="options options-radio">
-          <label><input type="radio" name="q1_1" value="0 – 5 years"><span class="option-label">0 – 5 years</span></label>
-          <label><input type="radio" name="q1_1" value="5 – 10 years"><span class="option-label">5 – 10 years</span></label>
-          <label><input type="radio" name="q1_1" value="More than 10 years"><span class="option-label">More than 10 years</span></label>
+          <label><input type="radio" name="q1_1" value="0 – 5 years"><span class="option-label" data-i18n="q1_1.opt.1">0 – 5 years</span></label>
+          <label><input type="radio" name="q1_1" value="5 – 10 years"><span class="option-label" data-i18n="q1_1.opt.2">5 – 10 years</span></label>
+          <label><input type="radio" name="q1_1" value="More than 10 years"><span class="option-label" data-i18n="q1_1.opt.3">More than 10 years</span></label>
         </div>
       </section>
 
-      <!-- Q2 -->
+      <!-- Q4 (jurisdictions) -->
       <section class="question-block" data-question="2">
-        <h2 class="question-title">2. Does the company operate in or have direct relationships with any of the following jurisdictions?</h2>
+        <h2 class="question-title" data-i18n="q2.title">4. Does the company operate in or have direct relationships with any of the following jurisdictions?</h2>
         <details class="jurisdictions-list-details">
-          <summary class="jurisdictions-list-summary">View full list</summary>
+          <summary class="jurisdictions-list-summary" data-i18n="q2.viewlist">View full list</summary>
           <div class="jurisdictions-list">Albania, Algeria, American Samoa, Andorra, Angola, Anguilla, Antigua and Barbuda, Aruba, Ascension, Bahrain, Barbados, Belize, Bermuda, Bolivia, Brunei Darussalam, Bulgaria, Cameroon, Cape Verde, Cayman Islands, Channel Islands, Christmas Island, Cocos Islands or Kelling, Commonwealth of Dominica, Commonwealth of the Bahamas, Cook Islands, Costa Rica, Côte d'Ivoire, Cyprus, Democratic Republic of the Congo, Djibouti, Falkland Islands, French Polynesia, Gibraltar, Greenland, Grenada, Guam, Guyana, Haiti, Honduras, Hong Kong, Isla del Hombre, Jordan, Kenya, Kiribati, Kuwait, Labuan / Malaysia, Laos, Lebanon, Liberia, Liechtenstein, Macau, Madeira, Maldives, Malta, Marshall Islands, Mauritius, Monaco, Montserrat, Namibia, Nauru, Nepal, Netherlands Antilles, Nevis, Niue, Norfolk Island, Oman, Panama, Papua New Guinea, Patau, Pitcairn, Puerto Rico, Qatar, Saint Helena, Saint Kitts, Saint Lucia, Saint Pierre and Miquelon, Saint Vincent and the Grenadines, San Marino, Seychelles, Solomon Islands, South Sudan, Sri Lanka, Svalbard Archipelago / Norway, Swaziland, Syria, Tokelau, Tonga, Trieste, Trinidad and Tobago, Tristan da Cunha, Tunisia, Turks and Caicos Islands, Tuvalu, United Arab Emirates, Uruguay, Vanuatu, Venezuela, Vietnam, Virgin Islands (UK), Virgin Islands (US), Western Samoa, Yemen</div>
         </details>
-        <p class="question-hint">Select one option.</p>
+        <p class="question-hint" data-i18n="hint.selectOne">Select one option.</p>
         <div class="options options-radio">
-          <label><input type="radio" name="q2" value="Yes"><span class="option-label">Yes</span></label>
-          <label><input type="radio" name="q2" value="No"><span class="option-label">No</span></label>
+          <label><input type="radio" name="q2" value="Yes"><span class="option-label" data-i18n="opt.yes">Yes</span></label>
+          <label><input type="radio" name="q2" value="No"><span class="option-label" data-i18n="opt.no">No</span></label>
         </div>
       </section>
 
-      <!-- Q3 -->
+      <!-- Q5 (providers) -->
       <section class="question-block" data-question="3">
-        <h2 class="question-title">3. Who are your 3 main providers by volume?</h2>
-        <p class="question-hint">In case of an individual, please provide their full name, RFC and CURP.<br>In case of companies, please provide their full legal name and RFC. Add at least one provider.</p>
+        <h2 class="question-title" data-i18n="q3.title">5. Who are your 3 main providers by volume?</h2>
+        <p class="question-hint" data-i18n-html="q3.hint">In case of an individual, please provide their full name, RFC and CURP.<br>In case of companies, please provide their full legal name and RFC. Add at least one provider.</p>
         <div class="add-entity-actions">
-          <button type="button" class="btn btn-secondary" id="q3-add-individual">Add individual</button>
-          <button type="button" class="btn btn-secondary" id="q3-add-company">Add company</button>
+          <button type="button" class="btn btn-secondary" id="q3-add-individual" data-i18n="btn.addIndividual">Add individual</button>
+          <button type="button" class="btn btn-secondary" id="q3-add-company" data-i18n="btn.addCompany">Add company</button>
         </div>
         <div id="q3-entities" class="entity-list"></div>
       </section>
 
-      <!-- Q4 -->
+      <!-- Q6 (client segment) -->
       <section class="question-block" data-question="4">
-        <h2 class="question-title">4. Which segment represents the clients you have?</h2>
-        <p class="question-hint">Select one option.</p>
+        <h2 class="question-title" data-i18n="q4.title">6. Which segment represents the clients you have?</h2>
+        <p class="question-hint" data-i18n="hint.selectOne">Select one option.</p>
         <div class="options options-radio options-long">
-          <label><input type="radio" name="q4" value="My clientele consists of the general consumer and not specific or identifiable individuals or corporations (i.e. the business is a restaurant that serves a multitude of people or a hardware store with multiple individual clients)."><span class="option-label">My clientele consists of the general consumer and not specific or identifiable individuals or corporations (i.e. the business is a restaurant that serves a multitude of people or a hardware store with multiple individual clients).</span></label>
-          <label><input type="radio" name="q4" value="My main clients are specific and identifiable individuals or companies (a business that works mainly under contracts or recurring orders with a small number of known customers, such that it can identify its main clients by name/corporate name and RFC, and those clients represent a significant share of its sales. For example, a logistics or transport company that operates routes mainly for specific shippers under recurring service orders)."><span class="option-label">My main clients are specific and identifiable individuals or companies (a business that works mainly under contracts or recurring orders with a small number of known customers, such that it can identify its main clients by name/corporate name and RFC, and those clients represent a significant share of its sales. For example, a logistics or transport company that operates routes mainly for specific shippers under recurring service orders).</span></label>
-          <label><input type="radio" name="q4" value="All of the above, with both identifiable clients and the general public as consumers."><span class="option-label">All of the above, with both identifiable clients and the general public as consumers.</span></label>
+          <label><input type="radio" name="q4" value="My clientele consists of the general consumer and not specific or identifiable individuals or corporations (i.e. the business is a restaurant that serves a multitude of people or a hardware store with multiple individual clients)."><span class="option-label" data-i18n="q4.opt.1">My clientele consists of the general consumer and not specific or identifiable individuals or corporations (i.e. the business is a restaurant that serves a multitude of people or a hardware store with multiple individual clients).</span></label>
+          <label><input type="radio" name="q4" value="My main clients are specific and identifiable individuals or companies (a business that works mainly under contracts or recurring orders with a small number of known customers, such that it can identify its main clients by name/corporate name and RFC, and those clients represent a significant share of its sales. For example, a logistics or transport company that operates routes mainly for specific shippers under recurring service orders)."><span class="option-label" data-i18n="q4.opt.2">My main clients are specific and identifiable individuals or companies (a business that works mainly under contracts or recurring orders with a small number of known customers, such that it can identify its main clients by name/corporate name and RFC, and those clients represent a significant share of its sales. For example, a logistics or transport company that operates routes mainly for specific shippers under recurring service orders).</span></label>
+          <label><input type="radio" name="q4" value="All of the above, with both identifiable clients and the general public as consumers."><span class="option-label" data-i18n="q4.opt.3">All of the above, with both identifiable clients and the general public as consumers.</span></label>
         </div>
       </section>
 
-      <!-- Q4.1 (conditional) -->
+      <!-- Q6.1 (conditional) -->
       <section class="question-block question-conditional" id="block-q4_1" data-question="4.1" hidden>
-        <h2 class="question-title">4.1. Who are your 3 main clients by volume?</h2>
-        <p class="question-hint">In case of an individual, please provide their full name, RFC and CURP.<br>In case of companies, please provide their corporate name and RFC. Add at least one client.</p>
+        <h2 class="question-title" data-i18n="q4_1.title">6.1. Who are your 3 main clients by volume?</h2>
+        <p class="question-hint" data-i18n-html="q4_1.hint">In case of an individual, please provide their full name, RFC and CURP.<br>In case of companies, please provide their corporate name and RFC. Add at least one client.</p>
         <div class="add-entity-actions">
-          <button type="button" class="btn btn-secondary" id="q4_1-add-individual">Add individual</button>
-          <button type="button" class="btn btn-secondary" id="q4_1-add-company">Add company</button>
+          <button type="button" class="btn btn-secondary" id="q4_1-add-individual" data-i18n="btn.addIndividual">Add individual</button>
+          <button type="button" class="btn btn-secondary" id="q4_1-add-company" data-i18n="btn.addCompany">Add company</button>
         </div>
         <div id="q4_1-entities" class="entity-list"></div>
       </section>
 
-      <!-- Q5 -->
+      <!-- Q7 (business model) -->
       <section class="question-block" data-question="5">
-        <h2 class="question-title">5. Please explain your business model.</h2>
-        <textarea name="q5" id="q5" rows="6" placeholder="Enter your answer..." required></textarea>
+        <h2 class="question-title" data-i18n="q5.title">7. Please explain your business model.</h2>
+        <textarea name="q5" id="q5" rows="6" data-i18n-ph="q5.ph" placeholder="Enter your answer..." required></textarea>
       </section>
 
-      <!-- Q6 -->
+      <!-- Q8 (UBO) -->
       <section class="question-block" data-question="6">
-        <h2 class="question-title">6. Please provide all of the UBO's proof of address.</h2>
-        <p class="question-hint">Add at least one UBO. You may upload any document up to 10 MB.</p>
+        <h2 class="question-title" data-i18n="q6.medium.title">8. Please provide all of the UBO's proof of address.</h2>
+        <p class="question-hint" data-i18n="q6.medium.hint">Add at least one UBO. You may upload any document up to 10 MB.</p>
         <div class="add-entity-actions">
-          <button type="button" class="btn btn-secondary" id="q6-add-ubo">Add Information about UBO</button>
+          <button type="button" class="btn btn-secondary" id="q6-add-ubo" data-i18n="btn.addUbo">Add Information about UBO</button>
         </div>
         <div id="q6-entities" class="entity-list ubo-list"></div>
       </section>
 
-      <!-- Q7 -->
+      <!-- Q9 (oath) -->
       <section class="question-block" data-question="7">
-        <h2 class="question-title">7. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.</h2>
+        <h2 class="question-title" data-i18n="q7.title">9. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.</h2>
         <div class="options options-radio">
-          <label><input type="radio" name="q7" value="Yes"><span class="option-label">Yes</span></label>
-          <label><input type="radio" name="q7" value="No"><span class="option-label">No</span></label>
+          <label><input type="radio" name="q7" value="Yes"><span class="option-label" data-i18n="opt.yes">Yes</span></label>
+          <label><input type="radio" name="q7" value="No"><span class="option-label" data-i18n="opt.no">No</span></label>
         </div>
       </section>
 
-      <!-- Q8 -->
+      <!-- Q10 (PEP) -->
       <section class="question-block" data-question="8">
-        <h2 class="question-title">8. I declare that I am not a politically exposed person (PEP), nor the company's UBOs, shareholders or other legal representatives, nor do we have ties with public officials or authorities that could interfere with the transparency required for this relationship.</h2>
+        <h2 class="question-title" data-i18n="q8.title">10. I declare that I am not a politically exposed person (PEP), nor the company's UBOs, shareholders or other legal representatives, nor do we have ties with public officials or authorities that could interfere with the transparency required for this relationship.</h2>
         <div class="options options-radio">
-          <label><input type="radio" name="q8" value="Yes"><span class="option-label">Yes</span></label>
-          <label><input type="radio" name="q8" value="No"><span class="option-label">No</span></label>
+          <label><input type="radio" name="q8" value="Yes"><span class="option-label" data-i18n="opt.yes">Yes</span></label>
+          <label><input type="radio" name="q8" value="No"><span class="option-label" data-i18n="opt.no">No</span></label>
         </div>
       </section>
 
       <!-- Signature -->
       <section class="question-block" data-question="signature">
-        <h2 class="question-title">Add your signature</h2>
+        <h2 class="question-title" data-i18n="sig.title">Add your signature</h2>
         <div class="signature-block">
           <div class="signature-wrap">
             <canvas id="signature-canvas" width="400" height="180" aria-label="Sign here"></canvas>
-            <p class="signature-placeholder" id="signature-placeholder">Sign here</p>
+            <p class="signature-placeholder" id="signature-placeholder" data-i18n="sig.placeholder">Sign here</p>
           </div>
-          <button type="button" class="btn btn-secondary btn-remove-signature" id="remove-signature-btn">Remove signature</button>
+          <button type="button" class="btn btn-secondary btn-remove-signature" id="remove-signature-btn" data-i18n="sig.remove">Remove signature</button>
         </div>
       </section>
 
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary" data-i18n="btn.submit">Submit</button>
       </div>
     </form>
   </div>
+  <script src="i18n.js"></script>
   <script src="survey.js"></script>
 </body>
 </html>
