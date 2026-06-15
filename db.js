@@ -12,9 +12,11 @@ function sslConfig() {
   const flag = (process.env.DATABASE_SSL || '').toLowerCase();
   if (flag === 'false' || flag === '0' || flag === 'off') return false;
   if (flag === 'true' || flag === '1' || flag === 'on') return { rejectUnauthorized: false };
-  // Auto: enable SSL for remote hosts, disable for localhost.
+  // Auto: enable SSL for remote hosts, disable for localhost and Railway's
+  // private network (postgres.railway.internal), where the standard Postgres
+  // image runs without SSL. Override anytime with DATABASE_SSL=true/false.
   if (!connectionString) return false;
-  if (/localhost|127\.0\.0\.1/.test(connectionString)) return false;
+  if (/localhost|127\.0\.0\.1|\.railway\.internal/.test(connectionString)) return false;
   return { rejectUnauthorized: false };
 }
 
