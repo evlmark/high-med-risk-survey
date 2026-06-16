@@ -16,9 +16,31 @@
     const showQ1_1 = checked.length > 0 && !(checked.length === 1 && checked[0] === 'None of the above');
     if (blockQ1_1) blockQ1_1.hidden = !showQ1_1;
   }
+  // "None of the above" is mutually exclusive: when checked, clear and disable the other options.
+  function updateQ1NoneExclusivity() {
+    const noneInput = form.querySelector('input[name="q1"][value="None of the above"]');
+    if (!noneInput) return;
+    Array.from(form.querySelectorAll('input[name="q1"]')).forEach(function (el) {
+      if (el === noneInput) return;
+      var label = el.closest('label');
+      if (noneInput.checked) {
+        el.checked = false;
+        el.disabled = true;
+        if (label) label.classList.add('option-disabled');
+      } else {
+        el.disabled = false;
+        if (label) label.classList.remove('option-disabled');
+      }
+    });
+  }
+  function onQ1Change() {
+    updateQ1NoneExclusivity();
+    updateQ1_1Visibility();
+  }
   form.querySelectorAll('input[name="q1"]').forEach(function (input) {
-    input.addEventListener('change', updateQ1_1Visibility);
+    input.addEventListener('change', onQ1Change);
   });
+  updateQ1NoneExclusivity();
   updateQ1_1Visibility();
 
   function updateQ4_1Visibility() {

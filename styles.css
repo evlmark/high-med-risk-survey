@@ -175,6 +175,12 @@ body {
   min-width: 0;
 }
 
+/* Options disabled while "None of the above" is selected */
+.options label.option-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .options-long label {
   align-items: flex-start;
 }
