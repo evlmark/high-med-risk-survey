@@ -98,7 +98,7 @@
   document.getElementById('q4_1-add-individual').addEventListener('click', function () { createEntityCard('individual', 'q4_1-entities'); });
   document.getElementById('q4_1-add-company').addEventListener('click', function () { createEntityCard('company', 'q4_1-entities'); });
 
-  // --- Q6: Add UBO (name + file upload, with remove)
+  // --- Q6: Add UBO (name + proof of address + Constancia de Situación Fiscal, with remove)
   function addUBOBlock() {
     const container = document.getElementById('q6-entities');
     if (!container) return;
@@ -118,30 +118,36 @@
       '<div class="file-name" data-file-name></div>' +
       '<div class="file-error" data-file-error></div>' +
       '</div>' +
+      '<div class="file-upload-wrap" data-wrap="' + id + '_csf">' +
+      '<label><span data-i18n="field.uboCsf"></span> <input type="file" name="q6_' + id + '_csf_file" accept="*" data-ubo-csf-file required></label>' +
+      '<div class="file-name" data-file-name></div>' +
+      '<div class="file-error" data-file-error></div>' +
+      '</div>' +
       '</div>';
     container.appendChild(wrap);
     retranslate(wrap);
     wrap.querySelector('.btn-remove-card').addEventListener('click', function () { wrap.remove(); });
 
-    const fileInput = wrap.querySelector('input[type="file"]');
-    const nameEl = wrap.querySelector('[data-file-name]');
-    const errEl = wrap.querySelector('[data-file-error]');
-    const wrapEl = wrap.querySelector('.file-upload-wrap');
-
-    fileInput.addEventListener('change', function () {
-      errEl.textContent = '';
-      nameEl.textContent = '';
-      wrapEl.classList.remove('has-file');
-      if (fileInput.files && fileInput.files[0]) {
-        const f = fileInput.files[0];
-        if (f.size > MAX_FILE_SIZE) {
-          errEl.textContent = t('file.tooBig');
-          fileInput.value = '';
-          return;
+    // Both uploads behave identically: show the chosen name, reject anything over 10 MB.
+    Array.prototype.forEach.call(wrap.querySelectorAll('.file-upload-wrap'), function (wrapEl) {
+      const fileInput = wrapEl.querySelector('input[type="file"]');
+      const nameEl = wrapEl.querySelector('[data-file-name]');
+      const errEl = wrapEl.querySelector('[data-file-error]');
+      fileInput.addEventListener('change', function () {
+        errEl.textContent = '';
+        nameEl.textContent = '';
+        wrapEl.classList.remove('has-file');
+        if (fileInput.files && fileInput.files[0]) {
+          const f = fileInput.files[0];
+          if (f.size > MAX_FILE_SIZE) {
+            errEl.textContent = t('file.tooBig');
+            fileInput.value = '';
+            return;
+          }
+          nameEl.textContent = f.name;
+          wrapEl.classList.add('has-file');
         }
-        nameEl.textContent = f.name;
-        wrapEl.classList.add('has-file');
-      }
+      });
     });
   }
 
@@ -287,17 +293,21 @@
     else {
       q6Cards.querySelectorAll('.entity-card').forEach(function (card) {
         var nameInput = card.querySelector('input[type="text"]');
-        var fileInput = card.querySelector('input[type="file"]');
+        var fileInput = card.querySelector('input[data-ubo-file]');
+        var csfInput = card.querySelector('input[data-ubo-csf-file]');
         if (!nameInput || !nameInput.value.trim()) errors.push(t('err.q6.uboName'));
         if (!fileInput || !fileInput.files || !fileInput.files[0]) errors.push(t('err.q6.file'));
         else if (fileInput.files[0].size > MAX_FILE_SIZE) errors.push(t('err.q6.fileBig'));
+        if (!csfInput || !csfInput.files || !csfInput.files[0]) errors.push(t('err.q6.csf'));
+        else if (csfInput.files[0].size > MAX_FILE_SIZE) errors.push(t('err.q6.fileBig'));
       });
     }
     if (!getSelectedValue('q7')) errors.push(t('err.q7'));
     if (!getSelectedValue('q8')) errors.push(t('err.q8'));
     if (typeof window.hasSignature !== 'function' || !window.hasSignature()) errors.push(t('err.signature'));
 
-    return errors;
+    // Several UBOs missing the same document would otherwise repeat one message per card.
+    return errors.filter(function (e, i) { return errors.indexOf(e) === i; });
   }
 
   function showError(text) {
@@ -325,12 +335,24 @@
     var q6Promises = [];
     document.getElementById('q6-entities').querySelectorAll('.entity-card').forEach(function (card) {
       var nameInput = card.querySelector('input[type="text"]');
-      var fileInput = card.querySelector('input[type="file"]');
+      var fileInput = card.querySelector('input[data-ubo-file]');
+      var csfInput = card.querySelector('input[data-ubo-csf-file]');
       if (!nameInput || !fileInput || !fileInput.files || !fileInput.files[0]) return;
+      if (!csfInput || !csfInput.files || !csfInput.files[0]) return;
       var name = nameInput.value.trim();
       q6Promises.push(
-        readFileAsBase64(fileInput.files[0]).then(function (obj) {
-          return { uboFullName: name, fileName: obj.fileName, fileBase64: obj.base64, mimeType: obj.mimeType };
+        Promise.all([readFileAsBase64(fileInput.files[0]), readFileAsBase64(csfInput.files[0])]).then(function (arr) {
+          var poa = arr[0];
+          var csf = arr[1];
+          return {
+            uboFullName: name,
+            fileName: poa.fileName,
+            fileBase64: poa.base64,
+            mimeType: poa.mimeType,
+            csfFileName: csf.fileName,
+            csfFileBase64: csf.base64,
+            csfMimeType: csf.mimeType
+          };
         })
       );
     });

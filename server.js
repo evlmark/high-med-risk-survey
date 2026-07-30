@@ -1,5 +1,7 @@
 const express = require('express');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { pool, initDb } = require('./db');
 const auth = require('./auth');
 const { buildSubmissionPdf } = require('./pdf');
@@ -7,11 +9,49 @@ const { buildSubmissionPdf } = require('./pdf');
 const app = express();
 const port = process.env.PORT || 3333;
 
+// Per-file cap must match the client-side limit in survey.js / survey-high.js.
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_FILES_PER_SUBMISSION = 60;
+
 app.set('trust proxy', 1); // behind Railway's proxy (correct req.secure / x-forwarded-proto)
-app.use(express.json({ limit: '50mb' }));
+app.disable('x-powered-by');
+
+app.use(helmet({
+  // Subresources are same-origin and relative; upgrading them breaks plain-HTTP local dev.
+  contentSecurityPolicy: { useDefaults: true, directives: { upgradeInsecureRequests: null } },
+  // Cross-origin isolation headers are not needed and block the logo in some embeds.
+  crossOriginEmbedderPolicy: false,
+}));
+
+// A survey with ~10 MB attachments per file needs headroom, but nowhere near the
+// old 50 MB: that let anyone bloat the database with a single anonymous request.
+app.use(express.json({ limit: '15mb' }));
+
+const submitLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'too many submissions, please try again later' },
+});
+
+// Only failed logins count, so a working session is never locked out by its own use.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'too many login attempts, please try again later' },
+});
 
 // ---- Static files ----
-app.use(express.static(__dirname));
+// Only ./public is public. Server sources, internal task documents, design mockups
+// and node_modules live outside it and are no longer reachable over HTTP.
+app.use(express.static(path.join(__dirname, 'public'), {
+  dotfiles: 'deny',
+  index: false, // no directory listing / implicit index.html at "/"
+}));
 
 // ---- Helpers ----
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -44,11 +84,23 @@ function extractFiles(surveyType, answers) {
       fds.push({ field: field, fileName: fileName, mimeType: mimeType, buffer: buffer, setId: function (id) { obj.sourceFileId = id; } });
     }
   }
+  // Medium Risk only: Constancia de Situación Fiscal (CSF), one per UBO.
+  function takeCsf(obj, field) {
+    if (obj && obj.csfFileBase64) {
+      const buffer = Buffer.from(obj.csfFileBase64, 'base64');
+      const fileName = obj.csfFileName || null;
+      const mimeType = obj.csfMimeType || null;
+      delete obj.csfFileBase64;
+      obj.csfFileId = null;
+      fds.push({ field: field, fileName: fileName, mimeType: mimeType, buffer: buffer, setId: function (id) { obj.csfFileId = id; } });
+    }
+  }
 
   if (Array.isArray(clean.q6)) {
     clean.q6.forEach(function (u, i) {
       takeMain(u, 'q6[' + i + '].proofOfAddress');
       takeSource(u, 'q6[' + i + '].proofOfSourceOfWealth');
+      if (surveyType === 'medium') takeCsf(u, 'q6[' + i + '].csf');
     });
   }
   if (surveyType === 'high' && clean.q5_1) {
@@ -60,7 +112,7 @@ function extractFiles(surveyType, answers) {
 }
 
 // ---- Public: submit a survey ----
-app.post('/api/submit', async function (req, res) {
+app.post('/api/submit', submitLimiter, async function (req, res) {
   try {
     const body = req.body || {};
     const surveyType = body.surveyType === 'high' ? 'high' : (body.surveyType === 'medium' ? 'medium' : null);
@@ -76,6 +128,16 @@ app.post('/api/submit', async function (req, res) {
     if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'valid email required' });
 
     const extracted = extractFiles(surveyType, answers);
+
+    // The browser enforces the same limits, but the endpoint is public: re-check here
+    // so a hand-crafted request cannot push oversized blobs into the database.
+    if (extracted.fds.length > MAX_FILES_PER_SUBMISSION) {
+      return res.status(413).json({ error: 'too many files' });
+    }
+    const tooBig = extracted.fds.find(function (fd) { return fd.buffer.length > MAX_FILE_BYTES; });
+    if (tooBig) {
+      return res.status(413).json({ error: 'file too large: ' + (tooBig.fileName || tooBig.field) });
+    }
 
     const client = await pool.connect();
     try {
@@ -110,7 +172,7 @@ app.post('/api/submit', async function (req, res) {
 });
 
 // ---- Admin auth ----
-app.post('/api/admin/login', function (req, res) {
+app.post('/api/admin/login', loginLimiter, function (req, res) {
   const password = (req.body || {}).password;
   if (!process.env.ADMIN_PASSWORD) {
     return res.status(500).json({ error: 'ADMIN_PASSWORD is not configured on the server' });
@@ -200,6 +262,26 @@ app.get('/api/admin/submissions/:id/pdf', auth.requireAdmin, async function (req
     console.error('[pdf] error:', err.message);
     res.status(500).json({ error: 'pdf failed' });
   }
+});
+
+// ---- Not found ----
+// The root used to serve a landing page listing both surveys and the admin panel.
+// Clients get direct links to /medium.html and /high.html instead, so "/" and every
+// other unknown path answer a bare 404 that reveals nothing about what exists.
+app.use(function (req, res) {
+  res.status(404).type('text/plain').send('Not Found');
+});
+
+// ---- Last-resort net ----
+// Some dependencies (pdfkit's PNG decoder, for one) throw from native callbacks where
+// no request-level try/catch can reach them. Default behaviour is to kill the process,
+// which turns one malformed stored row into an outage for every client filling the form.
+// Log loudly and keep serving; Railway still restarts us if the process really dies.
+process.on('uncaughtException', function (err) {
+  console.error('[fatal] uncaught exception (server kept alive):', err && err.stack ? err.stack : err);
+});
+process.on('unhandledRejection', function (reason) {
+  console.error('[fatal] unhandled rejection (server kept alive):', reason);
 });
 
 // ---- Start ----

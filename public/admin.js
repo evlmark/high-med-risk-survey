@@ -175,7 +175,7 @@
       base.q5_2 = '8.2. Information from shareholders';
       base.q6 = '9. UBO information';
     } else {
-      base.q6 = "9. UBO proof of address";
+      base.q6 = '9. UBO information (25% or more ownership): proof of address + CSF';
     }
     return base;
   }
@@ -225,7 +225,14 @@
   function fmtUboMedium(q6) {
     if (!q6 || !q6.length) return '';
     return q6.map(function (u) {
-      return '<div class="list-item">' + escapeHtml(u.uboFullName) + ' — ' + downloadLink(u.fileId, u.fileName) + '</div>';
+      var html = '<div class="list-item ubo-result-block">';
+      html += '<strong>' + escapeHtml(u.uboFullName) + '</strong>';
+      html += '<br>Proof of address: ' + downloadLink(u.fileId, u.fileName);
+      // CSF was added after the first submissions; older rows have no file at all.
+      html += '<br>Tax Status Certificate (CSF): ' +
+        (u.csfFileId ? downloadLink(u.csfFileId, u.csfFileName) : '<span class="muted">not provided</span>');
+      html += '</div>';
+      return html;
     }).join('');
   }
   function fmtUboHigh(q6) {

@@ -1,4 +1,37 @@
 const PDFDocument = require('pdfkit');
+const zlib = require('zlib');
+
+const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+// The signature arrives as client-supplied base64 inside answers, and pdfkit hands PNG
+// pixel data to png-js, which inflates it in a zlib callback. A corrupt IDAT stream
+// therefore throws *asynchronously*, escapes the try/catch below and takes the whole
+// process down — one bad submission would kill the service on every PDF download.
+// Inflate it ourselves first: zlib.inflateSync throws synchronously and is catchable,
+// so anything pdfkit would choke on is rejected here instead.
+function isRenderablePng(buf) {
+  try {
+    if (!Buffer.isBuffer(buf) || buf.length < 8 || !buf.subarray(0, 8).equals(PNG_MAGIC)) return false;
+    const idat = [];
+    let sawIhdr = false;
+    let offset = 8;
+    while (offset + 8 <= buf.length) {
+      const length = buf.readUInt32BE(offset);
+      const type = buf.toString('ascii', offset + 4, offset + 8);
+      const dataStart = offset + 8;
+      if (dataStart + length > buf.length) return false; // truncated chunk
+      if (type === 'IHDR') sawIhdr = true;
+      else if (type === 'IDAT') idat.push(buf.subarray(dataStart, dataStart + length));
+      else if (type === 'IEND') break;
+      offset = dataStart + length + 4; // + CRC
+    }
+    if (!sawIhdr || !idat.length) return false;
+    zlib.inflateSync(Buffer.concat(idat));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 
 // English (canonical) question labels with the displayed numbering.
 // Internal answer keys are unchanged; only the display number/text differs by survey type.
@@ -33,7 +66,7 @@ function labelsFor(type) {
     q4: '7. Which segment represents the clients you have?',
     q4_1: '7.1. Who are your 3 main clients by volume?',
     q5: '8. Please explain your business model.',
-    q6: "9. Please provide all of the UBO's proof of address.",
+    q6: '9. Information of every UBO holding, directly or indirectly, 25% or more of the capital stock (proof of address + Tax Status Certificate / CSF).',
     q7: '10. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information.',
     q8: '11. I declare that I am not a politically exposed person (PEP), nor the company’s UBOs, shareholders or other legal representatives.',
   };
@@ -105,9 +138,13 @@ function fmtUboHigh(q6) {
 
 function fmtUboMedium(q6) {
   if (!q6 || !q6.length) return '';
-  return q6.map(function (u) {
-    return (u.uboFullName || '') + ' | Proof of address file: ' + (u.fileName || '—');
-  }).join('\n');
+  return q6.map(function (u, idx) {
+    const lines = [];
+    lines.push('UBO #' + (idx + 1) + ': ' + (u.uboFullName || ''));
+    lines.push('  Proof of address file: ' + (u.fileName || '—'));
+    lines.push('  Tax Status Certificate (CSF) file: ' + (u.csfFileName || '—'));
+    return lines.join('\n');
+  }).join('\n\n');
 }
 
 function buildRows(submission) {
@@ -176,13 +213,17 @@ function buildSubmissionPdf(submission) {
       // Signature image (kept inline in answers as a data URL)
       const sig = submission.answers && submission.answers.signature;
       if (sig && typeof sig === 'string' && sig.indexOf('data:image') === 0) {
+        doc.fontSize(11).font('Helvetica-Bold').fillColor('#1a1a1a').text('Signature');
+        doc.moveDown(0.2);
+        let buf = null;
         try {
-          const b64 = sig.split(',')[1];
-          const buf = Buffer.from(b64, 'base64');
-          doc.fontSize(11).font('Helvetica-Bold').fillColor('#1a1a1a').text('Signature');
-          doc.moveDown(0.2);
-          doc.image(buf, { width: 200 });
+          buf = Buffer.from(sig.split(',')[1] || '', 'base64');
         } catch (e) {
+          buf = null;
+        }
+        if (buf && isRenderablePng(buf)) {
+          doc.image(buf, { width: 200 });
+        } else {
           doc.fontSize(10).font('Helvetica').fillColor('#999').text('(signature could not be rendered)');
         }
       }
