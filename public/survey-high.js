@@ -4,6 +4,7 @@
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const blockQ1_1 = document.getElementById('block-q1_1');
+  const blockQ2_1 = document.getElementById('block-q2_1');
   const blockQ4_1 = document.getElementById('block-q4_1');
   const form = document.getElementById('survey-form');
 
@@ -42,6 +43,23 @@
   });
   updateQ1NoneExclusivity();
   updateQ1_1Visibility();
+
+  // --- Q2: show Q2.1 (which jurisdictions) only when the answer is Yes
+  function updateQ2_1Visibility() {
+    const selected = form.querySelector('input[name="q2"]:checked');
+    const show = !!selected && selected.value === 'Yes';
+    if (!blockQ2_1) return;
+    blockQ2_1.hidden = !show;
+    // Drop anything typed before switching to No, so a hidden field can't be submitted.
+    if (!show) {
+      const ta = document.getElementById('q2_1');
+      if (ta) ta.value = '';
+    }
+  }
+  form.querySelectorAll('input[name="q2"]').forEach(function (input) {
+    input.addEventListener('change', updateQ2_1Visibility);
+  });
+  updateQ2_1Visibility();
 
   function updateQ4_1Visibility() {
     const selected = form.querySelector('input[name="q4"]:checked');
@@ -396,6 +414,10 @@
     if (getSelectedValues('q1').length === 0) errors.push(t('err.q1'));
     if (blockQ1_1 && !blockQ1_1.hidden && !getSelectedValue('q1_1')) errors.push(t('err.q1_1'));
     if (!getSelectedValue('q2')) errors.push(t('err.q2'));
+    if (blockQ2_1 && !blockQ2_1.hidden) {
+      var q2_1El = document.getElementById('q2_1');
+      if (!q2_1El || !q2_1El.value.trim()) errors.push(t('err.q2_1'));
+    }
     var q3 = collectQ3();
     if (q3.individuals.length === 0 && q3.companies.length === 0) errors.push(t('err.q3'));
     if (!getSelectedValue('q4')) errors.push(t('err.q4'));
@@ -548,6 +570,7 @@
         q1: getSelectedValues('q1'),
         q1_1: blockQ1_1 && !blockQ1_1.hidden ? getSelectedValue('q1_1') : null,
         q2: getSelectedValue('q2'),
+        q2_1: blockQ2_1 && !blockQ2_1.hidden ? document.getElementById('q2_1').value.trim() : null,
         q3: collectQ3(),
         q4: getSelectedValue('q4'),
         q4_1: blockQ4_1 && !blockQ4_1.hidden ? collectQ4_1() : null,

@@ -56,6 +56,11 @@
       'q2.title': '5. ¿La empresa opera o tiene relaciones directas con alguna de las siguientes jurisdicciones?',
       'q2.viewlist': 'Ver lista completa',
 
+      // Q5.1 — Which jurisdictions (internal q2_1, shown only when Q5 = Yes)
+      'q2_1.title': '5.1. Indique todas las jurisdicciones en las que la empresa opera o con las que tiene relaciones directas.',
+      'q2_1.hint': 'Escriba un país por línea o sepárelos con comas.',
+      'q2_1.ph': 'Por ejemplo: Panamá, Hong Kong, Emiratos Árabes Unidos',
+
       // Q6 — Providers (internal q3)
       'q3.title': '6. ¿Quiénes son sus 3 principales proveedores por volumen?',
       'q3.hint': 'En el caso de una persona física, proporcione su nombre completo, RFC y CURP.<br>En el caso de empresas, proporcione su razón social y RFC. Agregue al menos un proveedor.',
@@ -166,6 +171,7 @@
       'err.q1': 'Pregunta 4: seleccione al menos una opción.',
       'err.q1_1': 'Pregunta 4.1: seleccione una opción.',
       'err.q2': 'Pregunta 5: seleccione Sí o No.',
+      'err.q2_1': 'Pregunta 5.1: indique las jurisdicciones donde opera o tiene relaciones directas.',
       'err.q3': 'Pregunta 6: agregue al menos un proveedor (persona física o moral).',
       'err.q4': 'Pregunta 7: seleccione una opción.',
       'err.q4_1': 'Pregunta 7.1: agregue al menos un cliente (persona física o moral).',
@@ -232,6 +238,11 @@
 
       'q2.title': '5. Does the company operate in or have direct relationships with any of the following jurisdictions?',
       'q2.viewlist': 'View full list',
+
+      // Q5.1 — Which jurisdictions (internal q2_1, shown only when Q5 = Yes)
+      'q2_1.title': '5.1. Please list all the jurisdictions where the company operates or has direct relationships.',
+      'q2_1.hint': 'Write one country per line, or separate them with commas.',
+      'q2_1.ph': 'For example: Panama, Hong Kong, United Arab Emirates',
 
       'q3.title': '6. Who are your 3 main providers by volume?',
       'q3.hint': 'In case of an individual, please provide their full name, RFC and CURP.<br>In case of companies, please provide their full legal name and RFC. Add at least one provider.',
@@ -331,6 +342,7 @@
       'err.q1': 'Question 4: select at least one option.',
       'err.q1_1': 'Question 4.1: select one option.',
       'err.q2': 'Question 5: select Yes or No.',
+      'err.q2_1': 'Question 5.1: list the jurisdictions where the company operates or has direct relationships.',
       'err.q3': 'Question 6: add at least one provider (individual or company).',
       'err.q4': 'Question 7: select one option.',
       'err.q4_1': 'Question 7.1: add at least one client (individual or company).',

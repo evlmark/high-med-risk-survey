@@ -44,6 +44,7 @@ function labelsFor(type) {
       q1: '4. Is the company currently engaged in any of the following activities?',
       q1_1: '4.1. How long has the company been engaged in this activity?',
       q2: '5. Does the company operate in or have direct relationships with any of the listed jurisdictions?',
+      q2_1: '5.1. Jurisdictions where the company operates or has direct relationships',
       q3: '6. Who are your 3 main providers by volume?',
       q4: '7. Which segment represents the clients you have?',
       q4_1: '7.1. Who are your 3 main clients by volume?',
@@ -62,6 +63,7 @@ function labelsFor(type) {
     q1: '4. Is the company currently engaged in any of the following activities?',
     q1_1: '4.1. How long has the company been engaged in this activity?',
     q2: '5. Does the company operate in or have direct relationships with any of the listed jurisdictions?',
+    q2_1: '5.1. Jurisdictions where the company operates or has direct relationships',
     q3: '6. Who are your 3 main providers by volume?',
     q4: '7. Which segment represents the clients you have?',
     q4_1: '7.1. Who are your 3 main clients by volume?',
@@ -163,6 +165,7 @@ function buildRows(submission) {
   push('q1', Array.isArray(a.q1) ? a.q1.join('\n') : a.q1);
   if (a.q1_1) push('q1_1', a.q1_1);
   push('q2', a.q2);
+  if (a.q2_1) push('q2_1', a.q2_1);
   push('q3', fmtEntities(a.q3));
   push('q4', a.q4);
   if (a.q4_1) push('q4_1', fmtEntities(a.q4_1));

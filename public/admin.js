@@ -163,6 +163,7 @@
       q1: '4. Is the company currently engaged in any of the following activities?',
       q1_1: '4.1. How long has the company been engaged in this activity?',
       q2: '5. Does the company operate in or have direct relationships with any of the listed jurisdictions?',
+      q2_1: '5.1. Which jurisdictions (listed by the client)',
       q3: '6. Who are your 3 main providers by volume?',
       q4: '7. Which segment represents the clients you have?',
       q4_1: '7.1. Who are your 3 main clients by volume?',
@@ -283,6 +284,7 @@
     rows.push(row(L.q1, fmtList(a.q1)));
     if (a.q1_1 != null) rows.push(row(L.q1_1, escapeHtml(a.q1_1)));
     rows.push(row(L.q2, escapeHtml(a.q2)));
+    if (a.q2_1) rows.push(row(L.q2_1, '<pre class="answer-pre">' + escapeHtml(a.q2_1) + '</pre>'));
     rows.push(row(L.q3, fmtEntities(a.q3)));
     rows.push(row(L.q4, escapeHtml(a.q4)));
     if (a.q4_1 != null) rows.push(row(L.q4_1, fmtEntities(a.q4_1)));
