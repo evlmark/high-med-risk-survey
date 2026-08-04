@@ -56,6 +56,25 @@ app.use(express.static(path.join(__dirname, 'public'), {
 // ---- Helpers ----
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Both the file name and the MIME type come from whatever the client uploaded, and
+// both end up in response headers. Header values must be ASCII — a raw "Ñ" survives
+// HTTP/1.1 but breaks the HPACK-encoded response behind Railway's HTTP/2 edge, which
+// is why "CSF MARTIN QUIÑONES.pdf" would not download.
+
+// RFC 6266: plain ASCII filename for old clients + RFC 5987 UTF-8 form for the rest.
+function contentDisposition(fileName) {
+  const name = String(fileName || 'file');
+  const ascii = name.replace(/[^\x20-\x7E]/g, '_').replace(/["\\]/g, '');
+  return 'attachment; filename="' + ascii + '"; filename*=UTF-8\'\'' + encodeURIComponent(name);
+}
+
+// Accept only a well-formed type/subtype; anything else (empty, non-ASCII, header
+// injection attempts) falls back to a generic binary type.
+function safeMimeType(mimeType) {
+  const mt = String(mimeType || '');
+  return /^[a-zA-Z0-9!#$&^_.+-]+\/[a-zA-Z0-9!#$&^_.+-]+$/.test(mt) ? mt : 'application/octet-stream';
+}
+
 // Walk the answers payload, pull out base64 file blobs into a descriptor list,
 // and strip the base64 from the (deep-copied) answers so the JSONB stays lean.
 // Each descriptor carries a setId() that writes the new DB file id back into the
@@ -238,9 +257,8 @@ app.get('/api/admin/files/:id', auth.requireAdmin, async function (req, res) {
     if (!id) return res.status(400).json({ error: 'bad id' });
     const f = (await pool.query('SELECT file_name, mime_type, data FROM files WHERE id=$1', [id])).rows[0];
     if (!f) return res.status(404).json({ error: 'not found' });
-    res.setHeader('Content-Type', f.mime_type || 'application/octet-stream');
-    const safeName = (f.file_name || ('file-' + id)).replace(/"/g, '');
-    res.setHeader('Content-Disposition', 'attachment; filename="' + safeName + '"');
+    res.setHeader('Content-Type', safeMimeType(f.mime_type));
+    res.setHeader('Content-Disposition', contentDisposition(f.file_name || ('file-' + id)));
     res.send(f.data);
   } catch (err) {
     console.error('[file] error:', err.message);
@@ -256,7 +274,7 @@ app.get('/api/admin/submissions/:id/pdf', auth.requireAdmin, async function (req
     if (!sub) return res.status(404).json({ error: 'not found' });
     const buf = await buildSubmissionPdf(sub);
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="submission-' + id + '.pdf"');
+    res.setHeader('Content-Disposition', contentDisposition('submission-' + id + '.pdf'));
     res.send(buf);
   } catch (err) {
     console.error('[pdf] error:', err.message);
