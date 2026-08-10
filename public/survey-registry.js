@@ -7,6 +7,13 @@
 
   const SURVEY_TYPE = form.dataset.surveyType === 'existing_company' ? 'existing_company' : 'new_company';
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB — the server enforces the same cap
+  const WORDS_MIN = 100; // compliance: UBO expertise / responsibilities minimum
+  const WORDS_MAX = 250; // and maximum
+
+  function countWords(text) {
+    var trimmed = (text || '').trim();
+    return trimmed ? trimmed.split(/\s+/).length : 0;
+  }
 
   function t(key) { return (window.I18N && window.I18N.t) ? window.I18N.t(key) : key; }
   function retranslate(el) { if (window.I18N && window.I18N.applyTranslations) window.I18N.applyTranslations(el); }
@@ -73,13 +80,24 @@
       '<label><span data-i18n="field.uboName"></span> <input type="text" name="ubo_' + id + '_name" required></label>' +
       '<label><span data-i18n="field.ownershipPct"></span> <input type="text" name="ubo_' + id + '_ownership" required></label>' +
       '<label><span data-i18n="field.uboPosition"></span> <input type="text" name="ubo_' + id + '_position"></label>' +
-      '<label><span data-i18n="field.uboExpertise"></span> <textarea name="ubo_' + id + '_expertise" rows="4" required></textarea></label>' +
-      '<label><span data-i18n="field.uboRole"></span> <textarea name="ubo_' + id + '_role" rows="4" required></textarea></label>' +
+      '<label><span data-i18n="reg.uboExpertise"></span> <textarea name="ubo_' + id + '_expertise" rows="5" data-wordcount required></textarea><span class="word-count" data-wordcount-for="expertise"></span></label>' +
+      '<label><span data-i18n="reg.uboRole"></span> <textarea name="ubo_' + id + '_role" rows="5" data-wordcount required></textarea><span class="word-count" data-wordcount-for="role"></span></label>' +
       '<label><span data-i18n="field.uboDecisions"></span> <textarea name="ubo_' + id + '_decisions" rows="3" required></textarea></label>' +
       '</div>';
     container.appendChild(card);
     retranslate(card);
     card.querySelector('.btn-remove-card').addEventListener('click', function () { card.remove(); });
+    // Live word counter for the two fields compliance caps at 100–250 words.
+    Array.prototype.forEach.call(card.querySelectorAll('textarea[data-wordcount]'), function (ta) {
+      var counter = ta.parentNode.querySelector('.word-count');
+      function update() {
+        var n = countWords(ta.value);
+        counter.textContent = n + ' ' + t('reg.words.range');
+        counter.classList.toggle('word-count-bad', n > 0 && (n < WORDS_MIN || n > WORDS_MAX));
+      }
+      ta.addEventListener('input', update);
+      update();
+    });
   }
   document.getElementById('ubo-add').addEventListener('click', addUBOBlock);
 
@@ -230,6 +248,14 @@
           !u.roleAndResponsibilities || !u.decisionsFunds;
       });
       if (incomplete) errors.push(t('err.reg.uboFields'));
+      // Expertise and responsibilities must each land within 100–250 words.
+      const outOfRange = ubos.some(function (u) {
+        return [u.expertise, u.roleAndResponsibilities].some(function (txt) {
+          var n = countWords(txt);
+          return n < WORDS_MIN || n > WORDS_MAX;
+        });
+      });
+      if (outOfRange) errors.push(t('err.reg.uboWords'));
     }
 
     if (!val('ticket')) errors.push(t('err.reg.ticket'));

@@ -221,7 +221,10 @@
 
       // Q7 — UBO (first six fields of the High Risk UBO block)
       'reg.ubo.title': '8. Proporcione la información de los beneficiarios finales (UBO)',
-      'reg.ubo.hint': 'Agregue al menos un beneficiario final.',
+      'reg.ubo.hint': 'Agregue la información de todos los propietarios reales.',
+      'reg.uboExpertise': 'Describa la experiencia relevante del UBO (entre 100 y 250 palabras): incluya información como años de experiencia, sectores/mercados, cargos ocupados, habilidades clave, educación/certificaciones, logros destacados y otra información relevante.',
+      'reg.uboRole': 'Describa el rol y las principales responsabilidades del UBO dentro de la empresa (entre 100 y 250 palabras).',
+      'reg.words.range': 'palabras (mín. 100, máx. 250)',
 
       // Q8 — average ticket
       'reg.ticket.title': '7. ¿Cuál es su ticket promedio por operación, en pesos mexicanos (MXN)?',
@@ -234,6 +237,7 @@
       'err.reg.fundsOther': 'Pregunta 6: describa el origen de los recursos.',
       'err.reg.ubo': 'Pregunta 8: agregue al menos un UBO.',
       'err.reg.uboFields': 'Pregunta 8: complete todos los campos obligatorios de cada UBO.',
+      'err.reg.uboWords': 'Pregunta 8: los campos de experiencia y responsabilidades de cada UBO deben tener entre 100 y 250 palabras.',
       'err.reg.ticket': 'Pregunta 7: indique su ticket promedio.',
       'err.reg.oath': 'Pregunta 9: seleccione Sí o No.',
       'err.reg.pep': 'Pregunta 10: seleccione Sí o No.',
@@ -443,7 +447,10 @@
 
       // Q7 — UBO (first six fields of the High Risk UBO block)
       'reg.ubo.title': "8. Please provide information of the UBO's",
-      'reg.ubo.hint': 'Add at least one ultimate beneficial owner.',
+      'reg.ubo.hint': 'Add the information of every ultimate beneficial owner (UBO).',
+      'reg.uboExpertise': "Please describe the UBO's relevant expertise (between 100 and 250 words): Include information such as years of experience, sectors/markets, roles held, key skills, education/certifications, notable achievements, and other relevant information.",
+      'reg.uboRole': "Describe the UBO's role and main responsibilities within the company (between 100 and 250 words).",
+      'reg.words.range': 'words (min 100, max 250)',
 
       // Q8 — average ticket
       'reg.ticket.title': '7. What is your average ticket per transaction, in Mexican pesos (MXN)?',
@@ -456,6 +463,7 @@
       'err.reg.fundsOther': 'Question 6: describe the origin of the funds.',
       'err.reg.ubo': 'Question 8: add at least one UBO.',
       'err.reg.uboFields': 'Question 8: fill in every required field for each UBO.',
+      'err.reg.uboWords': "Question 8: each UBO's expertise and responsibilities fields must be between 100 and 250 words.",
       'err.reg.ticket': 'Question 7: enter your average ticket.',
       'err.reg.oath': 'Question 9: select Yes or No.',
       'err.reg.pep': 'Question 10: select Yes or No.',

@@ -759,6 +759,17 @@ textarea:focus {
   text-align: center;
 }
 
+/* Live word counter under the UBO expertise / responsibilities fields. */
+.word-count {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.word-count-bad {
+  color: #d64545;
+  font-weight: 600;
+}
+
 /* Small pill next to a question title, e.g. "Optional". */
 .q-badge {
   display: inline-block;
