@@ -55,6 +55,8 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // ---- Helpers ----
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SURVEY_TYPES = ['medium', 'high', 'new_company', 'existing_company'];
+const SURVEY_TYPES_WITH_EMAIL = ['medium', 'high'];
 
 // Both the file name and the MIME type come from whatever the client uploaded, and
 // both end up in response headers. Header values must be ASCII — a raw "Ñ" survives
@@ -115,6 +117,15 @@ function extractFiles(surveyType, answers) {
     }
   }
 
+  // The registered-company surveys carry three standalone documents instead of
+  // per-UBO uploads; their UBO list holds no files at all.
+  if (surveyType === 'new_company' || surveyType === 'existing_company') {
+    takeMain(clean.registrationProof, 'registrationProof');
+    takeMain(clean.taxOpinion, 'taxOpinion');
+    takeMain(clean.complianceProgram, 'complianceProgram');
+    return { clean: clean, fds: fds };
+  }
+
   if (Array.isArray(clean.q6)) {
     clean.q6.forEach(function (u, i) {
       takeMain(u, 'q6[' + i + '].proofOfAddress');
@@ -134,7 +145,7 @@ function extractFiles(surveyType, answers) {
 app.post('/api/submit', submitLimiter, async function (req, res) {
   try {
     const body = req.body || {};
-    const surveyType = body.surveyType === 'high' ? 'high' : (body.surveyType === 'medium' ? 'medium' : null);
+    const surveyType = SURVEY_TYPES.indexOf(body.surveyType) >= 0 ? body.surveyType : null;
     if (!surveyType) return res.status(400).json({ error: 'invalid surveyType' });
 
     const answers = body.answers;
@@ -144,7 +155,13 @@ app.post('/api/submit', submitLimiter, async function (req, res) {
     const legalRepName = (answers.legalRepName || '').toString().trim();
     const email = (answers.email || '').toString().trim();
     if (!legalRepName) return res.status(400).json({ error: 'legalRepName required' });
-    if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'valid email required' });
+    // Only the Medium/High surveys ask for an email; the registered-company ones do
+    // not have that question, so it is required there only if one was sent anyway.
+    if (SURVEY_TYPES_WITH_EMAIL.indexOf(surveyType) >= 0) {
+      if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'valid email required' });
+    } else if (email && !EMAIL_RE.test(email)) {
+      return res.status(400).json({ error: 'valid email required' });
+    }
 
     const extracted = extractFiles(surveyType, answers);
 
@@ -217,7 +234,7 @@ app.get('/api/admin/submissions', auth.requireAdmin, async function (req, res) {
   try {
     const type = req.query.type;
     let rows;
-    if (type === 'medium' || type === 'high') {
+    if (SURVEY_TYPES.indexOf(type) >= 0) {
       rows = (await pool.query(
         'SELECT id, survey_type, legal_rep_name, email, answers->>\'companyName\' AS company_name, language, created_at FROM submissions WHERE survey_type=$1 ORDER BY created_at DESC',
         [type]

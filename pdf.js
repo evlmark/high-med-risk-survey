@@ -149,9 +149,58 @@ function fmtUboMedium(q6) {
   }).join('\n\n');
 }
 
-function buildRows(submission) {
+// The registered-company surveys have their own, much shorter question set.
+function registryLabels(type) {
+  return {
+    legalRepName: '1. Full Name of Legal Representative',
+    companyName: '2. Company name',
+    doc3: type === 'new_company'
+      ? '3. Proof of registration in the Padrón (SAT Federal Vulnerable Activity Registry)'
+      : '3. Records of filed Vulnerable Activity notices (last 3 months)',
+    taxOpinion: '4. Positive tax compliance opinion',
+    complianceProgram: '5. Evidence of compliance program (optional, AML/CFT & KYC manual)',
+    fundsOrigin: '6. Origin of the funds the business operates with',
+    ubos: "7. UBO information",
+    averageTicket: '8. Average ticket per transaction (MXN)',
+  };
+}
+
+function fmtRegistryUbos(ubos) {
+  if (!ubos || !ubos.length) return '';
+  return ubos.map(function (u, idx) {
+    const lines = [];
+    lines.push('UBO #' + (idx + 1) + ': ' + (u.uboFullName || ''));
+    lines.push('  Ownership: ' + (u.ownershipPercentage || '—'));
+    if (u.positionOrTitle) lines.push('  Position: ' + u.positionOrTitle);
+    if (u.expertise) lines.push('  Expertise: ' + u.expertise);
+    if (u.roleAndResponsibilities) lines.push('  Role: ' + u.roleAndResponsibilities);
+    if (u.decisionsFunds) lines.push('  Decisions on funds: ' + u.decisionsFunds);
+    return lines.join('\n');
+  }).join('\n\n');
+}
+
+function buildRegistryRows(submission) {
   const a = submission.answers || {};
+  const L = registryLabels(submission.survey_type);
+  const rows = [];
+  const doc = function (d) { return d && d.fileName ? d.fileName : '—'; };
+  rows.push([L.legalRepName, a.legalRepName || '—']);
+  rows.push([L.companyName, a.companyName || '—']);
+  rows.push([L.doc3, doc(a.registrationProof)]);
+  rows.push([L.taxOpinion, doc(a.taxOpinion)]);
+  rows.push([L.complianceProgram, doc(a.complianceProgram)]);
+  let funds = a.fundsOrigin || '—';
+  if (a.fundsOriginOther) funds += ' (' + a.fundsOriginOther + ')';
+  rows.push([L.fundsOrigin, funds]);
+  rows.push([L.ubos, fmtRegistryUbos(a.ubos)]);
+  rows.push([L.averageTicket, a.averageTicket || '—']);
+  return rows;
+}
+
+function buildRows(submission) {
   const type = submission.survey_type;
+  if (type === 'new_company' || type === 'existing_company') return buildRegistryRows(submission);
+  const a = submission.answers || {};
   const L = labelsFor(type);
   const rows = [];
   const push = function (key, value) {
@@ -192,7 +241,13 @@ function buildSubmissionPdf(submission) {
       doc.on('end', function () { resolve(Buffer.concat(chunks)); });
       doc.on('error', reject);
 
-      const type = submission.survey_type === 'high' ? 'High Risk' : 'Medium Risk';
+      const TYPE_TITLES = {
+        medium: 'Medium Risk',
+        high: 'High Risk',
+        new_company: 'New Company (registered less than 3 months ago)',
+        existing_company: 'Company (registered more than 3 months ago)',
+      };
+      const type = TYPE_TITLES[submission.survey_type] || 'Medium Risk';
       const created = submission.created_at ? new Date(submission.created_at).toISOString().replace('T', ' ').slice(0, 19) + ' UTC' : '';
 
       doc.fontSize(18).font('Helvetica-Bold').text(type + ' Survey — Submission #' + submission.id);

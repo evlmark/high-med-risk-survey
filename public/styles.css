@@ -729,3 +729,14 @@ textarea:focus {
   text-align: center;
   color: #666;
 }
+
+/* Inline help link inside a question hint (e.g. the SAT instructions link). */
+.external-link {
+  color: #3A4E99;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.external-link:hover {
+  text-decoration: none;
+}

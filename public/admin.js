@@ -39,7 +39,14 @@
     if (!s) return '';
     try { return new Date(s).toLocaleString(); } catch (e) { return s; }
   }
-  function typeLabel(t) { return t === 'high' ? 'High Risk' : 'Medium Risk'; }
+  var TYPE_LABELS = {
+    medium: 'Medium Risk',
+    high: 'High Risk',
+    new_company: 'New company (<3 months)',
+    existing_company: 'Company (>3 months)'
+  };
+  function typeLabel(t) { return TYPE_LABELS[t] || t || 'Unknown'; }
+  function isRegistrySurvey(t) { return t === 'new_company' || t === 'existing_company'; }
 
   // ---- Views ----
   function showLogin() {
@@ -152,6 +159,56 @@
       showDetail();
       window.scrollTo(0, 0);
     });
+  }
+
+  // The registered-company surveys share every question except number 3.
+  function registryLabels(type) {
+    return {
+      legalRepName: '1. Full Name of Legal Representative',
+      companyName: '2. Company name',
+      doc3: type === 'new_company'
+        ? '3. Proof of registration in the Padrón (SAT Federal Vulnerable Activity Registry)'
+        : '3. Records of filed Vulnerable Activity notices (last 3 months)',
+      taxOpinion: '4. Positive tax compliance opinion',
+      complianceProgram: '5. Evidence of compliance program (optional, AML/CFT & KYC manual)',
+      fundsOrigin: '6. Origin of the funds the business operates with',
+      ubos: "7. UBO information",
+      averageTicket: '8. Average ticket per transaction (MXN)'
+    };
+  }
+
+  function fmtRegistryUbos(ubos) {
+    if (!ubos || !ubos.length) return '';
+    return ubos.map(function (u, idx) {
+      var html = '<div class="list-item ubo-result-block">';
+      html += '<strong>UBO #' + (idx + 1) + ': ' + escapeHtml(u.uboFullName) + '</strong>';
+      html += '<br>Ownership: ' + escapeHtml(u.ownershipPercentage);
+      if (u.positionOrTitle) html += '<br>Position: ' + escapeHtml(u.positionOrTitle);
+      html += '<br>Expertise: ' + escapeHtml(u.expertise);
+      html += '<br>Role: ' + escapeHtml(u.roleAndResponsibilities);
+      html += '<br>Decisions on funds: ' + escapeHtml(u.decisionsFunds);
+      html += '</div>';
+      return html;
+    }).join('');
+  }
+
+  function fmtDoc(doc) {
+    if (!doc) return '<span class="muted">not provided</span>';
+    return downloadLink(doc.fileId, doc.fileName);
+  }
+
+  function renderRegistryDetail(a, type, rows) {
+    var L = registryLabels(type);
+    rows.push(row(L.legalRepName, escapeHtml(a.legalRepName)));
+    rows.push(row(L.companyName, escapeHtml(a.companyName)));
+    rows.push(row(L.doc3, fmtDoc(a.registrationProof)));
+    rows.push(row(L.taxOpinion, fmtDoc(a.taxOpinion)));
+    rows.push(row(L.complianceProgram, fmtDoc(a.complianceProgram)));
+    var funds = escapeHtml(a.fundsOrigin);
+    if (a.fundsOriginOther) funds += ' — ' + escapeHtml(a.fundsOriginOther);
+    rows.push(row(L.fundsOrigin, funds));
+    rows.push(row(L.ubos, fmtRegistryUbos(a.ubos)));
+    rows.push(row(L.averageTicket, escapeHtml(a.averageTicket)));
   }
 
   // English (canonical) labels with the displayed numbering, by survey type.
@@ -278,6 +335,13 @@
 
     detailTbody.innerHTML = '';
     var rows = [];
+
+    if (isRegistrySurvey(type)) {
+      renderRegistryDetail(a, type, rows);
+      rows.forEach(function (r) { detailTbody.appendChild(r); });
+      return;
+    }
+
     rows.push(row(L.legalRepName, escapeHtml(a.legalRepName)));
     rows.push(row(L.companyName, escapeHtml(a.companyName)));
     rows.push(row(L.email, escapeHtml(a.email)));
