@@ -22,25 +22,25 @@
     <form id="survey-form" class="survey-form">
       <!-- Q1: Legal representative -->
       <section class="question-block" data-question="legalRep">
-        <h2 class="question-title" data-i18n="legalRep.title">1. Full Name of Legal Representative</h2>
+        <h2 class="question-title required" data-i18n="legalRep.title">1. Full Name of Legal Representative</h2>
         <input type="text" class="q-input" name="legalRepName" id="legalRepName" data-i18n-ph="legalRep.ph" placeholder="Enter full name" required>
       </section>
 
       <!-- Q2: Company name -->
       <section class="question-block" data-question="companyName">
-        <h2 class="question-title" data-i18n="companyName.title">2. Company name</h2>
+        <h2 class="question-title required" data-i18n="companyName.title">2. Company name</h2>
         <input type="text" class="q-input" name="companyName" id="companyName" data-i18n-ph="companyName.ph" placeholder="Enter the company name" required>
       </section>
 
       <!-- Q3: Email -->
       <section class="question-block" data-question="email">
-        <h2 class="question-title" data-i18n="email.title">3. Email</h2>
+        <h2 class="question-title required" data-i18n="email.title">3. Email</h2>
         <input type="email" class="q-input" name="email" id="email" data-i18n-ph="email.ph" placeholder="name@example.com" required>
       </section>
 
       <!-- Q3 (activities) -->
       <section class="question-block" data-question="1">
-        <h2 class="question-title" data-i18n="q1.title">4. Is the company currently engaged in any of the following activities?</h2>
+        <h2 class="question-title required" data-i18n="q1.title">4. Is the company currently engaged in any of the following activities?</h2>
         <p class="question-hint" data-i18n="hint.selectMany">You may select multiple options.</p>
         <div class="options options-checkbox">
           <label><input type="checkbox" name="q1" value="Gambling, contests, or raffles"><span class="option-label" data-i18n="q1.opt.1">Gambling, contests, or raffles</span></label>
@@ -65,7 +65,7 @@
 
       <!-- Q3.1 (conditional) -->
       <section class="question-block question-conditional" id="block-q1_1" data-question="1.1" hidden>
-        <h2 class="question-title" data-i18n="q1_1.title">4.1. How long has the company been engaged in this activity?</h2>
+        <h2 class="question-title required" data-i18n="q1_1.title">4.1. How long has the company been engaged in this activity?</h2>
         <p class="question-hint" data-i18n="hint.selectOne">Select one option.</p>
         <div class="options options-radio">
           <label><input type="radio" name="q1_1" value="0 – 5 years"><span class="option-label" data-i18n="q1_1.opt.1">0 – 5 years</span></label>
@@ -76,7 +76,7 @@
 
       <!-- Q4 (jurisdictions) -->
       <section class="question-block" data-question="2">
-        <h2 class="question-title" data-i18n="q2.title">5. Does the company operate in or have direct relationships with any of the following jurisdictions?</h2>
+        <h2 class="question-title required" data-i18n="q2.title">5. Does the company operate in or have direct relationships with any of the following jurisdictions?</h2>
         <details class="jurisdictions-list-details">
           <summary class="jurisdictions-list-summary" data-i18n="q2.viewlist">View full list</summary>
           <div class="jurisdictions-list">Albania, Algeria, American Samoa, Andorra, Angola, Anguilla, Antigua and Barbuda, Aruba, Ascension, Bahrain, Barbados, Belize, Bermuda, Bolivia, Brunei Darussalam, Bulgaria, Cameroon, Cape Verde, Cayman Islands, Channel Islands, Christmas Island, Cocos Islands or Kelling, Commonwealth of Dominica, Commonwealth of the Bahamas, Cook Islands, Costa Rica, Côte d'Ivoire, Cyprus, Democratic Republic of the Congo, Djibouti, Falkland Islands, French Polynesia, Gibraltar, Greenland, Grenada, Guam, Guyana, Haiti, Honduras, Hong Kong, Isla del Hombre, Jordan, Kenya, Kiribati, Kuwait, Labuan / Malaysia, Laos, Lebanon, Liberia, Liechtenstein, Macau, Madeira, Maldives, Malta, Marshall Islands, Mauritius, Monaco, Montserrat, Namibia, Nauru, Nepal, Netherlands Antilles, Nevis, Niue, Norfolk Island, Oman, Panama, Papua New Guinea, Patau, Pitcairn, Puerto Rico, Qatar, Saint Helena, Saint Kitts, Saint Lucia, Saint Pierre and Miquelon, Saint Vincent and the Grenadines, San Marino, Seychelles, Solomon Islands, South Sudan, Sri Lanka, Svalbard Archipelago / Norway, Swaziland, Syria, Tokelau, Tonga, Trieste, Trinidad and Tobago, Tristan da Cunha, Tunisia, Turks and Caicos Islands, Tuvalu, United Arab Emirates, Uruguay, Vanuatu, Venezuela, Vietnam, Virgin Islands (UK), Virgin Islands (US), Western Samoa, Yemen</div>
@@ -90,14 +90,14 @@
 
       <!-- Q5.1 (conditional: only when Q5 = Yes) -->
       <section class="question-block question-conditional" id="block-q2_1" data-question="2.1" hidden>
-        <h2 class="question-title" data-i18n="q2_1.title">5.1. Please list all the jurisdictions where the company operates or has direct relationships.</h2>
+        <h2 class="question-title required" data-i18n="q2_1.title">5.1. Please list all the jurisdictions where the company operates or has direct relationships.</h2>
         <p class="question-hint" data-i18n="q2_1.hint">Write one country per line, or separate them with commas.</p>
         <textarea name="q2_1" id="q2_1" rows="4" data-i18n-ph="q2_1.ph" placeholder="For example: Panama, Hong Kong, United Arab Emirates"></textarea>
       </section>
 
       <!-- Q5 (providers) -->
       <section class="question-block" data-question="3">
-        <h2 class="question-title" data-i18n="q3.title">6. Who are your 3 main providers by volume?</h2>
+        <h2 class="question-title required" data-i18n="q3.title">6. Who are your 3 main providers by volume?</h2>
         <p class="question-hint" data-i18n-html="q3.hint">In case of an individual, please provide their full name, RFC and CURP.<br>In case of companies, please provide their full legal name and RFC. Add at least one provider.</p>
         <div class="add-entity-actions">
           <button type="button" class="btn btn-secondary" id="q3-add-individual" data-i18n="btn.addIndividual">Add individual</button>
@@ -108,7 +108,7 @@
 
       <!-- Q6 (client segment) -->
       <section class="question-block" data-question="4">
-        <h2 class="question-title" data-i18n="q4.title">7. Which segment represents the clients you have?</h2>
+        <h2 class="question-title required" data-i18n="q4.title">7. Which segment represents the clients you have?</h2>
         <p class="question-hint" data-i18n="hint.selectOne">Select one option.</p>
         <div class="options options-radio options-long">
           <label><input type="radio" name="q4" value="My clientele consists of the general consumer and not specific or identifiable individuals or corporations (i.e. the business is a restaurant that serves a multitude of people or a hardware store with multiple individual clients)."><span class="option-label" data-i18n="q4.opt.1">My clientele consists of the general consumer and not specific or identifiable individuals or corporations (i.e. the business is a restaurant that serves a multitude of people or a hardware store with multiple individual clients).</span></label>
@@ -119,7 +119,7 @@
 
       <!-- Q6.1 (conditional) -->
       <section class="question-block question-conditional" id="block-q4_1" data-question="4.1" hidden>
-        <h2 class="question-title" data-i18n="q4_1.title">7.1. Who are your 3 main clients by volume?</h2>
+        <h2 class="question-title required" data-i18n="q4_1.title">7.1. Who are your 3 main clients by volume?</h2>
         <p class="question-hint" data-i18n-html="q4_1.hint">In case of an individual, please provide their full name, RFC and CURP.<br>In case of companies, please provide their corporate name and RFC. Add at least one client.</p>
         <div class="add-entity-actions">
           <button type="button" class="btn btn-secondary" id="q4_1-add-individual" data-i18n="btn.addIndividual">Add individual</button>
@@ -130,13 +130,13 @@
 
       <!-- Q7 (business model) -->
       <section class="question-block" data-question="5">
-        <h2 class="question-title" data-i18n="q5.title">8. Please explain your business model.</h2>
+        <h2 class="question-title required" data-i18n="q5.title">8. Please explain your business model.</h2>
         <textarea name="q5" id="q5" rows="6" data-i18n-ph="q5.ph" placeholder="Enter your answer..." required></textarea>
       </section>
 
       <!-- Q8 (UBO) -->
       <section class="question-block" data-question="6">
-        <h2 class="question-title" data-i18n="q6.medium.title">9. Please provide the information of every ultimate beneficial owner (UBO) of the company holding, directly or indirectly, 25% or more of the capital stock.</h2>
+        <h2 class="question-title required" data-i18n="q6.medium.title">9. Please provide the information of every ultimate beneficial owner (UBO) of the company holding, directly or indirectly, 25% or more of the capital stock.</h2>
         <p class="question-hint" data-i18n="q6.medium.hint">You must add each and every UBO with 25% or more ownership. For each UBO upload two documents: the proof of address and the Tax Status Certificate (Constancia de Situación Fiscal, CSF). Each file may be up to 10 MB.</p>
         <div class="add-entity-actions">
           <button type="button" class="btn btn-secondary" id="q6-add-ubo" data-i18n="btn.addUbo">Add Information about UBO</button>
@@ -146,7 +146,7 @@
 
       <!-- Q9 (oath) -->
       <section class="question-block" data-question="7">
-        <h2 class="question-title" data-i18n="q7.title">10. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.</h2>
+        <h2 class="question-title required" data-i18n="q7.title">10. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.</h2>
         <div class="options options-radio">
           <label><input type="radio" name="q7" value="Yes"><span class="option-label" data-i18n="opt.yes">Yes</span></label>
           <label><input type="radio" name="q7" value="No"><span class="option-label" data-i18n="opt.no">No</span></label>
@@ -155,7 +155,7 @@
 
       <!-- Q10 (PEP) -->
       <section class="question-block" data-question="8">
-        <h2 class="question-title" data-i18n="q8.title">11. I declare that I am not a politically exposed person (PEP), nor the company's UBOs, shareholders or other legal representatives, nor do we have ties with public officials or authorities that could interfere with the transparency required for this relationship.</h2>
+        <h2 class="question-title required" data-i18n="q8.title">11. I declare that I am not a politically exposed person (PEP), nor the company's UBOs, shareholders or other legal representatives, nor do we have ties with public officials or authorities that could interfere with the transparency required for this relationship.</h2>
         <div class="options options-radio">
           <label><input type="radio" name="q8" value="Yes"><span class="option-label" data-i18n="opt.yes">Yes</span></label>
           <label><input type="radio" name="q8" value="No"><span class="option-label" data-i18n="opt.no">No</span></label>
@@ -164,7 +164,7 @@
 
       <!-- Signature -->
       <section class="question-block" data-question="signature">
-        <h2 class="question-title" data-i18n="sig.title">Add your signature</h2>
+        <h2 class="question-title required" data-i18n="sig.title">Add your signature</h2>
         <div class="signature-block">
           <div class="signature-wrap">
             <canvas id="signature-canvas" width="400" height="180" aria-label="Sign here"></canvas>

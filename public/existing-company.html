@@ -22,19 +22,19 @@
     <form id="survey-form" class="survey-form" data-survey-type="existing_company">
       <!-- Q1: Legal representative -->
       <section class="question-block" data-question="legalRep">
-        <h2 class="question-title" data-i18n="legalRep.title">1. Full Name of Legal Representative</h2>
+        <h2 class="question-title required" data-i18n="legalRep.title">1. Full Name of Legal Representative</h2>
         <input type="text" class="q-input" name="legalRepName" id="legalRepName" data-i18n-ph="legalRep.ph" placeholder="Enter full name" required>
       </section>
 
       <!-- Q2: Company name -->
       <section class="question-block" data-question="companyName">
-        <h2 class="question-title" data-i18n="companyName.title">2. Company name</h2>
+        <h2 class="question-title required" data-i18n="companyName.title">2. Company name</h2>
         <input type="text" class="q-input" name="companyName" id="companyName" data-i18n-ph="companyName.ph" placeholder="Enter the company name" required>
       </section>
 
       <!-- Q3: Records of filed Vulnerable Activity notices -->
       <section class="question-block" data-question="doc3">
-        <h2 class="question-title" data-i18n="reg.notices.title">3. Records of filed Vulnerable Activity notices</h2>
+        <h2 class="question-title required" data-i18n="reg.notices.title">3. Records of filed Vulnerable Activity notices</h2>
         <p class="question-hint" data-i18n="reg.notices.hint">The receipts confirming that you filed your Vulnerable Activity notices for the last 3 months. If there was nothing to report in a given month, include the corresponding "no transactions" notice. Combine everything into a single file.</p>
         <div class="file-upload-wrap" id="doc3-wrap">
           <label><span data-i18n="field.docMax">Document, max 10 MB</span> <input type="file" id="doc3-file" accept="*" required></label>
@@ -45,7 +45,7 @@
 
       <!-- Q4: Positive tax compliance opinion -->
       <section class="question-block" data-question="taxOpinion">
-        <h2 class="question-title" data-i18n="reg.tax.title">4. Positive tax compliance opinion</h2>
+        <h2 class="question-title required" data-i18n="reg.tax.title">4. Positive tax compliance opinion</h2>
         <p class="question-hint" data-i18n="reg.tax.hint">The "Opinión del cumplimiento de obligaciones fiscales" issued by the SAT, in a positive sense.</p>
         <p class="question-hint"><a class="external-link" href="https://wwwmat.sat.gob.mx/consultas/20430/consulta-tu-opinion-de-cumplimiento-de-obligaciones-fiscales-para-tu-empresa" target="_blank" rel="noopener noreferrer" data-i18n="reg.tax.link">How to obtain it on the SAT Portal</a></p>
         <div class="file-upload-wrap" id="tax-wrap">
@@ -68,7 +68,7 @@
 
       <!-- Q6: Origin of the funds -->
       <section class="question-block" data-question="funds">
-        <h2 class="question-title" data-i18n="reg.funds.title">6. What is the origin of the funds the business operates with?</h2>
+        <h2 class="question-title required" data-i18n="reg.funds.title">6. What is the origin of the funds the business operates with?</h2>
         <p class="question-hint" data-i18n="hint.selectOne">Select one option.</p>
         <div class="options options-radio">
           <label><input type="radio" name="funds" value="Capital contributed by the shareholders or owners"><span class="option-label" data-i18n="reg.funds.opt.1">Capital contributed by the shareholders or owners</span></label>
@@ -85,14 +85,14 @@
 
       <!-- Q7: Average ticket -->
       <section class="question-block" data-question="ticket">
-        <h2 class="question-title" data-i18n="reg.ticket.title">7. What is your average ticket per transaction, in Mexican pesos (MXN)?</h2>
+        <h2 class="question-title required" data-i18n="reg.ticket.title">7. What is your average ticket per transaction, in Mexican pesos (MXN)?</h2>
         <p class="question-hint" data-i18n="reg.ticket.hint">Enter the typical amount of a single sale or transaction, in MXN.</p>
         <input type="text" class="q-input" id="ticket" data-i18n-ph="reg.ticket.ph" placeholder="For example: $15,000.00 MXN" required>
       </section>
 
       <!-- Q8: UBO information -->
       <section class="question-block" data-question="ubo">
-        <h2 class="question-title" data-i18n="reg.ubo.title">8. Please provide information of the UBO&#39;s</h2>
+        <h2 class="question-title required" data-i18n="reg.ubo.title">8. Please provide information of the UBO&#39;s</h2>
         <p class="question-hint" data-i18n="reg.ubo.hint">Add at least one ultimate beneficial owner.</p>
         <div class="add-entity-actions">
           <button type="button" class="btn btn-secondary" id="ubo-add" data-i18n="btn.addUbo">Add Information about UBO</button>
@@ -102,7 +102,7 @@
 
       <!-- Q9: Declaration under oath -->
       <section class="question-block" data-question="oath">
-        <h2 class="question-title" data-i18n="reg.oath.title">9. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.</h2>
+        <h2 class="question-title required" data-i18n="reg.oath.title">9. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.</h2>
         <div class="options options-radio">
           <label><input type="radio" name="oath" value="Yes"><span class="option-label" data-i18n="opt.yes">Yes</span></label>
           <label><input type="radio" name="oath" value="No"><span class="option-label" data-i18n="opt.no">No</span></label>
@@ -111,7 +111,7 @@
 
       <!-- Q10: PEP declaration -->
       <section class="question-block" data-question="pep">
-        <h2 class="question-title" data-i18n="reg.pep.title">10. I declare that I am not a politically exposed person (PEP), nor the company&#39;s UBOs, shareholders or other legal representatives, nor do we have ties with public officials or authorities that could interfere with the transparency required for this relationship.</h2>
+        <h2 class="question-title required" data-i18n="reg.pep.title">10. I declare that I am not a politically exposed person (PEP), nor the company&#39;s UBOs, shareholders or other legal representatives, nor do we have ties with public officials or authorities that could interfere with the transparency required for this relationship.</h2>
         <div class="options options-radio">
           <label><input type="radio" name="pep" value="Yes"><span class="option-label" data-i18n="opt.yes">Yes</span></label>
           <label><input type="radio" name="pep" value="No"><span class="option-label" data-i18n="opt.no">No</span></label>
@@ -120,7 +120,7 @@
 
       <!-- Signature -->
       <section class="question-block" data-question="signature">
-        <h2 class="question-title" data-i18n="sig.title">Add your signature</h2>
+        <h2 class="question-title required" data-i18n="sig.title">Add your signature</h2>
         <div class="signature-block">
           <div class="signature-wrap">
             <canvas id="signature-canvas" width="400" height="180" aria-label="Sign here"></canvas>

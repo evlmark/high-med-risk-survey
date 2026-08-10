@@ -97,6 +97,14 @@ body {
   color: #1a1a1a;
 }
 
+/* Red asterisk on mandatory questions. Rendered via ::after so it survives the
+   i18n pass, which overwrites the element's textContent on every language switch. */
+.question-title.required::after {
+  content: " *";
+  color: #d64545;
+  font-weight: 700;
+}
+
 .question-hint {
   margin: 0 0 12px;
   font-size: 0.9rem;
@@ -740,6 +748,15 @@ textarea:focus {
   flex-direction: column;
   gap: 6px;
   align-items: center;
+  text-align: center;
+}
+
+/* Center the native file control itself so "Choose File / no file selected"
+   sits in the middle of the drop-zone rather than shrinking to the left. */
+.file-upload-wrap input[type="file"] {
+  display: block;
+  margin: 0 auto;
+  text-align: center;
 }
 
 /* Small pill next to a question title, e.g. "Optional". */
