@@ -83,6 +83,76 @@
   }
   document.getElementById('ubo-add').addEventListener('click', addUBOBlock);
 
+  // --- Signature canvas (same as the Medium/High surveys)
+  (function () {
+    const canvas = document.getElementById('signature-canvas');
+    const placeholder = document.getElementById('signature-placeholder');
+    const removeBtn = document.getElementById('remove-signature-btn');
+    if (!canvas || !removeBtn) return;
+
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let hasStroke = false;
+
+    function setCanvasSize() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.scale(dpr, dpr);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+    }
+    function clearSignature() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hasStroke = false;
+      if (placeholder) placeholder.style.visibility = '';
+    }
+    function getCoord(e) {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches && e.touches[0]) {
+        return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+      }
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+    function start(e) {
+      e.preventDefault();
+      drawing = true;
+      var pos = getCoord(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+      hasStroke = true;
+      if (placeholder) placeholder.style.visibility = 'hidden';
+    }
+    function move(e) {
+      e.preventDefault();
+      if (!drawing) return;
+      var pos = getCoord(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    }
+    function end(e) {
+      e.preventDefault();
+      drawing = false;
+    }
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    canvas.addEventListener('mouseup', end);
+    canvas.addEventListener('mouseleave', end);
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove', move, { passive: false });
+    canvas.addEventListener('touchend', end, { passive: false });
+
+    removeBtn.addEventListener('click', clearSignature);
+    window.addEventListener('resize', setCanvasSize);
+    setCanvasSize();
+
+    window.getSignatureBase64 = function () { return hasStroke ? canvas.toDataURL('image/png') : null; };
+    window.hasSignature = function () { return hasStroke; };
+  })();
+
   // --- Collect
   function readFileAsBase64(file) {
     return new Promise(function (resolve, reject) {
@@ -164,6 +234,10 @@
 
     if (!val('ticket')) errors.push(t('err.reg.ticket'));
 
+    if (!getSelectedValue('oath')) errors.push(t('err.reg.oath'));
+    if (!getSelectedValue('pep')) errors.push(t('err.reg.pep'));
+    if (typeof window.hasSignature !== 'function' || !window.hasSignature()) errors.push(t('err.signature'));
+
     return errors.filter(function (e, i) { return errors.indexOf(e) === i; });
   }
 
@@ -209,6 +283,9 @@
         fundsOriginOther: funds === 'Other (specify)' ? val('funds-other') : '',
         ubos: collectUBOs(),
         averageTicket: val('ticket'),
+        declarationOath: getSelectedValue('oath'),
+        declarationPep: getSelectedValue('pep'),
+        signature: typeof window.getSignatureBase64 === 'function' ? window.getSignatureBase64() : null,
       };
       const lang = (window.I18N && window.I18N.getLang) ? window.I18N.getLang() : 'es';
       return fetch('/api/submit', {

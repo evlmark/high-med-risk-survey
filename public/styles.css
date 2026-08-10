@@ -320,7 +320,9 @@ textarea:focus {
   color: #333;
 }
 
-.entity-card .file-upload-wrap {
+/* The dashed drop-zone is shared by uploads inside entity cards and the
+   standalone document questions on the registered-company surveys. */
+.file-upload-wrap {
   border: 2px dashed #ccc;
   border-radius: 8px;
   padding: 16px;
@@ -328,11 +330,12 @@ textarea:focus {
   background: #fafafa;
 }
 
-.entity-card .file-upload-wrap.has-file {
+.file-upload-wrap.has-file {
   border-color: #2e7d32;
   background: #f1f8e9;
 }
 
+.file-upload-wrap input[type="file"],
 .entity-card input[type="file"] {
   font-size: 0.9rem;
 }
@@ -728,6 +731,39 @@ textarea:focus {
   padding: 32px 16px;
   text-align: center;
   color: #666;
+}
+
+/* Standalone drop-zones (outside entity cards) stack their generic label above
+   the file input, same as the uploads inside UBO cards. */
+.file-upload-wrap label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Small pill next to a question title, e.g. "Optional". */
+.q-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 3px 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #556;
+  background: #eef0f4;
+  border-radius: 999px;
+  vertical-align: 3px;
+  white-space: nowrap;
+}
+
+/* "Specify" fields outside entity cards: label above a full-width input,
+   matching how the same field looks inside the High Risk UBO cards. */
+.conditional-field label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 /* Inline help link inside a question hint (e.g. the SAT instructions link). */

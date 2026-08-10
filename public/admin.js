@@ -172,8 +172,10 @@
       taxOpinion: '4. Positive tax compliance opinion',
       complianceProgram: '5. Evidence of compliance program (optional, AML/CFT & KYC manual)',
       fundsOrigin: '6. Origin of the funds the business operates with',
-      ubos: "7. UBO information",
-      averageTicket: '8. Average ticket per transaction (MXN)'
+      averageTicket: '7. Average ticket per transaction (MXN)',
+      ubos: "8. UBO information",
+      oath: '9. Declaration under oath (information is true and accurate).',
+      pep: '10. Declaration of not being a politically exposed person (PEP).'
     };
   }
 
@@ -207,8 +209,10 @@
     var funds = escapeHtml(a.fundsOrigin);
     if (a.fundsOriginOther) funds += ' — ' + escapeHtml(a.fundsOriginOther);
     rows.push(row(L.fundsOrigin, funds));
-    rows.push(row(L.ubos, fmtRegistryUbos(a.ubos)));
     rows.push(row(L.averageTicket, escapeHtml(a.averageTicket)));
+    rows.push(row(L.ubos, fmtRegistryUbos(a.ubos)));
+    rows.push(row(L.oath, escapeHtml(a.declarationOath)));
+    rows.push(row(L.pep, escapeHtml(a.declarationPep)));
   }
 
   // English (canonical) labels with the displayed numbering, by survey type.
@@ -339,6 +343,7 @@
     if (isRegistrySurvey(type)) {
       renderRegistryDetail(a, type, rows);
       rows.forEach(function (r) { detailTbody.appendChild(r); });
+      appendSignatureRow(a);
       return;
     }
 
@@ -363,13 +368,15 @@
     rows.push(row(L.q7, escapeHtml(a.q7)));
     rows.push(row(L.q8, escapeHtml(a.q8)));
     rows.forEach(function (r) { detailTbody.appendChild(r); });
+    appendSignatureRow(a);
+  }
 
-    if (a.signature) {
-      var tr = document.createElement('tr');
-      tr.innerHTML = '<th>Signature</th><td><img alt="Signature" class="signature-image"></td>';
-      tr.querySelector('img').src = a.signature;
-      detailTbody.appendChild(tr);
-    }
+  function appendSignatureRow(a) {
+    if (!a.signature) return;
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<th>Signature</th><td><img alt="Signature" class="signature-image"></td>';
+    tr.querySelector('img').src = a.signature;
+    detailTbody.appendChild(tr);
   }
 
   // ---- Init ----

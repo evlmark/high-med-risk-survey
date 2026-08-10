@@ -160,8 +160,10 @@ function registryLabels(type) {
     taxOpinion: '4. Positive tax compliance opinion',
     complianceProgram: '5. Evidence of compliance program (optional, AML/CFT & KYC manual)',
     fundsOrigin: '6. Origin of the funds the business operates with',
-    ubos: "7. UBO information",
-    averageTicket: '8. Average ticket per transaction (MXN)',
+    averageTicket: '7. Average ticket per transaction (MXN)',
+    ubos: "8. UBO information",
+    oath: '9. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.',
+    pep: "10. I declare that I am not a politically exposed person (PEP), nor the company's UBOs, shareholders or other legal representatives.",
   };
 }
 
@@ -192,8 +194,10 @@ function buildRegistryRows(submission) {
   let funds = a.fundsOrigin || '—';
   if (a.fundsOriginOther) funds += ' (' + a.fundsOriginOther + ')';
   rows.push([L.fundsOrigin, funds]);
-  rows.push([L.ubos, fmtRegistryUbos(a.ubos)]);
   rows.push([L.averageTicket, a.averageTicket || '—']);
+  rows.push([L.ubos, fmtRegistryUbos(a.ubos)]);
+  rows.push([L.oath, a.declarationOath || '—']);
+  rows.push([L.pep, a.declarationPep || '—']);
   return rows;
 }
 

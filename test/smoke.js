@@ -86,6 +86,8 @@ const regAnswers = (extra) => Object.assign({
     decisionsFunds: 'Aprueba pagos y distribución de utilidades',
   }],
   averageTicket: '$15,000.00 MXN',
+  declarationOath: 'Yes', declarationPep: 'Yes',
+  signature: 'data:image/png;base64,' + Buffer.alloc(50, 0x41).toString('base64'),
 }, extra || {});
 
 (async () => {
@@ -173,6 +175,8 @@ const regAnswers = (extra) => Object.assign({
       Object.keys(a.ubos[0]).join(',') === 'uboFullName,ownershipPercentage,positionOrTitle,expertise,roleAndResponsibilities,decisionsFunds',
       Object.keys(a.ubos[0]).join(','));
     check(st + ': average ticket kept', a.averageTicket === '$15,000.00 MXN', a.averageTicket);
+    check(st + ': declarations kept', a.declarationOath === 'Yes' && a.declarationPep === 'Yes', '');
+    check(st + ': signature kept inline', typeof a.signature === 'string' && a.signature.indexOf('data:image') === 0, '');
     check(st + ': survey_type persisted',
       queries.find((q) => /INSERT INTO submissions/.test(q.sql)).params[0] === st, '');
   }

@@ -197,21 +197,17 @@
       // Q3 — differs by survey
       'reg.padron.title': '3. Constancia de alta en el Padrón',
       'reg.padron.hint': 'Acuse de alta en el Padrón Federal de Actividades Vulnerables, emitido por el sistema electrónico de la Secretaría de Hacienda (Portal del SAT). Cargue el acuse que recibió al completar el registro.',
-      'reg.padron.file': 'Constancia de alta en el Padrón (documento, máx. 10 MB)',
       'reg.notices.title': '3. Acuses de los avisos de Actividad Vulnerable presentados',
       'reg.notices.hint': 'Los acuses que confirman la presentación de sus avisos de Actividad Vulnerable de los últimos 3 meses. Si en algún mes no tuvo operaciones que reportar, incluya el aviso «sin operaciones» correspondiente. Reúna todo en un solo archivo.',
-      'reg.notices.file': 'Acuses de los últimos 3 meses (documento, máx. 10 MB)',
 
       // Q4 — tax compliance opinion
       'reg.tax.title': '4. Opinión del cumplimiento de obligaciones fiscales en sentido positivo',
       'reg.tax.hint': 'La «Opinión del cumplimiento de obligaciones fiscales» que emite el SAT, en sentido positivo. De forma independiente a su inscripción en el registro del SAT, este documento confirma que la empresa está al corriente con sus obligaciones fiscales y que opera realmente. Una opinión en sentido negativo, o con estatus «no localizado» o restringido, implica que revisaremos su solicitud con mayor detalle.',
       'reg.tax.link': 'Cómo obtenerla en el Portal del SAT',
-      'reg.tax.file': 'Opinión del cumplimiento (documento, máx. 10 MB)',
 
       // Q5 — compliance program (optional)
-      'reg.compliance.title': '5. Evidencia de su programa de cumplimiento (opcional)',
-      'reg.compliance.hint': 'Su manual interno de políticas PLD/FT y KYC: el documento que describe cómo la empresa previene el lavado de dinero y el financiamiento al terrorismo, cómo identifica a sus clientes, quién es el responsable de cumplimiento y cómo se conservan los registros. Si cuenta con ese manual, cárguelo. Esta pregunta es opcional.',
-      'reg.compliance.file': 'Manual de políticas PLD/FT y KYC (documento, máx. 10 MB)',
+      'reg.compliance.title': '5. Evidencia de su programa de cumplimiento',
+      'reg.compliance.hint': 'Su manual interno de políticas PLD/FT y KYC: el documento que describe cómo la empresa previene el lavado de dinero y el financiamiento al terrorismo, cómo identifica a sus clientes, quién es el responsable de cumplimiento y cómo se conservan los registros. Si cuenta con ese manual, cárguelo.',
 
       // Q6 — origin of funds
       'reg.funds.title': '6. ¿Cuál es el origen de los recursos con los que opera el negocio?',
@@ -224,11 +220,11 @@
       'reg.funds.other.ph': 'Describa el origen de los recursos',
 
       // Q7 — UBO (first six fields of the High Risk UBO block)
-      'reg.ubo.title': '7. Proporcione la información de los beneficiarios finales (UBO)',
+      'reg.ubo.title': '8. Proporcione la información de los beneficiarios finales (UBO)',
       'reg.ubo.hint': 'Agregue al menos un beneficiario final.',
 
       // Q8 — average ticket
-      'reg.ticket.title': '8. ¿Cuál es su ticket promedio por operación, en pesos mexicanos (MXN)?',
+      'reg.ticket.title': '7. ¿Cuál es su ticket promedio por operación, en pesos mexicanos (MXN)?',
       'reg.ticket.hint': 'Indique el monto típico de una venta u operación, en MXN.',
       'reg.ticket.ph': 'Por ejemplo: $15,000.00 MXN',
 
@@ -236,9 +232,15 @@
       'err.reg.tax': 'Pregunta 4: la opinión del cumplimiento es obligatoria.',
       'err.reg.funds': 'Pregunta 6: seleccione el origen de los recursos.',
       'err.reg.fundsOther': 'Pregunta 6: describa el origen de los recursos.',
-      'err.reg.ubo': 'Pregunta 7: agregue al menos un UBO.',
-      'err.reg.uboFields': 'Pregunta 7: complete todos los campos obligatorios de cada UBO.',
-      'err.reg.ticket': 'Pregunta 8: indique su ticket promedio.',
+      'err.reg.ubo': 'Pregunta 8: agregue al menos un UBO.',
+      'err.reg.uboFields': 'Pregunta 8: complete todos los campos obligatorios de cada UBO.',
+      'err.reg.ticket': 'Pregunta 7: indique su ticket promedio.',
+      'err.reg.oath': 'Pregunta 9: seleccione Sí o No.',
+      'err.reg.pep': 'Pregunta 10: seleccione Sí o No.',
+
+      'badge.optional': 'Opcional',
+      'reg.oath.title': '9. Declaro bajo protesta de decir verdad que la información de este formulario es verdadera y exacta, y que no he omitido ninguna información relevante que pudiera afectar este proceso.',
+      'reg.pep.title': '10. Declaro que no soy una persona políticamente expuesta (PEP), ni lo son los UBO, accionistas u otros representantes legales de la empresa, ni tenemos vínculos con funcionarios públicos o autoridades que pudieran interferir con la transparencia requerida para esta relación.',
 
       'success.title': '¡Gracias!',
       'success.message': 'Su información se ha enviado correctamente.'
@@ -417,21 +419,17 @@
       // Q3 — differs by survey
       'reg.padron.title': '3. Proof of registration in the Padrón',
       'reg.padron.hint': 'Acknowledgment of your registration in the Federal Registry of Vulnerable Activities, issued by the Ministry of Finance electronic system (SAT Portal). Upload the acknowledgment you received when you completed the registration.',
-      'reg.padron.file': 'Proof of registration in the Padrón (document, max 10 MB)',
       'reg.notices.title': '3. Records of filed Vulnerable Activity notices',
       'reg.notices.hint': 'The receipts confirming that you filed your Vulnerable Activity notices for the last 3 months. If there was nothing to report in a given month, include the corresponding "no transactions" notice. Combine everything into a single file.',
-      'reg.notices.file': 'Records for the last 3 months (document, max 10 MB)',
 
       // Q4 — tax compliance opinion
       'reg.tax.title': '4. Positive tax compliance opinion',
       'reg.tax.hint': 'The "Opinión del cumplimiento de obligaciones fiscales" issued by the SAT, in a positive sense. Independently of your registration in the SAT register, this document confirms that the company is up to date with its tax obligations and genuinely operating. An opinion in a negative sense, or one showing a "not located" or restricted status, means we will review your application in more detail.',
       'reg.tax.link': 'How to obtain it on the SAT Portal',
-      'reg.tax.file': 'Tax compliance opinion (document, max 10 MB)',
 
       // Q5 — compliance program (optional)
-      'reg.compliance.title': '5. Evidence of your compliance program (optional)',
-      'reg.compliance.hint': 'Your internal AML/CFT and KYC policies manual: the document describing how the company prevents money laundering and terrorist financing, how it identifies its clients, who is responsible for compliance, and how records are kept. If you have such a manual, upload it. This question is optional.',
-      'reg.compliance.file': 'AML/CFT and KYC policies manual (document, max 10 MB)',
+      'reg.compliance.title': '5. Evidence of your compliance program',
+      'reg.compliance.hint': 'Your internal AML/CFT and KYC policies manual: the document describing how the company prevents money laundering and terrorist financing, how it identifies its clients, who is responsible for compliance, and how records are kept. If you have such a manual, upload it.',
 
       // Q6 — origin of funds
       'reg.funds.title': '6. What is the origin of the funds the business operates with?',
@@ -444,11 +442,11 @@
       'reg.funds.other.ph': 'Describe the origin of the funds',
 
       // Q7 — UBO (first six fields of the High Risk UBO block)
-      'reg.ubo.title': "7. Please provide information of the UBO's",
+      'reg.ubo.title': "8. Please provide information of the UBO's",
       'reg.ubo.hint': 'Add at least one ultimate beneficial owner.',
 
       // Q8 — average ticket
-      'reg.ticket.title': '8. What is your average ticket per transaction, in Mexican pesos (MXN)?',
+      'reg.ticket.title': '7. What is your average ticket per transaction, in Mexican pesos (MXN)?',
       'reg.ticket.hint': 'Enter the typical amount of a single sale or transaction, in MXN.',
       'reg.ticket.ph': 'For example: $15,000.00 MXN',
 
@@ -456,9 +454,15 @@
       'err.reg.tax': 'Question 4: the tax compliance opinion is required.',
       'err.reg.funds': 'Question 6: select the origin of the funds.',
       'err.reg.fundsOther': 'Question 6: describe the origin of the funds.',
-      'err.reg.ubo': 'Question 7: add at least one UBO.',
-      'err.reg.uboFields': 'Question 7: fill in every required field for each UBO.',
-      'err.reg.ticket': 'Question 8: enter your average ticket.',
+      'err.reg.ubo': 'Question 8: add at least one UBO.',
+      'err.reg.uboFields': 'Question 8: fill in every required field for each UBO.',
+      'err.reg.ticket': 'Question 7: enter your average ticket.',
+      'err.reg.oath': 'Question 9: select Yes or No.',
+      'err.reg.pep': 'Question 10: select Yes or No.',
+
+      'badge.optional': 'Optional',
+      'reg.oath.title': '9. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.',
+      'reg.pep.title': "10. I declare that I am not a politically exposed person (PEP), nor the company's UBOs, shareholders or other legal representatives, nor do we have ties with public officials or authorities that could interfere with the transparency required for this relationship.",
 
       'success.title': 'Thank you!',
       'success.message': 'Your information has been submitted successfully.'
