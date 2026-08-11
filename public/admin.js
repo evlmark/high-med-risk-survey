@@ -263,9 +263,39 @@
     return base;
   }
 
+  // Per-detail lookup, refreshed on every openDetail: fileId -> {size, hash}, and
+  // how many files in this submission share each content hash.
+  var detailFilesById = {};
+  var detailHashCounts = {};
+
+  function setDetailFiles(files) {
+    detailFilesById = {};
+    detailHashCounts = {};
+    (files || []).forEach(function (f) {
+      detailFilesById[f.id] = f;
+      if (f.hash) detailHashCounts[f.hash] = (detailHashCounts[f.hash] || 0) + 1;
+    });
+  }
+
+  function fmtBytes(n) {
+    if (n == null) return '';
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+    return (n / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
   function downloadLink(fileId, fileName) {
     if (!fileId) return escapeHtml(fileName || '—');
-    return '<a class="download-link" href="/api/admin/files/' + fileId + '">' + escapeHtml(fileName || 'document') + '</a>';
+    var html = '<a class="download-link" href="/api/admin/files/' + fileId + '">' + escapeHtml(fileName || 'document') + '</a>';
+    var meta = detailFilesById[fileId];
+    if (meta) {
+      if (meta.size != null) html += ' <span class="file-meta">' + escapeHtml(fmtBytes(meta.size)) + '</span>';
+      // Same bytes attached to more than one question in this submission.
+      if (meta.hash && detailHashCounts[meta.hash] > 1) {
+        html += ' <span class="file-dup" title="Identical file uploaded to another question">⚠ same file</span>';
+      }
+    }
+    return html;
   }
   function fmtList(arr) {
     if (!arr || !arr.length) return '';
@@ -351,6 +381,7 @@
     var a = sub.answers || {};
     var type = sub.survey_type;
     var L = labelsFor(type);
+    setDetailFiles(files);
 
     detailMeta.innerHTML =
       '<div><strong>Submission #' + escapeHtml(sub.id) + '</strong> · ' + escapeHtml(typeLabel(type)) + '</div>' +

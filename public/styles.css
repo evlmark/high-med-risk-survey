@@ -502,6 +502,23 @@ textarea:focus {
   border-radius: 6px;
 }
 
+/* File size + duplicate marker shown next to a download link in the admin. */
+.file-meta {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.file-dup {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #b23;
+  background: #fdecec;
+  border-radius: 999px;
+}
+
 /* Full-width heading row inside the admin detail table (e.g. "UBO #1: NAME"). */
 .results-table tr.detail-subhead td {
   background: #eef0f4;

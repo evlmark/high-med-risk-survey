@@ -257,8 +257,10 @@ app.get('/api/admin/submissions/:id', auth.requireAdmin, async function (req, re
     if (!id) return res.status(400).json({ error: 'bad id' });
     const sub = (await pool.query('SELECT * FROM submissions WHERE id=$1', [id])).rows[0];
     if (!sub) return res.status(404).json({ error: 'not found' });
+    // size + md5 let the admin flag when the very same document was uploaded to
+    // more than one question (a common client mistake), without shipping the bytes.
     const files = (await pool.query(
-      'SELECT id, field, file_name, mime_type FROM files WHERE submission_id=$1 ORDER BY id',
+      'SELECT id, field, file_name, mime_type, octet_length(data) AS size, md5(data) AS hash FROM files WHERE submission_id=$1 ORDER BY id',
       [id]
     )).rows;
     res.json({ submission: sub, files: files });
