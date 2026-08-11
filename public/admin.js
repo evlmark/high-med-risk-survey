@@ -179,19 +179,39 @@
     };
   }
 
-  function fmtRegistryUbos(ubos) {
-    if (!ubos || !ubos.length) return '';
-    return ubos.map(function (u, idx) {
-      var html = '<div class="list-item ubo-result-block">';
-      html += '<strong>UBO #' + (idx + 1) + ': ' + escapeHtml(u.uboFullName) + '</strong>';
-      html += '<br>Ownership: ' + escapeHtml(u.ownershipPercentage);
-      if (u.positionOrTitle) html += '<br>Position: ' + escapeHtml(u.positionOrTitle);
-      html += '<br>Expertise: ' + escapeHtml(u.expertise);
-      html += '<br>Role: ' + escapeHtml(u.roleAndResponsibilities);
-      html += '<br>Decisions on funds: ' + escapeHtml(u.decisionsFunds);
-      html += '</div>';
-      return html;
-    }).join('');
+  // Sub-fields of one UBO, each shown as its own labelled row.
+  var UBO_FIELDS = [
+    { key: 'ownershipPercentage', label: 'Ownership percentage', pre: false },
+    { key: 'positionOrTitle', label: 'Position or title within the company', pre: false, optional: true },
+    { key: 'expertise', label: 'Relevant expertise', pre: true },
+    { key: 'roleAndResponsibilities', label: 'Role and main responsibilities', pre: true },
+    { key: 'decisionsFunds', label: 'Decisions on funds', pre: true }
+  ];
+
+  // A full-width heading row inside the detail table (spans both columns).
+  function subheadRow(text) {
+    var tr = document.createElement('tr');
+    tr.className = 'detail-subhead';
+    tr.innerHTML = '<td colspan="2">' + escapeHtml(text) + '</td>';
+    return tr;
+  }
+
+  // Push each UBO as a heading plus one row per sub-question, so long expertise
+  // and responsibilities answers no longer run into each other.
+  function pushRegistryUbos(ubos, rows) {
+    if (!ubos || !ubos.length) {
+      rows.push(row('—', ''));
+      return;
+    }
+    ubos.forEach(function (u, idx) {
+      rows.push(subheadRow('UBO #' + (idx + 1) + ': ' + (u.uboFullName || '')));
+      UBO_FIELDS.forEach(function (f) {
+        var val = u[f.key];
+        if (f.optional && !val) return;
+        var cell = f.pre ? '<div class="answer-pre">' + escapeHtml(val) + '</div>' : escapeHtml(val);
+        rows.push(row(f.label, cell));
+      });
+    });
   }
 
   function fmtDoc(doc) {
@@ -210,7 +230,8 @@
     if (a.fundsOriginOther) funds += ' — ' + escapeHtml(a.fundsOriginOther);
     rows.push(row(L.fundsOrigin, funds));
     rows.push(row(L.averageTicket, escapeHtml(a.averageTicket)));
-    rows.push(row(L.ubos, fmtRegistryUbos(a.ubos)));
+    rows.push(subheadRow(L.ubos));
+    pushRegistryUbos(a.ubos, rows);
     rows.push(row(L.oath, escapeHtml(a.declarationOath)));
     rows.push(row(L.pep, escapeHtml(a.declarationPep)));
   }
