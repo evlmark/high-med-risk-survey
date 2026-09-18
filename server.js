@@ -236,12 +236,12 @@ app.get('/api/admin/submissions', auth.requireAdmin, async function (req, res) {
     let rows;
     if (SURVEY_TYPES.indexOf(type) >= 0) {
       rows = (await pool.query(
-        'SELECT id, survey_type, legal_rep_name, email, answers->>\'companyName\' AS company_name, language, created_at FROM submissions WHERE survey_type=$1 ORDER BY created_at DESC',
+        'SELECT id, survey_type, legal_rep_name, email, answers->>\'companyName\' AS company_name, language, docs_attached, created_at FROM submissions WHERE survey_type=$1 ORDER BY created_at DESC',
         [type]
       )).rows;
     } else {
       rows = (await pool.query(
-        'SELECT id, survey_type, legal_rep_name, email, answers->>\'companyName\' AS company_name, language, created_at FROM submissions ORDER BY created_at DESC'
+        'SELECT id, survey_type, legal_rep_name, email, answers->>\'companyName\' AS company_name, language, docs_attached, created_at FROM submissions ORDER BY created_at DESC'
       )).rows;
     }
     res.json({ submissions: rows });
@@ -267,6 +267,21 @@ app.get('/api/admin/submissions/:id', auth.requireAdmin, async function (req, re
   } catch (err) {
     console.error('[submission] error:', err.message);
     res.status(500).json({ error: 'query failed' });
+  }
+});
+
+// Toggle the "documents attached to the company's case" flag for a submission.
+app.post('/api/admin/submissions/:id/docs-attached', auth.requireAdmin, async function (req, res) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!id) return res.status(400).json({ error: 'bad id' });
+    const attached = (req.body || {}).attached === true;
+    const upd = await pool.query('UPDATE submissions SET docs_attached=$1 WHERE id=$2 RETURNING docs_attached', [attached, id]);
+    if (!upd.rows.length) return res.status(404).json({ error: 'not found' });
+    res.json({ ok: true, docsAttached: upd.rows[0].docs_attached });
+  } catch (err) {
+    console.error('[docs-attached] error:', err.message);
+    res.status(500).json({ error: 'update failed' });
   }
 });
 

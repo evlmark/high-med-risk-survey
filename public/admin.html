@@ -45,7 +45,7 @@
         <div class="results-table-wrap">
           <table class="results-table admin-table" id="list-table" hidden>
             <thead>
-              <tr><th>ID</th><th>Date</th><th>Type</th><th>Company</th><th>Legal representative</th><th>Email</th></tr>
+              <tr><th>ID</th><th>Date</th><th>Type</th><th>Company</th><th>Legal representative</th><th>Email</th><th>Docs&nbsp;attached</th></tr>
             </thead>
             <tbody id="list-tbody"></tbody>
           </table>
@@ -59,6 +59,11 @@
           <a class="btn btn-primary" id="pdf-link" href="#" target="_blank" rel="noopener">Download PDF</a>
         </div>
         <div id="detail-meta" class="detail-meta"></div>
+        <label class="docs-attached-toggle">
+          <input type="checkbox" id="docs-attached-cb">
+          <span>Documents attached to the company's case</span>
+          <span class="docs-attached-status" id="docs-attached-status" hidden>Saved</span>
+        </label>
         <div class="results-table-wrap">
           <table class="results-table">
             <tbody id="detail-tbody"></tbody>

@@ -32,6 +32,7 @@ class FakePool {
   async query(sql, params) {
     queries.push({ sql, params });
     if (/FROM files WHERE id/.test(sql)) return { rows: [fileRow] };
+    if (/UPDATE submissions SET docs_attached/.test(sql)) return { rows: [{ docs_attached: params[0] }] };
     return { rows: [] };
   }
 }
@@ -222,6 +223,25 @@ const regAnswers = (extra) => Object.assign({
   const dl2 = await fetch(BASE + '/api/admin/files/6', { headers: { cookie } });
   check('no header injection via file name', !dl2.headers.get('x-injected'), 'x-injected present');
   check('bogus mime -> octet-stream', dl2.headers.get('content-type') === 'application/octet-stream', dl2.headers.get('content-type'));
+
+  // ---- docs-attached flag ----
+  check('docs-attached needs auth',
+    (await post('/api/admin/submissions/5/docs-attached', { attached: true })).status === 401, '');
+  const setOn = await fetch(BASE + '/api/admin/submissions/5/docs-attached', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', cookie }, body: JSON.stringify({ attached: true }),
+  });
+  const setOnBody = await setOn.json();
+  check('docs-attached set true', setOn.status === 200 && setOnBody.docsAttached === true, setOn.status + ' ' + JSON.stringify(setOnBody));
+  check('docs-attached UPDATE ran',
+    queries.some((q) => /UPDATE submissions SET docs_attached=\$1 WHERE id=\$2/.test(q.sql) && q.params[0] === true && q.params[1] === 5), '');
+  const setOff = await fetch(BASE + '/api/admin/submissions/5/docs-attached', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', cookie }, body: JSON.stringify({ attached: false }),
+  });
+  check('docs-attached set false', setOff.status === 200 && (await setOff.json()).docsAttached === false, setOff.status);
+  const badId = await fetch(BASE + '/api/admin/submissions/0/docs-attached', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', cookie }, body: JSON.stringify({ attached: true }),
+  });
+  check('docs-attached bad id -> 400', badId.status === 400, badId.status);
 
   // ---- rate limits and auth ----
   let submitBlocked = 0;

@@ -15,8 +15,11 @@
   var pdfLink = document.getElementById('pdf-link');
   var refreshBtn = document.getElementById('refresh-btn');
   var backBtn = document.getElementById('back-btn');
+  var docsAttachedCb = document.getElementById('docs-attached-cb');
+  var docsAttachedStatus = document.getElementById('docs-attached-status');
 
   var currentFilter = '';
+  var currentDetailId = null;
 
   // ---- Helpers ----
   function escapeHtml(text) {
@@ -117,6 +120,27 @@
   refreshBtn.addEventListener('click', function () { loadList(currentFilter); });
   backBtn.addEventListener('click', function () { showList(); });
 
+  // Persist the "documents attached to the company's case" flag.
+  docsAttachedCb.addEventListener('change', function () {
+    if (!currentDetailId) return;
+    var wanted = docsAttachedCb.checked;
+    docsAttachedCb.disabled = true;
+    docsAttachedStatus.hidden = true;
+    api('/api/admin/submissions/' + currentDetailId + '/docs-attached', {
+      method: 'POST', body: JSON.stringify({ attached: wanted })
+    }).then(function (r) {
+      if (r.status === 401) { showLogin(); return; }
+      if (!r.ok) { docsAttachedCb.checked = !wanted; return; } // revert on failure
+      docsAttachedCb.disabled = false;
+      docsAttachedStatus.textContent = 'Saved';
+      docsAttachedStatus.hidden = false;
+      loadList(currentFilter); // keep the list column in sync for when we go back
+    }).catch(function () {
+      docsAttachedCb.checked = !wanted;
+      docsAttachedCb.disabled = false;
+    });
+  });
+
   function loadList(type) {
     var url = '/api/admin/submissions' + (type ? '?type=' + encodeURIComponent(type) : '');
     api(url).then(function (r) {
@@ -144,7 +168,8 @@
         '<td>' + escapeHtml(typeLabel(s.survey_type)) + '</td>' +
         '<td>' + escapeHtml(s.company_name) + '</td>' +
         '<td>' + escapeHtml(s.legal_rep_name) + '</td>' +
-        '<td>' + escapeHtml(s.email) + '</td>';
+        '<td>' + escapeHtml(s.email) + '</td>' +
+        '<td class="docs-cell">' + (s.docs_attached ? '<span class="docs-yes" title="Documents attached to the company\'s case">✓</span>' : '<span class="muted">—</span>') + '</td>';
       tr.addEventListener('click', function () { openDetail(s.id); });
       listTbody.appendChild(tr);
     });
@@ -382,6 +407,11 @@
     var type = sub.survey_type;
     var L = labelsFor(type);
     setDetailFiles(files);
+
+    currentDetailId = sub.id;
+    docsAttachedCb.checked = !!sub.docs_attached;
+    docsAttachedCb.disabled = false;
+    docsAttachedStatus.hidden = true;
 
     detailMeta.innerHTML =
       '<div><strong>Submission #' + escapeHtml(sub.id) + '</strong> · ' + escapeHtml(typeLabel(type)) + '</div>' +

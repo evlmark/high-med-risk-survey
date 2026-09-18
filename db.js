@@ -55,6 +55,10 @@ async function initDb() {
   `);
   await pool.query('CREATE INDEX IF NOT EXISTS idx_files_submission ON files(submission_id);');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_submissions_type ON submissions(survey_type);');
+  // Admin-managed flag: the reviewer has attached this submission's documents to
+  // the company's case in the internal system. Added after the table existed, so
+  // ADD COLUMN IF NOT EXISTS keeps existing deployments intact.
+  await pool.query('ALTER TABLE submissions ADD COLUMN IF NOT EXISTS docs_attached BOOLEAN NOT NULL DEFAULT false;');
   console.log('[db] Schema ready.');
 }
 
