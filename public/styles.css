@@ -530,14 +530,21 @@ textarea:focus {
   color: #2e7d32;
 }
 
-/* "Docs attached" indicator in the list. */
+/* "Docs attached" toggle in the list — clickable directly from the row. */
 .docs-cell {
   text-align: center;
 }
 
-.docs-yes {
-  color: #2e7d32;
-  font-weight: 700;
+.docs-check {
+  display: inline-flex;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.docs-check input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 }
 
 /* File size + duplicate marker shown next to a download link in the admin. */

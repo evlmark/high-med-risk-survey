@@ -169,9 +169,32 @@
         '<td>' + escapeHtml(s.company_name) + '</td>' +
         '<td>' + escapeHtml(s.legal_rep_name) + '</td>' +
         '<td>' + escapeHtml(s.email) + '</td>' +
-        '<td class="docs-cell">' + (s.docs_attached ? '<span class="docs-yes" title="Documents attached to the company\'s case">✓</span>' : '<span class="muted">—</span>') + '</td>';
-      tr.addEventListener('click', function () { openDetail(s.id); });
+        '<td class="docs-cell"><label class="docs-check"><input type="checkbox"' + (s.docs_attached ? ' checked' : '') + '></label></td>';
+      tr.addEventListener('click', function (e) {
+        // A click on the checkbox toggles the flag; it must not open the detail.
+        if (e.target.closest('.docs-cell')) return;
+        openDetail(s.id);
+      });
+      var cb = tr.querySelector('.docs-cell input');
+      cb.addEventListener('change', function () {
+        setDocsAttached(s.id, cb.checked, cb);
+      });
       listTbody.appendChild(tr);
+    });
+  }
+
+  // Persist the flag from the list without leaving it; reverts the checkbox on failure.
+  function setDocsAttached(id, attached, cb) {
+    cb.disabled = true;
+    api('/api/admin/submissions/' + id + '/docs-attached', {
+      method: 'POST', body: JSON.stringify({ attached: attached })
+    }).then(function (r) {
+      cb.disabled = false;
+      if (r.status === 401) { showLogin(); return; }
+      if (!r.ok) { cb.checked = !attached; return; }
+    }).catch(function () {
+      cb.disabled = false;
+      cb.checked = !attached;
     });
   }
 
