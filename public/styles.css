@@ -713,8 +713,31 @@ textarea:focus {
 /* ---- Admin ---- */
 .admin-page .page,
 .admin-page {
-  max-width: 1000px;
+  /* Use most of the screen so the whole submissions table — including the
+     "Docs attached" checkbox column — fits without horizontal scrolling. */
+  max-width: min(1600px, 96vw);
 }
+
+/* Compact the list table and give each column a sensible share of the width so
+   the whole thing — including the "Docs attached" checkbox — fits on screen
+   without horizontal scrolling, and rows stay short. */
+.admin-table {
+  table-layout: fixed;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+.admin-table th:nth-child(1), .admin-table td:nth-child(1) { width: 48px; }              /* ID */
+.admin-table th:nth-child(2), .admin-table td:nth-child(2) { width: 172px; white-space: nowrap; } /* Date */
+.admin-table th:nth-child(3), .admin-table td:nth-child(3) { width: 100px; }             /* Type */
+/* Company (4), Legal representative (5) and Email (6) share the rest. */
+.admin-table td:nth-child(6) { overflow-wrap: anywhere; }                                 /* Email can break long addresses */
+.admin-table th:nth-child(7), .admin-table td:nth-child(7) { width: 104px; }             /* Docs attached */
 
 .login-form {
   display: flex;
