@@ -22,11 +22,41 @@
   var currentDetailId = null;
 
   // ---- Helpers ----
+  var COPY_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+  var CHECK_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>';
+
   function escapeHtml(text) {
     if (text == null) return '';
     var div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+  // Copy text to the clipboard, briefly flipping the button's icon to a check.
+  function copyText(text, btn) {
+    function done() {
+      if (!btn) return;
+      btn.classList.add('copied');
+      btn.innerHTML = CHECK_ICON;
+      setTimeout(function () { btn.classList.remove('copied'); btn.innerHTML = COPY_ICON; }, 1200);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text || '').then(done, function () { fallbackCopy(text); done(); });
+    } else {
+      fallbackCopy(text);
+      done();
+    }
+  }
+  function fallbackCopy(text) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text || '';
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch (e) { /* clipboard unavailable */ }
   }
   function api(path, opts) {
     opts = opts || {};
@@ -166,19 +196,22 @@
         '<td>' + escapeHtml(s.id) + '</td>' +
         '<td>' + escapeHtml(fmtDate(s.created_at)) + '</td>' +
         '<td>' + escapeHtml(typeLabel(s.survey_type)) + '</td>' +
-        '<td>' + escapeHtml(s.company_name) + '</td>' +
+        '<td><div class="company-cell"><span class="company-name">' + escapeHtml(s.company_name) + '</span>' +
+          '<button type="button" class="copy-btn" title="Copy company name" aria-label="Copy company name">' + COPY_ICON + '</button></div></td>' +
         '<td>' + escapeHtml(s.legal_rep_name) + '</td>' +
         '<td>' + escapeHtml(s.email) + '</td>' +
         '<td class="docs-cell"><label class="docs-check"><input type="checkbox"' + (s.docs_attached ? ' checked' : '') + '></label></td>';
       tr.addEventListener('click', function (e) {
-        // A click on the checkbox toggles the flag; it must not open the detail.
-        if (e.target.closest('.docs-cell')) return;
+        // A click on the checkbox or the copy button must not open the detail.
+        if (e.target.closest('.docs-cell') || e.target.closest('.copy-btn')) return;
         openDetail(s.id);
       });
       var cb = tr.querySelector('.docs-cell input');
       cb.addEventListener('change', function () {
         setDocsAttached(s.id, cb.checked, cb);
       });
+      var copyBtn = tr.querySelector('.copy-btn');
+      copyBtn.addEventListener('click', function () { copyText(s.company_name, copyBtn); });
       listTbody.appendChild(tr);
     });
   }

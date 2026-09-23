@@ -530,6 +530,40 @@ textarea:focus {
   color: #2e7d32;
 }
 
+/* Company name + copy icon in the list. */
+.company-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.company-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.copy-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  color: #888;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  color: #3A4E99;
+  background: #eef0f4;
+}
+
+.copy-btn.copied {
+  color: #2e7d32;
+}
+
 /* "Docs attached" toggle in the list — clickable directly from the row. */
 .docs-cell {
   text-align: center;
