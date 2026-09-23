@@ -211,7 +211,13 @@
         setDocsAttached(s.id, cb.checked, cb);
       });
       var copyBtn = tr.querySelector('.copy-btn');
-      copyBtn.addEventListener('click', function () { copyText(s.company_name, copyBtn); });
+      copyBtn.addEventListener('click', function (e) {
+        // Stop the click before it bubbles to the row (which opens the detail).
+        // Also needed because copyText swaps the icon, detaching the clicked node
+        // from the DOM so the row's closest('.copy-btn') guard would miss it.
+        e.stopPropagation();
+        copyText(s.company_name, copyBtn);
+      });
       listTbody.appendChild(tr);
     });
   }
