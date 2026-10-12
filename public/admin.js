@@ -143,10 +143,17 @@
         currentFilter = btn.getAttribute('data-filter') || '';
         for (var j = 0; j < filterBtns.length; j++) filterBtns[j].classList.remove('active');
         btn.classList.add('active');
+        updateExportLink();
         loadList(currentFilter);
       });
     })(filterBtns[i]);
   }
+  // Keep the CSV export pointed at the current filter.
+  var exportLink = document.getElementById('export-link');
+  function updateExportLink() {
+    exportLink.setAttribute('href', '/api/admin/submissions/export.csv' + (currentFilter ? '?type=' + encodeURIComponent(currentFilter) : ''));
+  }
+  updateExportLink();
   refreshBtn.addEventListener('click', function () { loadList(currentFilter); });
   backBtn.addEventListener('click', function () { showList(); });
 

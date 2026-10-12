@@ -251,6 +251,50 @@ app.get('/api/admin/submissions', auth.requireAdmin, async function (req, res) {
   }
 });
 
+// CSV export of the submissions list (optionally filtered by ?type=).
+app.get('/api/admin/submissions/export.csv', auth.requireAdmin, async function (req, res) {
+  try {
+    const type = req.query.type;
+    const where = SURVEY_TYPES.indexOf(type) >= 0 ? ' WHERE survey_type=$1' : '';
+    const params = where ? [type] : [];
+    const rows = (await pool.query(
+      'SELECT id, survey_type, legal_rep_name, email, answers->>\'companyName\' AS company_name, docs_attached, created_at FROM submissions' + where + ' ORDER BY created_at DESC',
+      params
+    )).rows;
+
+    const TYPE_LABELS = {
+      medium: 'Medium Risk', high: 'High Risk',
+      new_company: 'New company (<3 months)', existing_company: 'Company (>3 months)',
+    };
+    const esc = function (v) {
+      const s = v == null ? '' : String(v);
+      return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    const header = ['ID', 'Date', 'Type', 'Company', 'Legal representative', 'Email', 'Docs attached'];
+    const lines = [header.join(',')];
+    rows.forEach(function (r) {
+      lines.push([
+        r.id,
+        r.created_at ? new Date(r.created_at).toISOString() : '',
+        TYPE_LABELS[r.survey_type] || r.survey_type,
+        r.company_name,
+        r.legal_rep_name,
+        r.email,
+        r.docs_attached ? 'Yes' : 'No',
+      ].map(esc).join(','));
+    });
+    // Prepend a UTF-8 BOM so Excel opens accented names correctly.
+    const csv = '﻿' + lines.join('\r\n') + '\r\n';
+    const fname = 'submissions' + (where ? '-' + type : '') + '-' + new Date().toISOString().slice(0, 10) + '.csv';
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', contentDisposition(fname));
+    res.send(csv);
+  } catch (err) {
+    console.error('[export] error:', err.message);
+    res.status(500).json({ error: 'export failed' });
+  }
+});
+
 app.get('/api/admin/submissions/:id', auth.requireAdmin, async function (req, res) {
   try {
     const id = parseInt(req.params.id, 10);

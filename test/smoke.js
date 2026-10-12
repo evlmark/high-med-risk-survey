@@ -224,6 +224,14 @@ const regAnswers = (extra) => Object.assign({
   check('no header injection via file name', !dl2.headers.get('x-injected'), 'x-injected present');
   check('bogus mime -> octet-stream', dl2.headers.get('content-type') === 'application/octet-stream', dl2.headers.get('content-type'));
 
+  // ---- CSV export ----
+  const exp = await fetch(BASE + '/api/admin/submissions/export.csv', { headers: { cookie } });
+  const expText = await exp.text();
+  check('export needs auth', (await fetch(BASE + '/api/admin/submissions/export.csv')).status === 401, '');
+  check('export is CSV', exp.status === 200 && /text\/csv/.test(exp.headers.get('content-type') || ''), exp.status + ' ' + exp.headers.get('content-type'));
+  check('export has header row', expText.replace(/^\uFEFF/, '').split('\r\n')[0] === 'ID,Date,Type,Company,Legal representative,Email,Docs attached', JSON.stringify(expText.slice(0,80)));
+  check('export route not shadowed by :id', !/bad id|not found/.test(expText), expText.slice(0,60));
+
   // ---- docs-attached flag ----
   check('docs-attached needs auth',
     (await post('/api/admin/submissions/5/docs-attached', { attached: true })).status === 401, '');
