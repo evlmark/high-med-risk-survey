@@ -19,6 +19,7 @@
   var docsAttachedStatus = document.getElementById('docs-attached-status');
 
   var currentFilter = '';
+  var currentQuery = '';
   var currentDetailId = null;
 
   // ---- Helpers ----
@@ -154,6 +155,22 @@
     exportLink.setAttribute('href', '/api/admin/submissions/export.csv' + (currentFilter ? '?type=' + encodeURIComponent(currentFilter) : ''));
   }
   updateExportLink();
+
+  // Deep search box: debounced, searches the full answers of every submission.
+  var searchInput = document.getElementById('search-input');
+  var searchTimer = null;
+  function runSearch() {
+    currentQuery = searchInput.value.trim();
+    loadList(currentFilter);
+  }
+  searchInput.addEventListener('input', function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(runSearch, 300);
+  });
+  searchInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { clearTimeout(searchTimer); runSearch(); }
+  });
+
   refreshBtn.addEventListener('click', function () { loadList(currentFilter); });
   backBtn.addEventListener('click', function () { showList(); });
 
@@ -179,11 +196,21 @@
   });
 
   function loadList(type) {
-    var url = '/api/admin/submissions' + (type ? '?type=' + encodeURIComponent(type) : '');
+    var params = [];
+    if (type) params.push('type=' + encodeURIComponent(type));
+    if (currentQuery) params.push('q=' + encodeURIComponent(currentQuery));
+    var url = '/api/admin/submissions' + (params.length ? '?' + params.join('&') : '');
+    var hint = document.getElementById('search-hint');
     api(url).then(function (r) {
       if (r.status === 401) { showLogin(); return; }
       var subs = (r.body && r.body.submissions) || [];
       renderList(subs);
+      if (currentQuery) {
+        hint.textContent = 'Found ' + subs.length + ' submission(s) mentioning "' + currentQuery + '" (searched the full answers of each one).';
+        hint.hidden = false;
+      } else {
+        hint.hidden = true;
+      }
     });
   }
 

@@ -233,17 +233,24 @@ app.get('/api/admin/me', function (req, res) {
 app.get('/api/admin/submissions', auth.requireAdmin, async function (req, res) {
   try {
     const type = req.query.type;
-    let rows;
-    if (SURVEY_TYPES.indexOf(type) >= 0) {
-      rows = (await pool.query(
-        'SELECT id, survey_type, legal_rep_name, email, answers->>\'companyName\' AS company_name, language, docs_attached, created_at FROM submissions WHERE survey_type=$1 ORDER BY created_at DESC',
-        [type]
-      )).rows;
-    } else {
-      rows = (await pool.query(
-        'SELECT id, survey_type, legal_rep_name, email, answers->>\'companyName\' AS company_name, language, docs_attached, created_at FROM submissions ORDER BY created_at DESC'
-      )).rows;
+    const q = (req.query.q || '').toString().trim();
+    const conds = [];
+    const params = [];
+    if (SURVEY_TYPES.indexOf(type) >= 0) { params.push(type); conds.push('survey_type=$' + params.length); }
+    if (q) {
+      // Deep search: the whole answers JSONB cast to text, so a company named only
+      // inside the answers (as a provider, client, UBO, shareholder, in the business
+      // model text, etc.) is found even when it is not the top-level company/email.
+      params.push('%' + q + '%');
+      const p = '$' + params.length;
+      conds.push('(legal_rep_name ILIKE ' + p + ' OR email ILIKE ' + p +
+        ' OR answers->>\'companyName\' ILIKE ' + p + ' OR answers::text ILIKE ' + p + ')');
     }
+    const where = conds.length ? ' WHERE ' + conds.join(' AND ') : '';
+    const rows = (await pool.query(
+      'SELECT id, survey_type, legal_rep_name, email, answers->>\'companyName\' AS company_name, language, docs_attached, created_at FROM submissions' + where + ' ORDER BY created_at DESC',
+      params
+    )).rows;
     res.json({ submissions: rows });
   } catch (err) {
     console.error('[submissions] error:', err.message);

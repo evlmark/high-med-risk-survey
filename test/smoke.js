@@ -224,6 +224,23 @@ const regAnswers = (extra) => Object.assign({
   check('no header injection via file name', !dl2.headers.get('x-injected'), 'x-injected present');
   check('bogus mime -> octet-stream', dl2.headers.get('content-type') === 'application/octet-stream', dl2.headers.get('content-type'));
 
+  // ---- deep search over answers ----
+  // A fresh medium submission whose company is only named inside q3 providers.
+  await post('/api/submit', { surveyType: 'medium', language: 'es',
+    answers: Object.assign(baseAnswers([ubo('Z', 10, 10)]), {
+      legalRepName: 'Someone Else', companyName: 'Front Co', email: 'filler@x.com',
+      q3: { individuals: [], companies: [{ fullLegalName: 'HIDDEN TARGET SA DE CV', rfc: 'HTS010101AAA' }] },
+    }) }, '198.51.100.77');
+  // The stub does not persist, so assert the query SHAPE the endpoint builds instead:
+  const srch = await fetch(BASE + '/api/admin/submissions?q=HIDDEN%20TARGET', { headers: { cookie } });
+  const srchQ = queries.filter((x) => /FROM submissions WHERE/.test(x.sql)).pop();
+  check('deep search 200', srch.status === 200, srch.status);
+  check('deep search hits answers::text', srchQ && /answers::text ILIKE/.test(srchQ.sql), srchQ && srchQ.sql);
+  check('deep search is parameterized', srchQ && srchQ.params && srchQ.params[0] === '%HIDDEN TARGET%', srchQ && JSON.stringify(srchQ.params));
+  const both = await fetch(BASE + '/api/admin/submissions?type=medium&q=abc', { headers: { cookie } });
+  const bq = queries.filter((x) => /FROM submissions WHERE/.test(x.sql)).pop();
+  check('search + type combine', both.status === 200 && /survey_type=\$1 AND/.test(bq.sql), bq && bq.sql);
+
   // ---- CSV export ----
   const exp = await fetch(BASE + '/api/admin/submissions/export.csv', { headers: { cookie } });
   const expText = await exp.text();
