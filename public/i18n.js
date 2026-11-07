@@ -246,6 +246,47 @@
       'reg.oath.title': '9. Declaro bajo protesta de decir verdad que la información de este formulario es verdadera y exacta, y que no he omitido ninguna información relevante que pudiera afectar este proceso.',
       'reg.pep.title': '10. Declaro que no soy una persona políticamente expuesta (PEP), ni lo son los UBO, accionistas u otros representantes legales de la empresa, ni tenemos vínculos con funcionarios públicos o autoridades que pudieran interferir con la transparencia requerida para esta relación.',
 
+      // ===== Advanced EDD ($1,000,000 – $10,000,000) =====
+      'app.title.edd': 'Preguntas adicionales',
+      'field.docsMax': 'Documentos, máx. 10 MB cada uno',
+      'field.photosMax': 'Fotografías (se comprimen automáticamente)',
+      'btn.removeFile': 'Quitar',
+      'file.tooMany': 'Se alcanzó el número máximo de archivos para esta pregunta.',
+
+      'edd.licenses.title': '3. ¿Qué licencias, registros o autorizaciones son necesarios para realizar su actividad económica?',
+      'edd.licenses.hint': 'Indíquelos y adjunte una copia de cada uno. Si su empresa no requiere ninguna licencia, registro o autorización gubernamental, marque la casilla.',
+      'edd.licenses.none': 'La empresa no requiere autorización, licencia o registro gubernamental para realizar su actividad económica.',
+      'edd.licenses.label': 'Licencias, registros o autorizaciones',
+      'edd.licenses.ph': 'Por ejemplo: licencia sanitaria de COFEPRIS, licencia de funcionamiento municipal…',
+
+      'edd.padron.title': '4. Alta en el Padrón de Actividades Vulnerables del SAT',
+      'edd.padron.hint': 'Adjunte el acuse de alta de su empresa en el Padrón de Actividades Vulnerables del SAT.',
+      'edd.padron.none': 'La empresa no requiere alta en el Padrón de Actividades Vulnerables del SAT.',
+      'edd.padron.why': 'Explique por qué la empresa no requiere este registro',
+
+      'edd.notices.title': '4.1. Avisos de Actividades Vulnerables presentados ante el SAT en los últimos 3 meses',
+      'edd.notices.hint': 'Adjunte los acuses de los avisos de Actividades Vulnerables que su empresa presentó ante el SAT en los últimos 3 meses, incluidos los avisos «sin operaciones».',
+
+      'edd.tax.title': '5. Declaración anual de impuestos más reciente',
+      'edd.tax.hint': 'Adjunte la declaración anual más reciente de la empresa. Si la empresa es de reciente creación y aún no la ha presentado, adjunte información sustituta, como sus declaraciones mensuales de IVA o ISR.',
+
+      'edd.photos.title': '6. Fotografías de la operación de la empresa (mínimo 3)',
+      'edd.photos.hint': 'Cargue al menos 3 fotografías que muestren dónde y cómo opera el negocio, por ejemplo:<ul><li>Sus oficinas, tienda o cualquier otro lugar donde se realiza la actividad económica.</li><li>Si vende productos o mercancías: los productos, el almacén donde los guarda y/o el espacio donde los vende.</li><li>Si su actividad incluye operaciones logísticas: los medios que utiliza (vehículos de la empresa, guías de mensajería, mercancía lista para enviarse).</li><li>Espacios de manufactura como fábricas, plantas de ensamble u otras instalaciones de procesamiento.</li></ul>',
+
+      'edd.oath.title': '7. Declaro bajo protesta de decir verdad que la información de este formulario es verdadera y exacta, y que no he omitido ninguna información relevante que pudiera afectar este proceso.',
+      'edd.pep.title': '8. Declaro que no soy una persona políticamente expuesta (PEP), ni lo son los UBO, accionistas u otros representantes legales de la empresa, ni tenemos vínculos con funcionarios públicos o autoridades que pudieran interferir con la transparencia requerida para esta relación.',
+
+      'err.edd.licenses': 'Pregunta 3: indique las licencias y adjúntelas, o marque la casilla si no se requiere ninguna.',
+      'err.edd.padron': 'Pregunta 4: adjunte el acuse de alta en el Padrón, o marque la casilla si no se requiere.',
+      'err.edd.padronWhy': 'Pregunta 4: explique por qué la empresa no requiere el registro.',
+      'err.edd.notices': 'Pregunta 4.1: adjunte los acuses de los avisos de los últimos 3 meses.',
+      'err.edd.tax': 'Pregunta 5: adjunte la declaración anual más reciente (o la información sustituta).',
+      'err.edd.photos': 'Pregunta 6: cargue al menos 3 fotografías.',
+      'err.edd.oath': 'Pregunta 7: seleccione Sí o No.',
+      'err.edd.pep': 'Pregunta 8: seleccione Sí o No.',
+      'err.edd.total': 'Los archivos adjuntos son demasiado grandes en total (máx. 35 MB). Adjunte menos archivos o archivos más pequeños.',
+      'err.edd.photoBig': 'Pregunta 6: una de las fotografías sigue pesando más de 10 MB después de comprimirla. Use una fotografía más pequeña.',
+
       'success.title': '¡Gracias!',
       'success.message': 'Su información se ha enviado correctamente.'
     },
@@ -471,6 +512,47 @@
       'badge.optional': 'Optional',
       'reg.oath.title': '9. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.',
       'reg.pep.title': "10. I declare that I am not a politically exposed person (PEP), nor the company's UBOs, shareholders or other legal representatives, nor do we have ties with public officials or authorities that could interfere with the transparency required for this relationship.",
+
+      // ===== Advanced EDD ($1,000,000 – $10,000,000) =====
+      'app.title.edd': 'Additional questions',
+      'field.docsMax': 'Documents, max 10 MB each',
+      'field.photosMax': 'Photos (compressed automatically)',
+      'btn.removeFile': 'Remove',
+      'file.tooMany': 'You have reached the maximum number of files for this question.',
+
+      'edd.licenses.title': '3. Which licenses, registrations or authorizations are required to carry out your economic activity?',
+      'edd.licenses.hint': 'List them and attach a copy of each one. If your company does not need any governmental license, registration or authorization, tick the box.',
+      'edd.licenses.none': 'The company does not require a governmental authorization, license or registration to perform its economic activity.',
+      'edd.licenses.label': 'Licenses, registrations or authorizations',
+      'edd.licenses.ph': 'For example: COFEPRIS sanitary license, municipal operating license…',
+
+      'edd.padron.title': "4. Registration in SAT's Registry for Vulnerable Activities (Padrón de Actividades Vulnerables)",
+      'edd.padron.hint': "Attach the acknowledgment of your company's registration in SAT's Padrón de Actividades Vulnerables.",
+      'edd.padron.none': "The company does not require registration in SAT's Padrón de Actividades Vulnerables.",
+      'edd.padron.why': 'Please explain why the company does not require this registration',
+
+      'edd.notices.title': '4.1. Vulnerable Activity notices filed with SAT in the last 3 months',
+      'edd.notices.hint': 'Attach the receipts of the Vulnerable Activity notices your company filed with SAT in the last 3 months, including any "no transactions" notices.',
+
+      'edd.tax.title': '5. Latest annual tax return',
+      'edd.tax.hint': "Attach the company's latest annual tax return. If the company was recently incorporated and has not filed one yet, attach substitute information, such as its monthly VAT or income tax returns.",
+
+      'edd.photos.title': "6. Photos of the company's operation (at least 3)",
+      'edd.photos.hint': "Upload at least 3 photos showing where and how the business operates, for example:<ul><li>Your offices, store or any other place where the economic activity is carried out.</li><li>If you sell products or goods: the products, the warehouse where you keep them and/or the space where you sell them.</li><li>If your activity involves logistics: the means you use (company vehicles, courier waybills, merchandise ready to be shipped).</li><li>Manufacturing spaces such as factories, assembly plants or other processing facilities.</li></ul>",
+
+      'edd.oath.title': '7. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.',
+      'edd.pep.title': "8. I declare that I am not a politically exposed person (PEP), nor the company's UBOs, shareholders or other legal representatives, nor do we have ties with public officials or authorities that could interfere with the transparency required for this relationship.",
+
+      'err.edd.licenses': 'Question 3: list the licenses and attach them, or tick the box if none are required.',
+      'err.edd.padron': 'Question 4: attach the Padrón registration acknowledgment, or tick the box if it is not required.',
+      'err.edd.padronWhy': 'Question 4: explain why the company does not require the registration.',
+      'err.edd.notices': 'Question 4.1: attach the notice receipts for the last 3 months.',
+      'err.edd.tax': 'Question 5: attach the latest annual tax return (or substitute information).',
+      'err.edd.photos': 'Question 6: upload at least 3 photos.',
+      'err.edd.oath': 'Question 7: select Yes or No.',
+      'err.edd.pep': 'Question 8: select Yes or No.',
+      'err.edd.total': 'The attached files are too large in total (max 35 MB). Please attach fewer or smaller files.',
+      'err.edd.photoBig': 'Question 6: one of the photos is still larger than 10 MB after compression. Please use a smaller photo.',
 
       'success.title': 'Thank you!',
       'success.message': 'Your information has been submitted successfully.'

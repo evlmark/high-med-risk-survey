@@ -23,9 +23,16 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// A survey with ~10 MB attachments per file needs headroom, but nowhere near the
-// old 50 MB: that let anyone bloat the database with a single anonymous request.
-app.use(express.json({ limit: '15mb' }));
+// Only /api/submit carries documents. It gets 50 MB so the Advanced EDD survey can
+// hold several files per question; the per-survey cap below keeps every other
+// survey at the previous 15 MB. All other endpoints take tiny JSON bodies.
+const submitJson = express.json({ limit: '50mb' });
+const smallJson = express.json({ limit: '100kb' });
+app.use(function (req, res, next) {
+  return (req.path === '/api/submit' ? submitJson : smallJson)(req, res, next);
+});
+const SUBMIT_LIMIT_BYTES = { advanced_edd: 50 * 1024 * 1024 };
+const SUBMIT_LIMIT_DEFAULT = 15 * 1024 * 1024;
 
 const submitLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -55,7 +62,9 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // ---- Helpers ----
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const SURVEY_TYPES = ['medium', 'high', 'new_company', 'existing_company'];
+const SURVEY_TYPES = ['medium', 'high', 'new_company', 'existing_company', 'advanced_edd'];
+// Advanced EDD document groups; each holds { files: [{fileName, fileBase64, mimeType}] }.
+const EDD_FILE_GROUPS = ['licenses', 'padron', 'vaNotices', 'taxReturn', 'photos'];
 const SURVEY_TYPES_WITH_EMAIL = ['medium', 'high'];
 
 // Both the file name and the MIME type come from whatever the client uploaded, and
@@ -119,6 +128,16 @@ function extractFiles(surveyType, answers) {
 
   // The registered-company surveys carry three standalone documents instead of
   // per-UBO uploads; their UBO list holds no files at all.
+  if (surveyType === 'advanced_edd') {
+    EDD_FILE_GROUPS.forEach(function (key) {
+      const group = clean[key];
+      if (group && Array.isArray(group.files)) {
+        group.files.forEach(function (f, i) { takeMain(f, key + '[' + i + ']'); });
+      }
+    });
+    return { clean: clean, fds: fds };
+  }
+
   if (surveyType === 'new_company' || surveyType === 'existing_company') {
     takeMain(clean.registrationProof, 'registrationProof');
     takeMain(clean.taxOpinion, 'taxOpinion');
@@ -147,6 +166,13 @@ app.post('/api/submit', submitLimiter, async function (req, res) {
     const body = req.body || {};
     const surveyType = SURVEY_TYPES.indexOf(body.surveyType) >= 0 ? body.surveyType : null;
     if (!surveyType) return res.status(400).json({ error: 'invalid surveyType' });
+
+    // The body parser allows 50 MB for the Advanced EDD survey; hold every other
+    // survey to its previous 15 MB so the larger limit is not a general bloat vector.
+    const bodyBytes = parseInt(req.headers['content-length'] || '0', 10);
+    if (bodyBytes > (SUBMIT_LIMIT_BYTES[surveyType] || SUBMIT_LIMIT_DEFAULT)) {
+      return res.status(413).json({ error: 'request too large' });
+    }
 
     const answers = body.answers;
     if (!answers || typeof answers !== 'object') return res.status(400).json({ error: 'missing answers' });
@@ -272,6 +298,7 @@ app.get('/api/admin/submissions/export.csv', auth.requireAdmin, async function (
     const TYPE_LABELS = {
       medium: 'Medium Risk', high: 'High Risk',
       new_company: 'New company (<3 months)', existing_company: 'Company (>3 months)',
+      advanced_edd: 'Advanced EDD ($1M-$10M)',
     };
     const esc = function (v) {
       const s = v == null ? '' : String(v);

@@ -530,6 +530,110 @@ textarea:focus {
   color: #2e7d32;
 }
 
+/* Advanced EDD: "not required" opt-out checkbox above a document question. */
+.opt-out {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 4px 0 14px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: #333;
+  background: #f4f6fb;
+  border: 1px solid #d9deea;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.opt-out input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  flex: none;
+  cursor: pointer;
+}
+
+.field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.field-block textarea,
+#padron-why {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.question-hint ul {
+  margin: 6px 0 0;
+  padding-left: 20px;
+}
+
+/* Files accumulated in a multi-file drop-zone, each removable. */
+.file-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  text-align: left;
+}
+
+.file-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 6px;
+}
+
+.file-list li + li {
+  margin-top: 6px;
+}
+
+.file-list-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.file-list-remove {
+  flex: none;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 0.8rem;
+  color: #b23;
+  background: transparent;
+  border: 1px solid #e6b8b8;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Admin: Advanced EDD photo thumbnails. */
+.edd-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.edd-thumb img {
+  display: block;
+  width: 120px;
+  height: 90px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
 /* Deep-search box + hint in the admin list. */
 .admin-search {
   flex: 1 1 240px;

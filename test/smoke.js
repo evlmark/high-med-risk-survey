@@ -104,7 +104,7 @@ const regAnswers = (extra) => Object.assign({
     ['/githubkey.txt', 404], ['/Task%20for%20survey.txt', 404],
     ['/DEPLOY-RAILWAY.md', 404], ['/Design/Survey-9.png', 404],
     ['/node_modules/express/package.json', 404], ['/index.html', 404],
-    ['/test/smoke.js', 404],
+    ['/test/smoke.js', 404], ['/advanced-edd.html', 200], ['/survey-edd.js', 200],
   ]) {
     const r = await fetch(BASE + p);
     check(`static ${p} -> ${want}`, r.status === want, `got ${r.status}`);
@@ -190,6 +190,56 @@ const regAnswers = (extra) => Object.assign({
   check('optional compliance doc may be missing',
     noOpt.status === 200 && JSON.stringify(noOptFields) === JSON.stringify(['registrationProof', 'taxOpinion']),
     noOpt.status + ' ' + JSON.stringify(noOptFields));
+
+  // ---- Advanced EDD ----
+  const doc = (name, n) => ({ fileName: name, fileBase64: b64(n), mimeType: 'application/pdf' });
+  const eddAnswers = (extra) => Object.assign({
+    legalRepName: 'Rosa Medina', companyName: 'Grande SA de CV',
+    licenses: { notRequired: false, description: 'Licencia sanitaria COFEPRIS', files: [doc('cofepris.pdf', 300), doc('municipal.pdf', 310)] },
+    padron: { notRequired: false, explanation: '', files: [doc('acuse-padron.pdf', 320)] },
+    vaNotices: { files: [doc('aviso-ago.pdf', 330), doc('aviso-sep.pdf', 340), doc('aviso-oct.pdf', 350)] },
+    taxReturn: { files: [doc('anual-2025.pdf', 360)] },
+    photos: { files: [doc('p1.jpg', 370), doc('p2.jpg', 380), doc('p3.jpg', 390)] },
+    declarationOath: 'Yes', declarationPep: 'Yes',
+    signature: 'data:image/png;base64,' + b64(50),
+  }, extra || {});
+
+  queries.length = 0;
+  const e1 = await post('/api/submit', { surveyType: 'advanced_edd', language: 'es', answers: eddAnswers() });
+  check('edd: submit 200 without email', e1.status === 200, e1.status + ' ' + e1.body);
+  const eRows = queries.filter((q) => /INSERT INTO files/.test(q.sql));
+  check('edd: every file stored under its group',
+    JSON.stringify(eRows.map((q) => q.params[1])) === JSON.stringify([
+      'licenses[0]', 'licenses[1]', 'padron[0]', 'vaNotices[0]', 'vaNotices[1]', 'vaNotices[2]',
+      'taxReturn[0]', 'photos[0]', 'photos[1]', 'photos[2]']),
+    JSON.stringify(eRows.map((q) => q.params[1])));
+  check('edd: file bytes intact', eRows.map((q) => q.params[4].length).join(',') === '300,310,320,330,340,350,360,370,380,390', '');
+  const eUpd = queries.filter((q) => /UPDATE submissions SET answers/.test(q.sql)).pop();
+  const ea = JSON.parse(eUpd.params[0]);
+  check('edd: no base64 left', !/fileBase64/.test(eUpd.params[0]), '');
+  check('edd: fileIds back-written', ea.photos.files.every((f) => !!f.fileId) && ea.vaNotices.files.length === 3, '');
+  check('edd: license text kept', ea.licenses.description === 'Licencia sanitaria COFEPRIS', '');
+
+  queries.length = 0;
+  const e2 = await post('/api/submit', { surveyType: 'advanced_edd', language: 'en', answers: eddAnswers({
+    licenses: { notRequired: true, description: '', files: [] },
+    padron: { notRequired: true, explanation: 'No realizamos actividades vulnerables', files: [] },
+    vaNotices: null,
+  }) });
+  const e2Fields = queries.filter((q) => /INSERT INTO files/.test(q.sql)).map((q) => q.params[1]);
+  check('edd: not-required path stores only tax + photos', e2.status === 200 &&
+    JSON.stringify(e2Fields) === JSON.stringify(['taxReturn[0]', 'photos[0]', 'photos[1]', 'photos[2]']), e2.status + ' ' + JSON.stringify(e2Fields));
+
+  // Body limits: 50 MB only for Advanced EDD, 15 MB for the rest, tiny elsewhere.
+  const big = (n) => doc('big.pdf', n);
+  const e3 = await post('/api/submit', { surveyType: 'advanced_edd', language: 'es', answers: eddAnswers({
+    taxReturn: { files: [big(7 * 1024 * 1024), big(7 * 1024 * 1024)] } }) });
+  check('edd: ~20 MB body accepted', e3.status === 200, e3.status + ' ' + e3.body.slice(0, 80));
+  const m3 = await post('/api/submit', { surveyType: 'medium', language: 'es',
+    answers: baseAnswers([ubo('Big1', 6 * 1024 * 1024, 10), ubo('Big2', 6 * 1024 * 1024, 10)]) });
+  check('medium: >15 MB body still refused', m3.status === 413, m3.status);
+  const loginBig = await post('/api/admin/login', { password: 'x'.repeat(200 * 1024) }, '198.51.100.90');
+  check('admin login: large body refused', loginBig.status === 413, loginBig.status);
 
   // ---- validation ----
   check('medium still requires email',
@@ -288,6 +338,8 @@ const regAnswers = (extra) => Object.assign({
     ['high', { id: 2, survey_type: 'high', answers: baseAnswers([ubo('A', 10, 10)]) }],
     ['new_company', { id: 3, survey_type: 'new_company', answers: regAnswers() }],
     ['existing_company', { id: 4, survey_type: 'existing_company', answers: regAnswers() }],
+    ['advanced_edd', { id: 6, survey_type: 'advanced_edd', answers: eddAnswers() }],
+    ['advanced_edd not-required', { id: 7, survey_type: 'advanced_edd', answers: eddAnswers({ licenses: { notRequired: true, files: [] }, padron: { notRequired: true, explanation: 'n/a', files: [] }, vaNotices: null }) }],
     ['corrupt signature', { id: 5, survey_type: 'medium', answers: Object.assign(baseAnswers([]), { signature: 'data:image/png;base64,' + Buffer.from('not a png').toString('base64') }) }],
   ]) {
     try {

@@ -36,6 +36,7 @@ npm start
 - High Risk: **http://localhost:3333/high.html**
 - Компания моложе 3 месяцев: **http://localhost:3333/new-company.html**
 - Компания старше 3 месяцев: **http://localhost:3333/existing-company.html**
+- Advanced EDD: **http://localhost:3333/advanced-edd.html**
 - Админка: **http://localhost:3333/admin.html** (пароль — значение `ADMIN_PASSWORD`)
 
 ## 5. Тесты

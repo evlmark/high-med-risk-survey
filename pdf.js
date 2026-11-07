@@ -201,9 +201,35 @@ function buildRegistryRows(submission) {
   return rows;
 }
 
+// Advanced EDD ($1M–$10M): document questions hold several files each.
+function buildEddRows(submission) {
+  const a = submission.answers || {};
+  const names = function (g) {
+    const files = (g && g.files) || [];
+    return files.length ? files.map(function (f) { return f.fileName || 'document'; }).join('\n') : '—';
+  };
+  const lic = a.licenses || {};
+  const pad = a.padron || {};
+  return [
+    ['1. Full Name of Legal Representative', a.legalRepName || '—'],
+    ['2. Company name', a.companyName || '—'],
+    ['3. Licenses, registrations or authorizations required for the economic activity',
+      lic.notRequired ? 'Not required (declared by the company).' : (lic.description || '—') + '\n\nFiles:\n' + names(lic)],
+    ["4. Registration in SAT's Padrón de Actividades Vulnerables",
+      pad.notRequired ? 'Not required. Explanation: ' + (pad.explanation || '—') : names(pad)],
+    ['4.1. Vulnerable Activity notices filed with SAT (last 3 months)',
+      a.vaNotices ? names(a.vaNotices) : 'Not applicable (not registered in the Padrón).'],
+    ['5. Latest annual tax return (or substitute information)', names(a.taxReturn)],
+    ["6. Photos of the company's operation", names(a.photos)],
+    ['7. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.', a.declarationOath || '—'],
+    ["8. I declare that I am not a politically exposed person (PEP), nor the company's UBOs, shareholders or other legal representatives.", a.declarationPep || '—'],
+  ];
+}
+
 function buildRows(submission) {
   const type = submission.survey_type;
   if (type === 'new_company' || type === 'existing_company') return buildRegistryRows(submission);
+  if (type === 'advanced_edd') return buildEddRows(submission);
   const a = submission.answers || {};
   const L = labelsFor(type);
   const rows = [];
@@ -250,6 +276,7 @@ function buildSubmissionPdf(submission) {
         high: 'High Risk',
         new_company: 'New Company (registered less than 3 months ago)',
         existing_company: 'Company (registered more than 3 months ago)',
+        advanced_edd: 'Advanced EDD ($1,000,000 - $10,000,000)',
       };
       const type = TYPE_TITLES[submission.survey_type] || 'Medium Risk';
       const created = submission.created_at ? new Date(submission.created_at).toISOString().replace('T', ' ').slice(0, 19) + ' UTC' : '';

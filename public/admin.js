@@ -77,7 +77,8 @@
     medium: 'Medium Risk',
     high: 'High Risk',
     new_company: 'New company (<3 months)',
-    existing_company: 'Company (>3 months)'
+    existing_company: 'Company (>3 months)',
+    advanced_edd: 'Advanced EDD ($1M–$10M)'
   };
   function typeLabel(t) { return TYPE_LABELS[t] || t || 'Unknown'; }
   function isRegistrySurvey(t) { return t === 'new_company' || t === 'existing_company'; }
@@ -340,6 +341,65 @@
     return downloadLink(doc.fileId, doc.fileName);
   }
 
+  // ---- Advanced EDD ----
+  var EDD_LABELS = {
+    legalRepName: '1. Full Name of Legal Representative',
+    companyName: '2. Company name',
+    licenses: '3. Licenses, registrations or authorizations required for the economic activity',
+    padron: "4. Registration in SAT's Padrón de Actividades Vulnerables",
+    vaNotices: '4.1. Vulnerable Activity notices filed with SAT (last 3 months)',
+    taxReturn: '5. Latest annual tax return (or substitute information)',
+    photos: "6. Photos of the company's operation",
+    oath: '7. Declaration under oath (information is true and accurate).',
+    pep: '8. Declaration of not being a politically exposed person (PEP).'
+  };
+
+  function fmtFileList(group) {
+    var files = (group && group.files) || [];
+    if (!files.length) return '<span class="muted">—</span>';
+    return files.map(function (f) { return '<div class="list-item">' + downloadLink(f.fileId, f.fileName) + '</div>'; }).join('');
+  }
+
+  // Photos render as thumbnails (each links to the download) so a reviewer can
+  // check the operation at a glance; anything that is not an image stays a link.
+  function fmtPhotos(group) {
+    var files = (group && group.files) || [];
+    if (!files.length) return '<span class="muted">—</span>';
+    var thumbs = files.map(function (f) {
+      var meta = detailFilesById[f.fileId] || {};
+      var isImg = /^image\//.test(meta.mime_type || f.mimeType || '');
+      if (!f.fileId || !isImg) return '<div class="list-item">' + downloadLink(f.fileId, f.fileName) + '</div>';
+      return '<a class="edd-thumb" href="/api/admin/files/' + f.fileId + '" title="' + escapeHtml(f.fileName) + '">' +
+        '<img src="/api/admin/files/' + f.fileId + '" alt="' + escapeHtml(f.fileName) + '"></a>';
+    }).join('');
+    return '<div class="edd-thumbs">' + thumbs + '</div><div class="muted">' + files.length + ' photo(s)</div>';
+  }
+
+  function renderEddDetail(a, rows) {
+    var L = EDD_LABELS;
+    rows.push(row(L.legalRepName, escapeHtml(a.legalRepName)));
+    rows.push(row(L.companyName, escapeHtml(a.companyName)));
+
+    var lic = a.licenses || {};
+    rows.push(row(L.licenses, lic.notRequired
+      ? '<span class="muted">Not required — the company declared it needs no governmental license, registration or authorization.</span>'
+      : '<div class="answer-pre">' + escapeHtml(lic.description) + '</div>' + fmtFileList(lic)));
+
+    var pad = a.padron || {};
+    rows.push(row(L.padron, pad.notRequired
+      ? '<span class="muted">Not required. Explanation:</span><div class="answer-pre">' + escapeHtml(pad.explanation) + '</div>'
+      : fmtFileList(pad)));
+
+    rows.push(row(L.vaNotices, a.vaNotices
+      ? fmtFileList(a.vaNotices)
+      : '<span class="muted">Not applicable — the company declared it is not registered in the Padrón.</span>'));
+
+    rows.push(row(L.taxReturn, fmtFileList(a.taxReturn)));
+    rows.push(row(L.photos, fmtPhotos(a.photos)));
+    rows.push(row(L.oath, escapeHtml(a.declarationOath)));
+    rows.push(row(L.pep, escapeHtml(a.declarationPep)));
+  }
+
   function renderRegistryDetail(a, type, rows) {
     var L = registryLabels(type);
     rows.push(row(L.legalRepName, escapeHtml(a.legalRepName)));
@@ -518,8 +578,9 @@
     detailTbody.innerHTML = '';
     var rows = [];
 
-    if (isRegistrySurvey(type)) {
-      renderRegistryDetail(a, type, rows);
+    if (isRegistrySurvey(type) || type === 'advanced_edd') {
+      if (type === 'advanced_edd') renderEddDetail(a, rows);
+      else renderRegistryDetail(a, type, rows);
       rows.forEach(function (r) { detailTbody.appendChild(r); });
       appendSignatureRow(a);
       return;
