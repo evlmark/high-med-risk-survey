@@ -110,6 +110,14 @@ const regAnswers = (extra) => Object.assign({
     check(`static ${p} -> ${want}`, r.status === want, `got ${r.status}`);
   }
 
+  // ---- build version + revalidation ----
+  const verRes = await fetch(BASE + '/api/admin/me');
+  check('api responses carry X-App-Version', !!verRes.headers.get('x-app-version'), 'missing');
+  const jsRes = await fetch(BASE + '/admin.js');
+  check('scripts are served no-cache', jsRes.headers.get('cache-control') === 'no-cache', jsRes.headers.get('cache-control'));
+  const htmlRes = await fetch(BASE + '/admin.html');
+  check('pages are served no-cache', htmlRes.headers.get('cache-control') === 'no-cache', htmlRes.headers.get('cache-control'));
+
   // ---- security headers ----
   const h = (await fetch(BASE + '/medium.html')).headers;
   check('CSP header set', !!h.get('content-security-policy'), 'missing');

@@ -55,9 +55,22 @@ const loginLimiter = rateLimit({
 // ---- Static files ----
 // Only ./public is public. Server sources, internal task documents, design mockups
 // and node_modules live outside it and are no longer reachable over HTTP.
+// Identifies the running build. Railway sets the commit SHA; locally the boot time
+// is enough. Every API response carries it so an admin tab left open across a
+// deploy can tell its JavaScript is stale and ask to be reloaded.
+const APP_VERSION = process.env.RAILWAY_GIT_COMMIT_SHA || ('boot-' + Date.now());
+app.use('/api', function (req, res, next) {
+  res.setHeader('X-App-Version', APP_VERSION);
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public'), {
   dotfiles: 'deny',
   index: false, // no directory listing / implicit index.html at "/"
+  // Always revalidate pages and scripts so a plain reload picks up a deploy.
+  setHeaders: function (res, filePath) {
+    if (/\.(html|js|css)$/.test(filePath)) res.setHeader('Cache-Control', 'no-cache');
+  },
 }));
 
 // ---- Helpers ----

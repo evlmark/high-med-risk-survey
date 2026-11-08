@@ -59,11 +59,35 @@
       document.body.removeChild(ta);
     } catch (e) { /* clipboard unavailable */ }
   }
+  // The server stamps every API response with its build id. If it changes while
+  // this tab is open, a deploy happened and this page's code is out of date —
+  // e.g. it would not know about a newly added survey type.
+  var loadedVersion = null;
+  function checkVersion(res) {
+    var v = res.headers.get('X-App-Version');
+    if (!v) return;
+    if (loadedVersion === null) { loadedVersion = v; return; }
+    if (v !== loadedVersion && !document.getElementById('update-banner')) {
+      var bar = document.createElement('div');
+      bar.id = 'update-banner';
+      bar.className = 'update-banner';
+      bar.innerHTML = '<span>A new version of the admin panel is available.</span> ';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-primary';
+      btn.textContent = 'Reload';
+      btn.addEventListener('click', function () { window.location.reload(); });
+      bar.appendChild(btn);
+      document.querySelector('.page').prepend(bar);
+    }
+  }
+
   function api(path, opts) {
     opts = opts || {};
     opts.headers = opts.headers || {};
     if (opts.body) opts.headers['Content-Type'] = 'application/json';
     return fetch(path, opts).then(function (res) {
+      checkVersion(res);
       return res.json().catch(function () { return {}; }).then(function (body) {
         return { ok: res.ok, status: res.status, body: body };
       });
