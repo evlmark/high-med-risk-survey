@@ -105,6 +105,7 @@ const regAnswers = (extra) => Object.assign({
     ['/DEPLOY-RAILWAY.md', 404], ['/Design/Survey-9.png', 404],
     ['/node_modules/express/package.json', 404], ['/index.html', 404],
     ['/test/smoke.js', 404], ['/advanced-edd.html', 200], ['/survey-edd.js', 200],
+    ['/basic-edd.html', 200], ['/survey-basic-edd.js', 200], ['/countries.js', 200],
   ]) {
     const r = await fetch(BASE + p);
     check(`static ${p} -> ${want}`, r.status === want, `got ${r.status}`);
@@ -198,6 +199,30 @@ const regAnswers = (extra) => Object.assign({
   check('optional compliance doc may be missing',
     noOpt.status === 200 && JSON.stringify(noOptFields) === JSON.stringify(['registrationProof', 'taxOpinion']),
     noOpt.status + ' ' + JSON.stringify(noOptFields));
+
+  // ---- Basic EDD (no documents) ----
+  const basicAnswers = () => ({
+    legalRepName: 'Luis Prieto', companyName: 'Mediana SA de CV',
+    cashShare: '21% - 40%', averageTicket: '1500',
+    channels: [{ channel: 'Online', detail: 'www.mediana.mx' }, { channel: 'In-store', detail: 'Av. Reforma 1' }],
+    customers: { types: ['Individuals', 'Other'], other: 'Hoteles' },
+    suppliers: [{ name: 'Proveedor Uno', country: 'MX' }, { name: 'Supplier Two', country: 'US' }],
+    wireTransfers: 'Yes, receive only', wireCountries: ['US', 'CN'],
+    operatesAbroad: 'No', abroadCountries: [],
+    seasonal: 'Yes', seasonalMonths: [6, 7, 12],
+    ubos: [{ fullName: 'Ana Prieto', experience: ['Founded or actively managed a business carrying out the same activity'],
+      functions: ['Manages day-to-day business operations', 'Other'], functionsOther: 'Firma contratos' }],
+    declarationOath: 'Yes', declarationPep: 'Yes',
+    signature: 'data:image/png;base64,' + b64(50),
+  });
+  queries.length = 0;
+  const be1 = await post('/api/submit', { surveyType: 'basic_edd', language: 'es', answers: basicAnswers() });
+  check('basic edd: submit 200 without email', be1.status === 200, be1.status + ' ' + be1.body);
+  check('basic edd: no file rows', !queries.some((q) => /INSERT INTO files/.test(q.sql)), '');
+  const beIns = queries.find((q) => /INSERT INTO submissions/.test(q.sql));
+  const beStored = beIns ? JSON.parse(beIns.params[4]) : {};
+  check('basic edd: answers stored as sent', beIns && beIns.params[0] === 'basic_edd' &&
+    JSON.stringify(beStored.wireCountries) === '["US","CN"]' && beStored.ubos[0].functionsOther === 'Firma contratos', beIns ? beIns.params[4].slice(0, 80) : 'no insert');
 
   // ---- Advanced EDD ----
   const doc = (name, n) => ({ fileName: name, fileBase64: b64(n), mimeType: 'application/pdf' });
@@ -346,6 +371,8 @@ const regAnswers = (extra) => Object.assign({
     ['high', { id: 2, survey_type: 'high', answers: baseAnswers([ubo('A', 10, 10)]) }],
     ['new_company', { id: 3, survey_type: 'new_company', answers: regAnswers() }],
     ['existing_company', { id: 4, survey_type: 'existing_company', answers: regAnswers() }],
+    ['basic_edd', { id: 8, survey_type: 'basic_edd', answers: basicAnswers() }],
+    ['basic_edd empty', { id: 9, survey_type: 'basic_edd', answers: { legalRepName: 'X' } }],
     ['advanced_edd', { id: 6, survey_type: 'advanced_edd', answers: eddAnswers() }],
     ['advanced_edd not-required', { id: 7, survey_type: 'advanced_edd', answers: eddAnswers({ licenses: { notRequired: true, files: [] }, padron: { notRequired: true, explanation: 'n/a', files: [] }, vaNotices: null }) }],
     ['corrupt signature', { id: 5, survey_type: 'medium', answers: Object.assign(baseAnswers([]), { signature: 'data:image/png;base64,' + Buffer.from('not a png').toString('base64') }) }],

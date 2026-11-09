@@ -53,12 +53,13 @@ git push -u origin main
 
 ## 3. Ссылки
 
-Четыре опросника, все на ES/EN с переключателем в шапке:
+Опросники, все на ES/EN с переключателем в шапке:
 
 - **Medium Risk**: `https://<домен>/medium.html`
 - **High Risk**: `https://<домен>/high.html`
 - **Компания моложе 3 месяцев**: `https://<домен>/new-company.html`
 - **Компания старше 3 месяцев**: `https://<домен>/existing-company.html`
+- **Basic EDD ($250,000 – $1,000,000)**: `https://<домен>/basic-edd.html`
 - **Advanced EDD ($1,000,000 – $10,000,000)**: `https://<домен>/advanced-edd.html`
 - **Админка** (только для тебя): `https://<домен>/admin.html` — вход по `ADMIN_PASSWORD`.
 

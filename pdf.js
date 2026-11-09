@@ -1,5 +1,6 @@
 const PDFDocument = require('pdfkit');
 const zlib = require('zlib');
+const COUNTRIES = require('./public/countries.js');
 
 const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
@@ -201,6 +202,45 @@ function buildRegistryRows(submission) {
   return rows;
 }
 
+// Basic EDD ($250K–$1M): choices only; countries are ISO codes, months 1–12.
+function buildBasicEddRows(submission) {
+  const a = submission.answers || {};
+  const countries = function (codes) { return (codes || []).map(function (c) { return COUNTRIES.name(c, 'en'); }).join(', '); };
+  const monthFmt = new Intl.DateTimeFormat('en', { month: 'long', timeZone: 'UTC' });
+  const months = (a.seasonalMonths || []).map(function (m) { return monthFmt.format(new Date(Date.UTC(2024, m - 1, 15))); }).join(', ');
+  const lines = function (arr) { return arr && arr.length ? arr.join('\n') : '—'; };
+  const cust = a.customers || {};
+  const ticket = Number(a.averageTicket);
+  const rows = [
+    ['1. Full Name of Legal Representative', a.legalRepName || '—'],
+    ['2. Company name', a.companyName || '—'],
+    ['3. What percentage of your business do you run in cash?', a.cashShare || '—'],
+    ['4. Average ticket value of the goods or services sold (MXN)',
+      a.averageTicket && isFinite(ticket) ? '$' + ticket.toLocaleString('en-US', { minimumFractionDigits: ticket % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' MXN' : (a.averageTicket || '—')],
+    ['5. How do most of your customers find you?',
+      lines((a.channels || []).map(function (c) { return c.channel + (c.detail ? ': ' + c.detail : ''); }))],
+    ['6. Who are your customers?',
+      lines((cust.types || []).map(function (t) { return t === 'Other' && cust.other ? 'Other: ' + cust.other : t; }))],
+    ['7. Top 3 suppliers and their location',
+      lines((a.suppliers || []).map(function (s, i) { return (i + 1) + '. ' + (s.name || '—') + ' (' + countries([s.country]) + ')'; }))],
+    ['8. Wire transfers to or from other countries',
+      (a.wireTransfers || '—') + (a.wireCountries && a.wireCountries.length ? '\nCountries: ' + countries(a.wireCountries) : '')],
+    ['9. Operates in countries outside Mexico?',
+      (a.operatesAbroad || '—') + (a.abroadCountries && a.abroadCountries.length ? '\nCountries: ' + countries(a.abroadCountries) : '')],
+    ['10. Seasonal increase or decrease of income / payments',
+      (a.seasonal || '—') + (months ? '\nMonths: ' + months : '')],
+  ];
+  (a.ubos || []).forEach(function (u, i) {
+    const fns = (u.functions || []).map(function (f) { return f === 'Other' && u.functionsOther ? 'Other: ' + u.functionsOther : f; });
+    rows.push(['11. UBO #' + (i + 1) + ': ' + (u.fullName || '—'),
+      'Experience in the market of the business activity:\n' + lines((u.experience || []).map(function (e) { return '- ' + e; })) +
+      '\n\nFunctions actually performed in the company:\n' + lines(fns.map(function (f) { return '- ' + f; }))]);
+  });
+  rows.push(['12. I declare under oath that the information in this form is true and accurate, and that I have not omitted any relevant information that could affect this process.', a.declarationOath || '—']);
+  rows.push(["13. I declare that I am not a politically exposed person (PEP), nor the company's UBOs, shareholders or other legal representatives.", a.declarationPep || '—']);
+  return rows;
+}
+
 // Advanced EDD ($1M–$10M): document questions hold several files each.
 function buildEddRows(submission) {
   const a = submission.answers || {};
@@ -230,6 +270,7 @@ function buildRows(submission) {
   const type = submission.survey_type;
   if (type === 'new_company' || type === 'existing_company') return buildRegistryRows(submission);
   if (type === 'advanced_edd') return buildEddRows(submission);
+  if (type === 'basic_edd') return buildBasicEddRows(submission);
   const a = submission.answers || {};
   const L = labelsFor(type);
   const rows = [];
@@ -276,6 +317,7 @@ function buildSubmissionPdf(submission) {
         high: 'High Risk',
         new_company: 'New Company (registered less than 3 months ago)',
         existing_company: 'Company (registered more than 3 months ago)',
+        basic_edd: 'Basic EDD ($250,000 - $1,000,000)',
         advanced_edd: 'Advanced EDD ($1,000,000 - $10,000,000)',
       };
       const type = TYPE_TITLES[submission.survey_type] || 'Medium Risk';

@@ -102,6 +102,7 @@
     high: 'High Risk',
     new_company: 'New company (<3 months)',
     existing_company: 'Company (>3 months)',
+    basic_edd: 'Basic EDD ($250K–$1M)',
     advanced_edd: 'Advanced EDD ($1M–$10M)'
   };
   function typeLabel(t) { return TYPE_LABELS[t] || t || 'Unknown'; }
@@ -365,6 +366,82 @@
     return downloadLink(doc.fileId, doc.fileName);
   }
 
+  // ---- Basic EDD ----
+  var BASIC_EDD_LABELS = {
+    legalRepName: '1. Full Name of Legal Representative',
+    companyName: '2. Company name',
+    cashShare: '3. What percentage of your business do you run in cash?',
+    averageTicket: '4. Average ticket value of the goods or services sold (MXN)',
+    channels: '5. How do most of your customers find you?',
+    customers: '6. Who are your customers?',
+    suppliers: '7. Top 3 suppliers and their location',
+    wireTransfers: '8. Wire transfers to or from other countries',
+    operatesAbroad: '9. Operates in countries outside Mexico?',
+    seasonal: '10. Seasonal increase or decrease of income / payments',
+    ubos: '11. UBOs: experience and actual functions',
+    oath: '12. Declaration under oath (information is true and accurate).',
+    pep: '13. Declaration of not being a politically exposed person (PEP).'
+  };
+
+  function countryList(codes) {
+    if (!codes || !codes.length) return '';
+    return codes.map(function (c) {
+      return escapeHtml(window.COUNTRIES ? window.COUNTRIES.name(c, 'en') : c);
+    }).join(', ');
+  }
+  function monthList(nums) {
+    var fmt = new Intl.DateTimeFormat('en', { month: 'long', timeZone: 'UTC' });
+    return (nums || []).map(function (m) { return fmt.format(new Date(Date.UTC(2024, m - 1, 15))); }).join(', ');
+  }
+  function bulletList(items) {
+    if (!items || !items.length) return '<span class="muted">—</span>';
+    return items.map(function (s) { return '<div class="list-item">' + s + '</div>'; }).join('');
+  }
+  function fmtTicket(v) {
+    var n = Number(v);
+    return isFinite(n) && v !== '' && v != null ? '$' + n.toLocaleString('en-US', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' MXN' : escapeHtml(v);
+  }
+
+  function renderBasicEddDetail(a, rows) {
+    var L = BASIC_EDD_LABELS;
+    rows.push(row(L.legalRepName, escapeHtml(a.legalRepName)));
+    rows.push(row(L.companyName, escapeHtml(a.companyName)));
+    rows.push(row(L.cashShare, escapeHtml(a.cashShare)));
+    rows.push(row(L.averageTicket, fmtTicket(a.averageTicket)));
+    rows.push(row(L.channels, bulletList((a.channels || []).map(function (c) {
+      return '<strong>' + escapeHtml(c.channel) + '</strong>' + (c.detail ? ' — ' + escapeHtml(c.detail) : '');
+    }))));
+    var cust = a.customers || {};
+    rows.push(row(L.customers, bulletList((cust.types || []).map(function (t) {
+      return escapeHtml(t) + (t === 'Other' && cust.other ? ' — ' + escapeHtml(cust.other) : '');
+    }))));
+    rows.push(row(L.suppliers, bulletList((a.suppliers || []).map(function (s, i) {
+      return (i + 1) + '. ' + escapeHtml(s.name) + ' — ' + countryList([s.country]);
+    }))));
+    var wires = escapeHtml(a.wireTransfers);
+    if (a.wireCountries && a.wireCountries.length) wires += '<div class="muted">Countries: ' + countryList(a.wireCountries) + '</div>';
+    rows.push(row(L.wireTransfers, wires));
+    var abroad = escapeHtml(a.operatesAbroad);
+    if (a.abroadCountries && a.abroadCountries.length) abroad += '<div class="muted">Countries: ' + countryList(a.abroadCountries) + '</div>';
+    rows.push(row(L.operatesAbroad, abroad));
+    var season = escapeHtml(a.seasonal);
+    if (a.seasonalMonths && a.seasonalMonths.length) season += '<div class="muted">Months: ' + escapeHtml(monthList(a.seasonalMonths)) + '</div>';
+    rows.push(row(L.seasonal, season));
+
+    rows.push(subheadRow(L.ubos));
+    (a.ubos || []).forEach(function (u, idx) {
+      rows.push(subheadRow('UBO #' + (idx + 1) + ': ' + (u.fullName || '')));
+      rows.push(row('11.1. Experience in the market of the business activity', bulletList((u.experience || []).map(escapeHtml))));
+      rows.push(row('11.2. Functions actually performed in the company', bulletList((u.functions || []).map(function (f) {
+        return escapeHtml(f) + (f === 'Other' && u.functionsOther ? ' — ' + escapeHtml(u.functionsOther) : '');
+      }))));
+    });
+    if (!a.ubos || !a.ubos.length) rows.push(row('—', ''));
+
+    rows.push(row(L.oath, escapeHtml(a.declarationOath)));
+    rows.push(row(L.pep, escapeHtml(a.declarationPep)));
+  }
+
   // ---- Advanced EDD ----
   var EDD_LABELS = {
     legalRepName: '1. Full Name of Legal Representative',
@@ -602,8 +679,9 @@
     detailTbody.innerHTML = '';
     var rows = [];
 
-    if (isRegistrySurvey(type) || type === 'advanced_edd') {
+    if (isRegistrySurvey(type) || type === 'advanced_edd' || type === 'basic_edd') {
       if (type === 'advanced_edd') renderEddDetail(a, rows);
+      else if (type === 'basic_edd') renderBasicEddDetail(a, rows);
       else renderRegistryDetail(a, type, rows);
       rows.forEach(function (r) { detailTbody.appendChild(r); });
       appendSignatureRow(a);

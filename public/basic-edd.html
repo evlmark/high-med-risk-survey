@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Additional questions</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <img class="logo" src="logo.png" alt="Plata Negocios">
+      <div class="header-top">
+        <h1 data-i18n="app.title.edd">Additional questions</h1>
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button type="button" data-lang="es">ES</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <form id="survey-form" class="survey-form" data-survey-type="basic_edd" novalidate>
+      <!-- Q1: Legal representative -->
+      <section class="question-block" data-question="legalRep">
+        <h2 class="question-title required" data-i18n="legalRep.title">1. Full Name of Legal Representative</h2>
+        <input type="text" class="q-input" name="legalRepName" id="legalRepName" data-i18n-ph="legalRep.ph" placeholder="Enter full name">
+      </section>
+
+      <!-- Q2: Company name -->
+      <section class="question-block" data-question="companyName">
+        <h2 class="question-title required" data-i18n="companyName.title">2. Company name</h2>
+        <input type="text" class="q-input" name="companyName" id="companyName" data-i18n-ph="companyName.ph" placeholder="Enter the company name">
+      </section>
+
+      <!-- Q3: Share of the business run in cash -->
+      <section class="question-block" data-question="cashShare">
+        <h2 class="question-title required" data-i18n="bedd.cash.title">3. What percentage of your business do you run in cash?</h2>
+        <p class="question-hint" data-i18n="hint.selectOne">Select one option.</p>
+        <div class="options options-radio">
+          <label><input type="radio" name="cashShare" value="0% - 20%"><span class="option-label">0% – 20%</span></label>
+          <label><input type="radio" name="cashShare" value="21% - 40%"><span class="option-label">21% – 40%</span></label>
+          <label><input type="radio" name="cashShare" value="41% - 60%"><span class="option-label">41% – 60%</span></label>
+          <label><input type="radio" name="cashShare" value="More than 60%"><span class="option-label" data-i18n="bedd.cash.opt4">More than 60%</span></label>
+        </div>
+      </section>
+
+      <!-- Q4: Average ticket -->
+      <section class="question-block" data-question="averageTicket">
+        <h2 class="question-title required" data-i18n="bedd.ticket.title">4. What is the average ticket value of the goods or services the company sells?</h2>
+        <p class="question-hint" data-i18n="bedd.ticket.hint">Amount in Mexican pesos (MXN), numbers only.</p>
+        <div class="money-input">
+          <span class="money-prefix">$</span>
+          <input type="text" class="q-input" id="averageTicket" inputmode="decimal" autocomplete="off" placeholder="0.00">
+          <span class="money-suffix">MXN</span>
+        </div>
+      </section>
+
+      <!-- Q5: Sales channels -->
+      <section class="question-block" data-question="channels">
+        <h2 class="question-title required" data-i18n="bedd.channels.title">5. How do most of your customers find you?</h2>
+        <p class="question-hint" data-i18n="bedd.channels.hint">Select all that apply and specify each channel.</p>
+        <div class="options options-checkbox" id="channels">
+          <label><input type="checkbox" name="channel" value="In-store"><span class="option-label" data-i18n="bedd.channels.store">In-store</span></label>
+          <div class="conditional-field" data-detail-for="In-store" hidden><input type="text" class="q-input" data-i18n-ph="bedd.channels.store.ph" placeholder="Store address"></div>
+          <label><input type="checkbox" name="channel" value="Online"><span class="option-label" data-i18n="bedd.channels.online">Online</span></label>
+          <div class="conditional-field" data-detail-for="Online" hidden><input type="text" class="q-input" data-i18n-ph="bedd.channels.online.ph" placeholder="Website, social media, marketplace…"></div>
+          <label><input type="checkbox" name="channel" value="Distributors or resellers"><span class="option-label" data-i18n="bedd.channels.resellers">Through distributors or resellers</span></label>
+          <div class="conditional-field" data-detail-for="Distributors or resellers" hidden><input type="text" class="q-input" data-i18n-ph="bedd.channels.resellers.ph" placeholder="Names of the main distributors or resellers"></div>
+          <label><input type="checkbox" name="channel" value="Other"><span class="option-label" data-i18n="opt.other">Other</span></label>
+          <div class="conditional-field" data-detail-for="Other" hidden><input type="text" class="q-input" data-i18n-ph="bedd.channels.other.ph" placeholder="Describe the channel"></div>
+        </div>
+      </section>
+
+      <!-- Q6: Customer types -->
+      <section class="question-block" data-question="customers">
+        <h2 class="question-title required" data-i18n="bedd.customers.title">6. Who are your customers?</h2>
+        <p class="question-hint" data-i18n="hint.selectMany">You may select more than one option.</p>
+        <div class="options options-checkbox">
+          <label><input type="checkbox" name="customer" value="Large businesses"><span class="option-label" data-i18n="bedd.customers.large">Large businesses</span></label>
+          <label><input type="checkbox" name="customer" value="Small and medium-sized businesses"><span class="option-label" data-i18n="bedd.customers.sme">Small and medium-sized businesses</span></label>
+          <label><input type="checkbox" name="customer" value="Individuals"><span class="option-label" data-i18n="bedd.customers.individuals">Individuals</span></label>
+          <label><input type="checkbox" name="customer" value="Government organizations"><span class="option-label" data-i18n="bedd.customers.gov">Government organizations</span></label>
+          <label><input type="checkbox" name="customer" value="Other" id="customer-other"><span class="option-label" data-i18n="opt.other">Other</span></label>
+        </div>
+        <div class="conditional-field" id="customer-other-wrap" hidden>
+          <input type="text" class="q-input" id="customer-other-text" data-i18n-ph="bedd.customers.other.ph" placeholder="Describe your customers">
+        </div>
+      </section>
+
+      <!-- Q7: Top 3 suppliers and their location -->
+      <section class="question-block" data-question="suppliers">
+        <h2 class="question-title required" data-i18n="bedd.suppliers.title">7. Who are your 3 main suppliers and where are they located?</h2>
+        <p class="question-hint" data-i18n="bedd.suppliers.hint">If you have fewer than 3 suppliers, fill in only the ones you have.</p>
+        <div class="supplier-rows" id="suppliers"></div>
+      </section>
+
+      <!-- Q8: International wire transfers -->
+      <section class="question-block" data-question="wireTransfers">
+        <h2 class="question-title required" data-i18n="bedd.wires.title">8. Do you receive or send wire transfers to or from other countries?</h2>
+        <p class="question-hint" data-i18n="hint.selectOne">Select one option.</p>
+        <div class="options options-radio">
+          <label><input type="radio" name="wires" value="Yes, receive and send"><span class="option-label" data-i18n="bedd.wires.both">Yes, I receive wire transfers from and send them to other countries.</span></label>
+          <label><input type="radio" name="wires" value="Yes, send only"><span class="option-label" data-i18n="bedd.wires.send">Yes, but I only send wire transfers to other countries.</span></label>
+          <label><input type="radio" name="wires" value="Yes, receive only"><span class="option-label" data-i18n="bedd.wires.receive">Yes, but I only receive wire transfers from other countries.</span></label>
+          <label><input type="radio" name="wires" value="No"><span class="option-label" data-i18n="bedd.wires.no">No, I do not receive or send wire transfers to or from other countries.</span></label>
+        </div>
+        <div class="conditional-field" id="wire-countries-wrap" hidden>
+          <p class="ubo-subheading" data-i18n="bedd.wires.countries">Select the countries</p>
+          <div class="country-picker" id="wire-countries" data-exclude="MX"></div>
+        </div>
+      </section>
+
+      <!-- Q9: Operations outside Mexico -->
+      <section class="question-block" data-question="operatesAbroad">
+        <h2 class="question-title required" data-i18n="bedd.abroad.title">9. Do you operate in countries outside Mexico?</h2>
+        <div class="options options-radio">
+          <label><input type="radio" name="abroad" value="Yes"><span class="option-label" data-i18n="opt.yes">Yes</span></label>
+          <label><input type="radio" name="abroad" value="No"><span class="option-label" data-i18n="opt.no">No</span></label>
+        </div>
+        <div class="conditional-field" id="abroad-countries-wrap" hidden>
+          <p class="ubo-subheading" data-i18n="bedd.abroad.countries">Select the countries where you operate</p>
+          <div class="country-picker" id="abroad-countries" data-exclude="MX"></div>
+        </div>
+      </section>
+
+      <!-- Q10: Seasonality -->
+      <section class="question-block" data-question="seasonality">
+        <h2 class="question-title required" data-i18n="bedd.season.title">10. Do your incoming or outgoing payments increase or decrease seasonally? When?</h2>
+        <p class="question-hint" data-i18n="bedd.season.hint">For example, a hotel usually receives more money during the summer.</p>
+        <div class="options options-radio">
+          <label><input type="radio" name="seasonal" value="Yes"><span class="option-label" data-i18n="opt.yes">Yes</span></label>
+          <label><input type="radio" name="seasonal" value="No"><span class="option-label" data-i18n="opt.no">No</span></label>
+        </div>
+        <div class="conditional-field" id="months-wrap" hidden>
+          <p class="ubo-subheading" data-i18n="bedd.season.months">Select the months</p>
+          <div class="month-grid" id="months"></div>
+        </div>
+      </section>
+
+      <!-- Q11: UBOs — experience and actual functions, once per UBO -->
+      <section class="question-block" data-question="ubos">
+        <h2 class="question-title required" data-i18n="bedd.ubo.title">11. Ultimate beneficial owners (UBOs)</h2>
+        <p class="question-hint" data-i18n="bedd.ubo.hint">Answer the questions below once for each UBO (people who own 25% or more of the company or control it).</p>
+        <div id="ubo-list" class="entity-list ubo-list"></div>
+        <div class="add-entity-actions">
+          <button type="button" class="btn btn-secondary" id="add-ubo" data-i18n="bedd.ubo.add">Add another UBO</button>
+        </div>
+      </section>
+
+      <!-- Q12: Declaration under oath -->
+      <section class="question-block" data-question="oath">
+        <h2 class="question-title required" data-i18n="bedd.oath.title">12. I declare under oath that the information in this form is true and accurate.</h2>
+        <div class="options options-radio">
+          <label><input type="radio" name="oath" value="Yes"><span class="option-label" data-i18n="opt.yes">Yes</span></label>
+          <label><input type="radio" name="oath" value="No"><span class="option-label" data-i18n="opt.no">No</span></label>
+        </div>
+      </section>
+
+      <!-- Q13: PEP declaration -->
+      <section class="question-block" data-question="pep">
+        <h2 class="question-title required" data-i18n="bedd.pep.title">13. I declare that I am not a politically exposed person (PEP).</h2>
+        <div class="options options-radio">
+          <label><input type="radio" name="pep" value="Yes"><span class="option-label" data-i18n="opt.yes">Yes</span></label>
+          <label><input type="radio" name="pep" value="No"><span class="option-label" data-i18n="opt.no">No</span></label>
+        </div>
+      </section>
+
+      <!-- Signature -->
+      <section class="question-block" data-question="signature">
+        <h2 class="question-title required" data-i18n="sig.title">Add your signature</h2>
+        <div class="signature-block">
+          <div class="signature-wrap">
+            <canvas id="signature-canvas" width="400" height="180" aria-label="Sign here"></canvas>
+            <p class="signature-placeholder" id="signature-placeholder" data-i18n="sig.placeholder">Sign here</p>
+          </div>
+          <button type="button" class="btn btn-secondary btn-remove-signature" id="remove-signature-btn" data-i18n="sig.remove">Remove signature</button>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" data-i18n="btn.submit">Submit</button>
+      </div>
+    </form>
+  </div>
+  <script src="i18n.js"></script>
+  <script src="countries.js"></script>
+  <script src="survey-basic-edd.js"></script>
+</body>
+</html>

@@ -75,7 +75,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // ---- Helpers ----
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const SURVEY_TYPES = ['medium', 'high', 'new_company', 'existing_company', 'advanced_edd'];
+const SURVEY_TYPES = ['medium', 'high', 'new_company', 'existing_company', 'basic_edd', 'advanced_edd'];
 // Advanced EDD document groups; each holds { files: [{fileName, fileBase64, mimeType}] }.
 const EDD_FILE_GROUPS = ['licenses', 'padron', 'vaNotices', 'taxReturn', 'photos'];
 const SURVEY_TYPES_WITH_EMAIL = ['medium', 'high'];
@@ -141,6 +141,9 @@ function extractFiles(surveyType, answers) {
 
   // The registered-company surveys carry three standalone documents instead of
   // per-UBO uploads; their UBO list holds no files at all.
+  // Basic EDD has no documents at all.
+  if (surveyType === 'basic_edd') return { clean: clean, fds: fds };
+
   if (surveyType === 'advanced_edd') {
     EDD_FILE_GROUPS.forEach(function (key) {
       const group = clean[key];
@@ -311,6 +314,7 @@ app.get('/api/admin/submissions/export.csv', auth.requireAdmin, async function (
     const TYPE_LABELS = {
       medium: 'Medium Risk', high: 'High Risk',
       new_company: 'New company (<3 months)', existing_company: 'Company (>3 months)',
+      basic_edd: 'Basic EDD ($250K-$1M)',
       advanced_edd: 'Advanced EDD ($1M-$10M)',
     };
     const esc = function (v) {
