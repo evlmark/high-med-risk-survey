@@ -90,8 +90,11 @@
       <!-- Q7: Top 3 suppliers and their location -->
       <section class="question-block" data-question="suppliers">
         <h2 class="question-title required" data-i18n="bedd.suppliers.title">7. Who are your 3 main suppliers and where are they located?</h2>
-        <p class="question-hint" data-i18n="bedd.suppliers.hint">If you have fewer than 3 suppliers, fill in only the ones you have.</p>
+        <p class="question-hint" data-i18n="bedd.suppliers.hint">If you have fewer than 3 suppliers, remove the extra rows.</p>
         <div class="supplier-rows" id="suppliers"></div>
+        <div class="add-entity-actions">
+          <button type="button" class="btn btn-secondary" id="add-supplier" data-i18n="bedd.suppliers.add" hidden>Add supplier</button>
+        </div>
       </section>
 
       <!-- Q8: International wire transfers -->

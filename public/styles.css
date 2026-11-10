@@ -1087,14 +1087,31 @@ textarea:focus {
 .supplier-rows { display: flex; flex-direction: column; gap: 10px; }
 .supplier-row {
   display: grid;
-  grid-template-columns: 24px minmax(0, 3fr) minmax(0, 2fr);
+  grid-template-columns: 24px minmax(0, 3fr) minmax(0, 2fr) 32px;
   gap: 8px;
   align-items: center;
 }
 .supplier-num { color: #555; font-weight: 600; }
+.supplier-remove {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: #c62828;
+  background: transparent;
+  border: 1px solid #ef9a9a;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.supplier-remove:hover { background: #ffebee; }
+.supplier-remove[hidden] { visibility: hidden; display: block; }
+#suppliers + .add-entity-actions { margin-top: 12px; }
+#suppliers + .add-entity-actions [hidden] { display: none; }
 @media (max-width: 560px) {
-  .supplier-row { grid-template-columns: 24px minmax(0, 1fr); }
+  .supplier-row { grid-template-columns: 24px minmax(0, 1fr) 32px; }
   .supplier-row select { grid-column: 2; }
+  .supplier-row .supplier-remove { grid-column: 3; grid-row: 1; }
 }
 
 .country-picker { display: flex; flex-direction: column; gap: 8px; }

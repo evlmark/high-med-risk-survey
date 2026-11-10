@@ -126,33 +126,61 @@
     if (!customerOther.checked) document.getElementById('customer-other-text').value = '';
   });
 
-  // --- Q7: three supplier rows (name + country, Mexico first)
+  // --- Q7: supplier rows (name + country, Mexico first). Three by default;
+  // the respondent can remove down to one and add back up to three.
   const supplierBox = document.getElementById('suppliers');
-  for (let i = 0; i < SUPPLIER_ROWS; i++) {
+  const addSupplierBtn = document.getElementById('add-supplier');
+  function renumberSuppliers() {
+    const rows = supplierBox.querySelectorAll('.supplier-row');
+    rows.forEach(function (r, i) {
+      r.querySelector('.supplier-num').textContent = (i + 1) + '.';
+      r.querySelector('.supplier-remove').hidden = rows.length === 1;
+    });
+    addSupplierBtn.hidden = rows.length >= SUPPLIER_ROWS;
+  }
+  function addSupplier() {
     const rowEl = document.createElement('div');
     rowEl.className = 'supplier-row';
     rowEl.innerHTML =
-      '<span class="supplier-num">' + (i + 1) + '.</span>' +
+      '<span class="supplier-num"></span>' +
       '<input type="text" class="q-input" data-supplier-name data-i18n-ph="bedd.suppliers.name">' +
-      '<select class="q-input" data-supplier-country></select>';
+      '<select class="q-input" data-supplier-country></select>' +
+      '<button type="button" class="supplier-remove">×</button>';
+    rowEl.querySelector('.supplier-remove').addEventListener('click', function () {
+      rowEl.remove();
+      renumberSuppliers();
+    });
     supplierBox.appendChild(rowEl);
+    retranslate(rowEl);
+    labelSupplierRemove(rowEl);
+    fillSupplierCountries(rowEl.querySelector('select'));
+    renumberSuppliers();
+    return rowEl;
   }
-  retranslate(supplierBox);
-  function renderSupplierCountries() {
-    supplierBox.querySelectorAll('select[data-supplier-country]').forEach(function (sel) {
-      const current = sel.value;
-      sel.innerHTML = '';
-      const ph = new Option(t('bedd.suppliers.country'), '');
-      sel.appendChild(ph);
-      sel.appendChild(new Option(countryName('MX'), 'MX'));
-      window.COUNTRIES.sorted(lang()).forEach(function (code) {
-        if (code !== 'MX') sel.appendChild(new Option(countryName(code), code));
-      });
-      sel.value = current;
+  function labelSupplierRemove(scope) {
+    scope.querySelectorAll('.supplier-remove').forEach(function (b) {
+      b.setAttribute('aria-label', t('btn.remove'));
+      b.title = t('btn.remove');
     });
   }
-  relabelers.push(renderSupplierCountries);
-  renderSupplierCountries();
+  addSupplierBtn.addEventListener('click', function () {
+    addSupplier().querySelector('[data-supplier-name]').focus();
+  });
+  function fillSupplierCountries(sel) {
+    const current = sel.value;
+    sel.innerHTML = '';
+    sel.appendChild(new Option(t('bedd.suppliers.country'), ''));
+    sel.appendChild(new Option(countryName('MX'), 'MX'));
+    window.COUNTRIES.sorted(lang()).forEach(function (code) {
+      if (code !== 'MX') sel.appendChild(new Option(countryName(code), code));
+    });
+    sel.value = current;
+  }
+  relabelers.push(function () {
+    supplierBox.querySelectorAll('select[data-supplier-country]').forEach(fillSupplierCountries);
+    labelSupplierRemove(supplierBox);
+  });
+  for (let i = 0; i < SUPPLIER_ROWS; i++) addSupplier();
 
   // --- Q8 / Q9: country pickers behind a "yes"
   const wirePicker = makeCountryPicker(document.getElementById('wire-countries'));
