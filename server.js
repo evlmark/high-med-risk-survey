@@ -31,7 +31,7 @@ const smallJson = express.json({ limit: '100kb' });
 app.use(function (req, res, next) {
   return (req.path === '/api/submit' ? submitJson : smallJson)(req, res, next);
 });
-const SUBMIT_LIMIT_BYTES = { advanced_edd: 50 * 1024 * 1024 };
+const SUBMIT_LIMIT_BYTES = { advanced_edd: 50 * 1024 * 1024, full_edd: 50 * 1024 * 1024 };
 const SUBMIT_LIMIT_DEFAULT = 15 * 1024 * 1024;
 
 const submitLimiter = rateLimit({
@@ -75,7 +75,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // ---- Helpers ----
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const SURVEY_TYPES = ['medium', 'high', 'new_company', 'existing_company', 'basic_edd', 'advanced_edd'];
+const SURVEY_TYPES = ['medium', 'high', 'new_company', 'existing_company', 'basic_edd', 'advanced_edd', 'full_edd'];
 // Advanced EDD document groups; each holds { files: [{fileName, fileBase64, mimeType}] }.
 const EDD_FILE_GROUPS = ['licenses', 'padron', 'vaNotices', 'taxReturn', 'photos'];
 const SURVEY_TYPES_WITH_EMAIL = ['medium', 'high'];
@@ -144,7 +144,8 @@ function extractFiles(surveyType, answers) {
   // Basic EDD has no documents at all.
   if (surveyType === 'basic_edd') return { clean: clean, fds: fds };
 
-  if (surveyType === 'advanced_edd') {
+  // Advanced EDD documents; the combined Basic + Advanced survey carries the same ones.
+  if (surveyType === 'advanced_edd' || surveyType === 'full_edd') {
     EDD_FILE_GROUPS.forEach(function (key) {
       const group = clean[key];
       if (group && Array.isArray(group.files)) {
@@ -183,7 +184,7 @@ app.post('/api/submit', submitLimiter, async function (req, res) {
     const surveyType = SURVEY_TYPES.indexOf(body.surveyType) >= 0 ? body.surveyType : null;
     if (!surveyType) return res.status(400).json({ error: 'invalid surveyType' });
 
-    // The body parser allows 50 MB for the Advanced EDD survey; hold every other
+    // The body parser allows 50 MB for the Advanced EDD surveys; hold every other
     // survey to its previous 15 MB so the larger limit is not a general bloat vector.
     const bodyBytes = parseInt(req.headers['content-length'] || '0', 10);
     if (bodyBytes > (SUBMIT_LIMIT_BYTES[surveyType] || SUBMIT_LIMIT_DEFAULT)) {
@@ -316,6 +317,7 @@ app.get('/api/admin/submissions/export.csv', auth.requireAdmin, async function (
       new_company: 'New company (<3 months)', existing_company: 'Company (>3 months)',
       basic_edd: 'Basic EDD ($250K-$1M)',
       advanced_edd: 'Advanced EDD ($1M-$10M)',
+      full_edd: 'Basic + Advanced EDD',
     };
     const esc = function (v) {
       const s = v == null ? '' : String(v);

@@ -103,7 +103,8 @@
     new_company: 'New company (<3 months)',
     existing_company: 'Company (>3 months)',
     basic_edd: 'Basic EDD ($250K–$1M)',
-    advanced_edd: 'Advanced EDD ($1M–$10M)'
+    advanced_edd: 'Advanced EDD ($1M–$10M)',
+    full_edd: 'Basic + Advanced EDD'
   };
   function typeLabel(t) { return TYPE_LABELS[t] || t || 'Unknown'; }
   function isRegistrySurvey(t) { return t === 'new_company' || t === 'existing_company'; }
@@ -402,10 +403,13 @@
     return isFinite(n) && v !== '' && v != null ? '$' + n.toLocaleString('en-US', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' MXN' : escapeHtml(v);
   }
 
-  function renderBasicEddDetail(a, rows) {
+  // partOnly: skip the name/company/declaration rows (the combined survey adds them).
+  function renderBasicEddDetail(a, rows, partOnly) {
     var L = BASIC_EDD_LABELS;
-    rows.push(row(L.legalRepName, escapeHtml(a.legalRepName)));
-    rows.push(row(L.companyName, escapeHtml(a.companyName)));
+    if (!partOnly) {
+      rows.push(row(L.legalRepName, escapeHtml(a.legalRepName)));
+      rows.push(row(L.companyName, escapeHtml(a.companyName)));
+    }
     rows.push(row(L.cashShare, escapeHtml(a.cashShare)));
     rows.push(row(L.averageTicket, fmtTicket(a.averageTicket)));
     rows.push(row(L.channels, bulletList((a.channels || []).map(function (c) {
@@ -438,6 +442,7 @@
     });
     if (!a.ubos || !a.ubos.length) rows.push(row('—', ''));
 
+    if (partOnly) return;
     rows.push(row(L.oath, escapeHtml(a.declarationOath)));
     rows.push(row(L.pep, escapeHtml(a.declarationPep)));
   }
@@ -454,6 +459,26 @@
     oath: '7. Declaration under oath (information is true and accurate).',
     pep: '8. Declaration of not being a politically exposed person (PEP).'
   };
+
+  // ---- Basic + Advanced EDD: Basic 1–11, Advanced documents 12–15, declarations 16–17 ----
+  var FULL_EDD_LABELS = {
+    licenses: '12. Licenses, registrations or authorizations required for the economic activity',
+    padron: "13. Registration in SAT's Padrón de Actividades Vulnerables",
+    vaNotices: '13.1. Vulnerable Activity notices filed with SAT (last 3 months)',
+    taxReturn: '14. Latest annual tax return (or substitute information)',
+    photos: "15. Photos of the company's operation",
+    oath: '16. Declaration under oath (information is true and accurate).',
+    pep: '17. Declaration of not being a politically exposed person (PEP).'
+  };
+
+  function renderFullEddDetail(a, rows) {
+    rows.push(row(BASIC_EDD_LABELS.legalRepName, escapeHtml(a.legalRepName)));
+    rows.push(row(BASIC_EDD_LABELS.companyName, escapeHtml(a.companyName)));
+    renderBasicEddDetail(a, rows, true);
+    renderEddDetail(a, rows, FULL_EDD_LABELS, true);
+    rows.push(row(FULL_EDD_LABELS.oath, escapeHtml(a.declarationOath)));
+    rows.push(row(FULL_EDD_LABELS.pep, escapeHtml(a.declarationPep)));
+  }
 
   function fmtFileList(group) {
     var files = (group && group.files) || [];
@@ -476,10 +501,13 @@
     return '<div class="edd-thumbs">' + thumbs + '</div><div class="muted">' + files.length + ' photo(s)</div>';
   }
 
-  function renderEddDetail(a, rows) {
-    var L = EDD_LABELS;
-    rows.push(row(L.legalRepName, escapeHtml(a.legalRepName)));
-    rows.push(row(L.companyName, escapeHtml(a.companyName)));
+  // partOnly: only the document questions, with the labels L (the combined survey).
+  function renderEddDetail(a, rows, L, partOnly) {
+    L = L || EDD_LABELS;
+    if (!partOnly) {
+      rows.push(row(L.legalRepName, escapeHtml(a.legalRepName)));
+      rows.push(row(L.companyName, escapeHtml(a.companyName)));
+    }
 
     var lic = a.licenses || {};
     rows.push(row(L.licenses, lic.notRequired
@@ -497,6 +525,7 @@
 
     rows.push(row(L.taxReturn, fmtFileList(a.taxReturn)));
     rows.push(row(L.photos, fmtPhotos(a.photos)));
+    if (partOnly) return;
     rows.push(row(L.oath, escapeHtml(a.declarationOath)));
     rows.push(row(L.pep, escapeHtml(a.declarationPep)));
   }
@@ -679,9 +708,10 @@
     detailTbody.innerHTML = '';
     var rows = [];
 
-    if (isRegistrySurvey(type) || type === 'advanced_edd' || type === 'basic_edd') {
+    if (isRegistrySurvey(type) || type === 'advanced_edd' || type === 'basic_edd' || type === 'full_edd') {
       if (type === 'advanced_edd') renderEddDetail(a, rows);
       else if (type === 'basic_edd') renderBasicEddDetail(a, rows);
+      else if (type === 'full_edd') renderFullEddDetail(a, rows);
       else renderRegistryDetail(a, type, rows);
       rows.forEach(function (r) { detailTbody.appendChild(r); });
       appendSignatureRow(a);

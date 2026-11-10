@@ -725,7 +725,13 @@
   function applyTranslations(root) {
     root = root || document;
     var nodes = root.querySelectorAll('[data-i18n]');
-    for (var i = 0; i < nodes.length; i++) nodes[i].textContent = t(nodes[i].getAttribute('data-i18n'));
+    for (var i = 0; i < nodes.length; i++) {
+      var text = t(nodes[i].getAttribute('data-i18n'));
+      // data-qnum="13" turns "4. Title" into "13. Title" (a page that reorders questions).
+      var qnum = nodes[i].getAttribute('data-qnum');
+      if (qnum) text = text.replace(/^\d+(?:\.\d+)?\./, qnum + '.');
+      nodes[i].textContent = text;
+    }
     var htmlNodes = root.querySelectorAll('[data-i18n-html]');
     for (var j = 0; j < htmlNodes.length; j++) htmlNodes[j].innerHTML = t(htmlNodes[j].getAttribute('data-i18n-html'));
     var phNodes = root.querySelectorAll('[data-i18n-ph]');

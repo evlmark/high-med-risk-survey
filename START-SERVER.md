@@ -38,6 +38,7 @@ npm start
 - Компания старше 3 месяцев: **http://localhost:3333/existing-company.html**
 - Basic EDD: **http://localhost:3333/basic-edd.html**
 - Advanced EDD: **http://localhost:3333/advanced-edd.html**
+- Basic + Advanced EDD: **http://localhost:3333/full-edd.html**
 - Админка: **http://localhost:3333/admin.html** (пароль — значение `ADMIN_PASSWORD`)
 
 ## 5. Тесты

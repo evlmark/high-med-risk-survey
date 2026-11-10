@@ -106,6 +106,7 @@ const regAnswers = (extra) => Object.assign({
     ['/node_modules/express/package.json', 404], ['/index.html', 404],
     ['/test/smoke.js', 404], ['/advanced-edd.html', 200], ['/survey-edd.js', 200],
     ['/basic-edd.html', 200], ['/survey-basic-edd.js', 200], ['/countries.js', 200],
+    ['/full-edd.html', 200], ['/survey-full-edd.js', 200], ['/survey-edd-common.js', 200],
   ]) {
     const r = await fetch(BASE + p);
     check(`static ${p} -> ${want}`, r.status === want, `got ${r.status}`);
@@ -263,6 +264,21 @@ const regAnswers = (extra) => Object.assign({
   check('edd: not-required path stores only tax + photos', e2.status === 200 &&
     JSON.stringify(e2Fields) === JSON.stringify(['taxReturn[0]', 'photos[0]', 'photos[1]', 'photos[2]']), e2.status + ' ' + JSON.stringify(e2Fields));
 
+  // ---- Basic + Advanced EDD: Basic answers plus the Advanced documents ----
+  const fullAnswers = () => Object.assign(basicAnswers(), eddAnswers(), { companyName: 'Completa SA de CV' });
+  queries.length = 0;
+  const f1 = await post('/api/submit', { surveyType: 'full_edd', language: 'es', answers: fullAnswers() });
+  check('full edd: submit 200 without email', f1.status === 200, f1.status + ' ' + f1.body);
+  const fRows = queries.filter((q) => /INSERT INTO files/.test(q.sql)).map((q) => q.params[1]);
+  check('full edd: documents stored under their groups', fRows.length === 10 && fRows[0] === 'licenses[0]' && fRows[9] === 'photos[2]', JSON.stringify(fRows));
+  const fUpd = queries.filter((q) => /UPDATE submissions SET answers/.test(q.sql)).pop();
+  const fa = fUpd ? JSON.parse(fUpd.params[0]) : {};
+  check('full edd: basic answers kept, no base64 left', fUpd && !/fileBase64/.test(fUpd.params[0]) &&
+    fa.cashShare === '21% - 40%' && fa.ubos.length === 1 && fa.photos.files.every((f) => !!f.fileId), '');
+  const f2 = await post('/api/submit', { surveyType: 'full_edd', language: 'es', answers: Object.assign(fullAnswers(), {
+    taxReturn: { files: [doc('big.pdf', 7 * 1024 * 1024), doc('big.pdf', 7 * 1024 * 1024)] } }) }, '198.51.100.91');
+  check('full edd: ~20 MB body accepted', f2.status === 200, f2.status + ' ' + f2.body.slice(0, 80));
+
   // Body limits: 50 MB only for Advanced EDD, 15 MB for the rest, tiny elsewhere.
   const big = (n) => doc('big.pdf', n);
   const e3 = await post('/api/submit', { surveyType: 'advanced_edd', language: 'es', answers: eddAnswers({
@@ -374,6 +390,8 @@ const regAnswers = (extra) => Object.assign({
     ['basic_edd', { id: 8, survey_type: 'basic_edd', answers: basicAnswers() }],
     ['basic_edd empty', { id: 9, survey_type: 'basic_edd', answers: { legalRepName: 'X' } }],
     ['advanced_edd', { id: 6, survey_type: 'advanced_edd', answers: eddAnswers() }],
+    ['full_edd', { id: 10, survey_type: 'full_edd', answers: Object.assign(basicAnswers(), eddAnswers()) }],
+    ['full_edd empty', { id: 11, survey_type: 'full_edd', answers: { legalRepName: 'X' } }],
     ['advanced_edd not-required', { id: 7, survey_type: 'advanced_edd', answers: eddAnswers({ licenses: { notRequired: true, files: [] }, padron: { notRequired: true, explanation: 'n/a', files: [] }, vaNotices: null }) }],
     ['corrupt signature', { id: 5, survey_type: 'medium', answers: Object.assign(baseAnswers([]), { signature: 'data:image/png;base64,' + Buffer.from('not a png').toString('base64') }) }],
   ]) {

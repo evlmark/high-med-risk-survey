@@ -266,11 +266,25 @@ function buildEddRows(submission) {
   ];
 }
 
+// Basic + Advanced EDD: the Basic rows (1–11), the Advanced document rows renumbered
+// 12–15, then the declarations as 16–17 — the numbering the combined page shows.
+function buildFullEddRows(submission) {
+  const ADVANCED = { '3': '12', '4': '13', '4.1': '13.1', '5': '14', '6': '15' };
+  const basic = buildBasicEddRows(submission);
+  const advanced = buildEddRows(submission);
+  const declarations = basic.slice(-2).map(function (r, i) { return [r[0].replace(/^\d+\./, (16 + i) + '.'), r[1]]; });
+  const docs = advanced.slice(2, -2).map(function (r) {
+    return [r[0].replace(/^(\d+(?:\.\d+)?)\./, function (m, n) { return (ADVANCED[n] || n) + '.'; }), r[1]];
+  });
+  return basic.slice(0, -2).concat(docs, declarations);
+}
+
 function buildRows(submission) {
   const type = submission.survey_type;
   if (type === 'new_company' || type === 'existing_company') return buildRegistryRows(submission);
   if (type === 'advanced_edd') return buildEddRows(submission);
   if (type === 'basic_edd') return buildBasicEddRows(submission);
+  if (type === 'full_edd') return buildFullEddRows(submission);
   const a = submission.answers || {};
   const L = labelsFor(type);
   const rows = [];
@@ -319,6 +333,7 @@ function buildSubmissionPdf(submission) {
         existing_company: 'Company (registered more than 3 months ago)',
         basic_edd: 'Basic EDD ($250,000 - $1,000,000)',
         advanced_edd: 'Advanced EDD ($1,000,000 - $10,000,000)',
+        full_edd: 'Basic + Advanced EDD',
       };
       const type = TYPE_TITLES[submission.survey_type] || 'Medium Risk';
       const created = submission.created_at ? new Date(submission.created_at).toISOString().replace('T', ' ').slice(0, 19) + ' UTC' : '';

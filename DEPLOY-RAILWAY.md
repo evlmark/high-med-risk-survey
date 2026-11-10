@@ -61,6 +61,7 @@ git push -u origin main
 - **Компания старше 3 месяцев**: `https://<домен>/existing-company.html`
 - **Basic EDD ($250,000 – $1,000,000)**: `https://<домен>/basic-edd.html`
 - **Advanced EDD ($1,000,000 – $10,000,000)**: `https://<домен>/advanced-edd.html`
+- **Basic + Advanced EDD (обе анкеты в одной)**: `https://<домен>/full-edd.html`
 - **Админка** (только для тебя): `https://<домен>/admin.html` — вход по `ADMIN_PASSWORD`.
 
 Ссылки независимы: каждому клиенту отправляется своя. Все ответы стекаются в одну админку с фильтром по типу.
